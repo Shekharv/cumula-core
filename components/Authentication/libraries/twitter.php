@@ -71,7 +71,7 @@ class twitterAuthentication extends Authentication implements CumulaAuth
         
         $response = $this->twitterObjUnAuth->get('/account/verify_credentials.json');
         $this->response = $response->response;
-        $this->response['id'] = 'http://twitter.com/'.$this->response['screen_name'];
+        $this->response['id'] = sha1('http://twitter.com/'.$this->response['screen_name']);
         $this->success = TRUE;
       }
     } 
