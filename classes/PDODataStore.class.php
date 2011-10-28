@@ -1,5 +1,6 @@
 <?php
 namespace Cumula;
+use \PDO as PDO;
 
 require_once realpath(dirname(__FILE__) .'/BaseSqlDataStore.class.php');
 /**
@@ -63,8 +64,9 @@ abstract class PDODataStore extends BaseSqlDataStore
 	 * @param array $config Array of Configuration Options to be set
 	 * @return void
 	 **/
-	public function __construct(SimpleSchema $schema, array $config) 
+	public function __construct($schema, array $config)
 	{
+		parent::__construct($schema, $config);
 		$config['schema'] = $schema;
 		$this->configure($config);
 		$this->connect();

@@ -1,5 +1,6 @@
 <?php
-namespace Cumula;
+namespace MySQLDataStore;
+use \Cumula\PDODataStore as PDODataStore;
 require_once realpath(dirname(__FILE__) .'/../../classes/PDODataStore.class.php');
 
 /**
@@ -102,7 +103,7 @@ class MySQLDataStore extends PDODataStore
 
 			if (isset($args['primary']))
 			{
-					$new_args['primary'] = ' PRIMARY_KEY';
+					$new_args['primary'] = ' PRIMARY KEY';
 			}
 
 
@@ -121,7 +122,7 @@ class MySQLDataStore extends PDODataStore
 	 * @see core/interfaces/DataStore#create($obj)
 	 */
 	public function create($obj) {
-		$schemaName = $this->getSchema()->name;
+		$schemaName = $this->getSchema()->getName();
 		$keys = array();
 		$values = array();
 		foreach ($this->getSchema()->getFields() as $field => $args) 
