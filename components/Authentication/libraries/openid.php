@@ -17,7 +17,7 @@ class openidAuthentication extends Authentication implements CumulaAuth
    */
 	public function authenticate($params)
   {
-    $this->response['msg'] = 'No response.';
+    $this->response['msg'] = '';
     require 'lightopenid/openid.php';
     try 
     {
@@ -30,9 +30,11 @@ class openidAuthentication extends Authentication implements CumulaAuth
       } elseif($openid->mode == 'cancel') {
         $this->response['msg'] = 'User has canceled authentication!';
       } else {
-        $this->response['msg'] = 'User ' . ($openid->validate() ? $openid->identity . ' has ' : 'has not ') . 'logged in.';
-        $this->response['id'] = $openid->identity;
         $this->success = $openid->validate();
+        $this->response['id'] = $openid->identity;
+        $this->response['msg'] = 'User '.$this->response['id']; 
+        $this->response['msg'] .= ($this->success) ? ' has ' : 'has not ';
+        $this->response['msg'] .= 'logged in.';
       }
     } 
     catch(ErrorException $e) 
