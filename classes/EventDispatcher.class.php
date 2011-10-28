@@ -51,7 +51,7 @@ class EventDispatcher {
 	 * Has containing the Listeners
 	 * @var array
 	 **/
-	private static $eventHash = array();
+	protected static $eventHash = array();
 	
 	/**
 	 * Constructor.  Sets the default global $level to 0.
@@ -147,7 +147,7 @@ class EventDispatcher {
 			$callback = $function;
 		} 
 
-		$myClass = __CLASS__;
+		$myClass = get_class($this);
 		$absClass = Autoloader::absoluteClassName($class);
 		$myClass::addClassListenerHash($absClass, $event, $callback);
 		$myClass::instance()->dispatch('event_registered', array($absClass, $event));
@@ -337,7 +337,8 @@ class EventDispatcher {
 	 */
 	public static function instance() 
 	{
-		return self::$_instances;
+		$class = get_called_class();
+		return isset(self::$_instances[$class]) ? self::$_instances[$class] : FALSE;
 	}
 	
 	/**

@@ -73,7 +73,7 @@ class Cache extends \Cumula\BaseComponent
 		$instance = self::instance();
 		$instance->dispatch('cache_populate_datastores');
 		$cache = (array)$instance->getDataStore($bin)->query(array('cid' => $cacheName), array(), 1);
-		return isset($cache['data']) ? unserialize($cache['data']) : FALSE;
+		return isset($cache[0]['data']) ? unserialize($cache[0]['data']) : FALSE;
 	} // end function get
 
 	/**
