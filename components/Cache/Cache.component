@@ -87,16 +87,42 @@ class Cache extends \Cumula\BaseComponent
 	{
 		$options += array(
 			'bin' => 'cache',
-			'expire' => Cache::PERMANENT,
+			'expire' => '15 minutes',
 		);
 		$instance = self::instance();
 		$instance->dispatch('cache_populate_datastores');
+
+		if ($options['expire'] !== Cache::PERMANENT)
+		{
+			if (is_string($options['expire']))
+			{
+				$interval = \DateInterval::createFromDateString($options['expire']);
+				if (($interval instanceOf \DateInterval) == FALSE)
+				{
+					return;
+				}
+				$date = new \DateTime();
+				$expires = $date->add($interval)->getTimestamp();
+			}
+			elseif (is_int($options['expire']))
+			{
+				$expireObj = new \DateTime($options['expire']);
+				$expires = $expireObj->getTimestamp();
+				if ($expires != $options['expire']) {
+					return;
+				}
+			}
+		}
+		else
+		{
+			$expires = 0;
+		}
 
 		$dataStore = $instance->getDataStore($options['bin']);
 
 		$obj = $dataStore->newObj();
 		$obj->cid = $cacheName;
-		$obj->expire = $options['expire'];
+		$obj->expire = $expires;
 		$obj->created = microtime(TRUE);
 		$obj->data = serialize(str_replace(array("\n", "\r"), '', $value));
 

@@ -89,17 +89,22 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 	public function update($obj) {
 		$this->_log('BaseSQLDataStore::update called');
 		$idField = $this->getSchema()->getIdField();
-		if(!$this->recordExists($obj->$idField))
+		if (!$this->recordExists($obj->$idField)) 
+		{
 			return false;
+		}
 		$sql = "UPDATE {$this->getSchema()->getName()} SET ";
 		$fields = array();
-		foreach($this->getSchema()->getFields() as $field => $args) {
-			if(property_exists($obj, $field)) {
+		foreach ($this->getSchema()->getFields() as $field => $args) 
+		{
+			if (property_exists($obj, $field)) 
+			{
 				$fields[] = " $field=" . (is_numeric($obj->$field) ? $obj->$field : $this->escapeString($obj->$field));
 			}
 		}
 		$sql .= implode(", ", $fields);
-		$sql .= " WHERE {$idField}=".$obj->$idField.";";
+		$id = is_numeric($obj->$idField) ? $obj->$idField : $this->escapeString($obj->$idField);
+		$sql .= " WHERE {$idField}=". $id .";";
 		return $this->doExec($sql);
 	}
 
@@ -109,19 +114,26 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 	 * @param $obj
 	 * @return unknown_type
 	 */
-    public function createOrUpdate($obj) {
+	public function createOrUpdate($obj) 
+	{
 		$idField = $this->getSchema()->getIdField();
-		if(isset($obj->$idField) && $this->query($obj->$idField)) {
+		if (isset($obj->$idField) && $this->query(array($idField => $obj->$idField))) 
+		{
 			return $this->update($obj);
-        } else {
-            $create = $this->create($obj);
-            if($create) {
-                $id = $this->lastRowId();
-                return $id;
-            } else {
-                return FALSE;
-            }
-        }
+		} 
+		else 
+		{
+			$create = $this->create($obj);
+			if ($create) 
+			{
+				$id = $this->lastRowId();
+				return $id;
+			}
+			else 
+			{
+				return FALSE;
+			}
+		}
 	}
 
 	/* (non-PHPdoc)

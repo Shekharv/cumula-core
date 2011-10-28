@@ -60,24 +60,33 @@ class SqliteDataStore extends \Cumula\BaseSqlDataStore {
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#query($args, $order, $limit)
 	 */
-	public function query($args, $order = null, $limit = null) {
+	public function query($args, $order = null, $limit = null) 
+	{
 		$result = parent::query($args, $order, $limit);
 		$arr = array();
-		if(!$result)
+		if (!$result )
+		{
 			return false;
+		}
 		
-		while($res = $result->fetchArray(SQLITE3_ASSOC)) {
+		while ($res = $result->fetchArray(SQLITE3_ASSOC)) 
+		{
 			$arr[] = $res;
 		}
 		
-		if(count($arr) == 0)
+		if (count($arr) == 0)
+		{
 			return false;
+		}
 		else
+		{
 			return $arr;
+		}
 	}
 
 	public function recordExists($id) {
-		return $this->query($id);
+		$idField = $this->getSchema()->getIdField();
+		return $this->query(array($idField => $id));
 	}
 	
 	public function lastRowId() {
