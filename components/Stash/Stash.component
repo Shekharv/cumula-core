@@ -14,12 +14,6 @@ class Stash extends \Cumula\BaseComponent
 	 * Properties
 	 */
 	/**
-	 * Debug Constant
-	 * @var Boolean
-	 **/
-	const DEBUG = FALSE;
-
-	/**
 	 * Table of stashes and the callbacks to call to get the stash
 	 * @var array
 	 **/
@@ -204,60 +198,36 @@ class Stash extends \Cumula\BaseComponent
 		$url = substr($url, -1) == "/" ? substr($url, 0, -1) : $url;
 		if (!$url || $url == "")
 		{
-			if (self::DEBUG) {
-				var_dump('url empty');
-			}
 			return FALSE;
 		}
 
 		if (!($parts = @parse_url($url))) 
 		{
-			if (self::DEBUG) {
-				var_dump('parse_url failed');
-			}
 			return FALSE;
 		}
 		else 
 		{
 			if (!isset($parts['scheme']) || ($parts['scheme'] != "http" && $parts['scheme'] != "https" && $parts['scheme'] != "ftp" && $parts['scheme'] != "gopher" )) {
-				if (self::DEBUG) {
-					var_dump('wrong scheme');
-				}
 			 	return FALSE;
 			}
 			else if (!isset($parts['host']) || !preg_match( "@^[0-9a-zA-Z]([-.]?[0-9a-zA-Z])*.[a-zA-Z]{2,4}$@", $parts['host'], $regs)) 
 			{
-				if (self::DEBUG) {
-					var_dump('first preg_match');
-				}
 				return FALSE;
 			}
 			else if (isset($parts['user']) && !preg_match( "@^([0-9a-zA-Z-]|[_])*$@", $parts['user'], $regs)) 
 			{
-				if (self::DEBUG) {
-					var_dump('second preg_match');
-				}
 				return FALSE;
 			}
 			else if (isset($parts['pass']) && !preg_match( "@^([0-9a-zA-Z-]|[_])*$@", $parts['pass'], $regs)) 
 			{
-				if (self::DEBUG) {
-					var_dump('third preg_match');
-				}
 				return FALSE;
 			}
 			else if (isset($parts['path']) && !preg_match( "@^[0-9a-zA-Z/_.\@~-]*$@", $parts['path'], $regs)) 
 			{
-				if (self::DEBUG) {
-					var_dump('fourth preg_match');
-				}
 				return FALSE;
 			}
 			else if (isset($parts['query']) && !preg_match( "@^[0-9a-zA-Z?&=%#,_]*$@", $parts['query'], $regs)) 
 			{
-				if (self::DEBUG) {
-					var_dump('fifth preg_match', $parts['query']);
-				}
 				return FALSE;
 			}
 		}
