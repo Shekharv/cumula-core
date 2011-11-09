@@ -338,7 +338,11 @@ class EventDispatcher {
 	public static function instance() 
 	{
 		$class = get_called_class();
-		return isset(self::$_instances[$class]) ? self::$_instances[$class] : FALSE;
+		if (!isset(self::$_instances[$class]) || is_null(self::$_instances[$class]))
+		{
+			self::$_instances[$class] = new $class();
+		}
+		return self::$_instances[$class];
 	}
 	
 	/**
