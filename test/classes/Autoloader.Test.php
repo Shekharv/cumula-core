@@ -62,7 +62,7 @@ class Test_Autoloader extends Test_BaseTest
 
 		$this->assertEquals('Cumula\\Router', Autoloader::absoluteClassName('Router'));
 
-		Autoloader::getInstance()->registerClass('MyAutoloaderClass\\Router', __FILE__);
+		Autoloader::instance()->registerClass('MyAutoloaderClass\\Router', __FILE__);
 		$this->assertEquals('MyAutoloaderClass\\Router', Autoloader::absoluteClassName('Router'));
 	} // end function testAbsoluteClassName
 } // end class Test_Autoloader extends Test_BaseTest

@@ -17,7 +17,7 @@ class Test_Cache extends Test_BaseTest
 	public function setUp() 
 	{
 		parent::setUp();
-		\Cache\Cache::getInstance()->startup();
+		\Cache\Cache::instance()->startup();
 	} // end function setUp
 
 	/**
@@ -49,7 +49,7 @@ class Test_Cache extends Test_BaseTest
 		$dataStore = $this->getMockBuilder('Cumula\\BaseDataStore')
 			->setConstructorArgs(array($schema))
 			->getMock();
-		$cache = \Cache\Cache::getInstance();
+		$cache = \Cache\Cache::instance();
 		$cache->addDataStore('test', $dataStore);
 		$this->assertEquals($cache->dataStoreExists('test'), $dataStore);
 		$this->assertEquals($cache->getDataStore('test'), $dataStore);
