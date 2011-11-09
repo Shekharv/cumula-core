@@ -87,5 +87,9 @@ class Error extends EventDispatcher {
 	public function __construct() {
 		parent::__construct();
 		$this->addEvent('error_encountered');
+
+		register_shutdown_function(array($this, 'handleShutdown'));
+		set_exception_handler(array($this, 'handleException'));
+		set_error_handler(array($this, 'handleError'));
 	}
 }
