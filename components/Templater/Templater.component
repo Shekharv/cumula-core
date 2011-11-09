@@ -42,7 +42,6 @@ class Templater extends BaseComponent implements CumulaTemplater {
 		$this->addEventListener('templater_render', array(&$this, 'renderTemplate'));
 
 		$this->_template_dir = $this->config->getConfigValue('template_directory', ROOT.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'templates');
-		$this->_template_file = $this->config->getConfigValue('template_file', 'template.tpl.php');
 		$this->_output = '';
 		$this->_title = SystemConfig::instance()->getValue(SETTING_SITE_TITLE);
 	}
@@ -68,6 +67,11 @@ class Templater extends BaseComponent implements CumulaTemplater {
 	}
 	
 	public function getTemplateFile() {
+		if (is_null($this->_template_file))
+		{
+			$templateFile = $this->config->getConfigValue('template_file', 'template.tpl.php');
+			$this->setTemplateFile($templateFile[0][0]);
+		}
 		return $this->_template_file;
 	}
 	
@@ -114,7 +118,7 @@ class Templater extends BaseComponent implements CumulaTemplater {
 	
 	public function renderTemplate($event, $dispatcher, $args) {
 		$args = $this->_processArgs($args);
-		$fileName = $this->_template_dir.DIRECTORY_SEPARATOR.$this->_template_file;
+		$fileName = $this->_template_dir.DIRECTORY_SEPARATOR.$this->getTemplateFile();
 		$args['title'] = $this->_title;
 		$this->setOutput(\Cumula\Renderer::renderFile($fileName, $args));
 	}
