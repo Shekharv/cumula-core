@@ -35,7 +35,6 @@ class Devel extends BaseComponent {
 	 * @return unknown_type
 	 */
 	public function __construct() {
-		$this->addEventListenerTo('Cumula\\EventDispatcher', 'event_registered', 'registerPreAndPost');
 		parent::__construct();
 		
 		//Initialize the benchmarks container to an empty array.
@@ -96,6 +95,7 @@ class Devel extends BaseComponent {
 	 */
 	public function startup() 
 	{
+		$this->addEventListenerTo('Cumula\\EventDispatcher', 'event_registered', 'registerPreAndPost');
 		$components = ComponentManager::instance()->getEnabledComponents();
 		foreach($components as $component) 
 		{
