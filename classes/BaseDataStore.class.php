@@ -1,4 +1,5 @@
 <?php
+namespace Cumula;
 /**
  * Cumula
  *
@@ -11,6 +12,8 @@
  * @copyright  2011 Seabourne Consulting
  * @link       http://cumula.org
  */
+
+require_once realpath(dirname(__FILE__) .'/Exception/DataStoreException.class.php');
 
 /**
  * BaseDataStore Class
@@ -27,13 +30,25 @@
 abstract class BaseDataStore extends EventDispatcher {
 	protected $_schema;
 	protected $_connected = false;
+
+	/**
+	 * Constants
+	 */
+	const FIELD_TYPE_STRING = 'string';
+	const FIELD_TYPE_INTEGER = 'integer';
+	const FIELD_TYPE_FLOAT = 'float';
+	const FIELD_TYPE_BOOL = 'boolean';
+	const FIELD_TYPE_TEXT = 'text';
+	const FIELD_TYPE_DATETIME = 'datetime';
+	const FIELD_TYPE_BLOB = 'blob';
+
 	
 	/**
 	 * Constructor
 	 * 
 	 * @return unknown_type
 	 */
-	public function __construct(CumulaSchema $schema, $configValues = array()) {
+	public function __construct(CumulaSchema $schema, array $configValues = array()) {
 		parent::__construct();
 		$this->setSchema($schema);
 	}
@@ -48,7 +63,7 @@ abstract class BaseDataStore extends EventDispatcher {
 	
 	abstract public function destroy($obj);
 	
-	abstract public function query($args, $sort = null, $order = null);
+	abstract public function query($args, $order = array(), $limit = array());
 	
 	abstract public function install();
 	
@@ -63,6 +78,10 @@ abstract class BaseDataStore extends EventDispatcher {
 	abstract public function disconnect();
 	
 	abstract public function lastRowId();
+	
+	public function newObj() {
+		return $this->getSchema()->getObjInstance();
+	}
 	
 	/**
 	 * Sets the schema for use by the datastore.
@@ -115,5 +134,20 @@ abstract class BaseDataStore extends EventDispatcher {
 	 */
 	protected function _arrayToString(array $arr) {
 		return implode(" ", $arr);
+	}
+	
+	protected function _getIdValue($obj) {
+		$idField = $this->getSchema()->getIdField();
+		return $obj->$idField;	
+	}
+	
+	protected function _getNonIdValues($obj) {
+		$idField = $this->_schema->getIdField();
+		$ret = array();
+		foreach((array)$obj as $key => $value) {
+			if($key != $idField)
+				$ret[$key] = $value;
+		}
+		return $ret;
 	}
 }

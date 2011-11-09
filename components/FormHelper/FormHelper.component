@@ -1,4 +1,9 @@
 <?php
+namespace FormHelper;
+
+use Cumula\BaseComponent as BaseComponent;
+use Cumula\SimpleSchema as SimpleSchema;
+
 /**
  * Cumula
  *
@@ -29,7 +34,10 @@ class FormHelper extends BaseComponent {
 	public function __construct() {
 		parent::__construct();
 		$ds = $this->defaultDataStore();
-		$schema = new SimpleSchema('form_ids');
+		$schema = new SimpleSchema(array('id' => 'string',
+									 'value' => 'string'), 
+								   'id', 
+								   'config');
 		$this->_dataStore = new $ds($schema, array('source_directory' => DATAROOT, 'filename' => 'data.yaml'));
 		self::$_formId = '';
 	}
@@ -37,15 +45,16 @@ class FormHelper extends BaseComponent {
 	public function startup() {
 		$this->_dataStore->connect();
 		//Is a form submission
-		$this->addEventListenerTo('Application', BOOT_PREPROCESS, 'formCheck');
+		$this->addEventListenerTo('Application', 'boot_preprocess', 'formCheck');
 	}
 	
 	public function formCheck($event, $dispatcher, $request, $response) {
 		if(array_key_exists('validate_id', $request->params)) {
+			$this->_logInfo("params is ", $request->params);
 			$id = $request->params['validate_id'];
 			$key = $request->params['validate_value'];
 			//Check id:key is valid and matches saved version
-			$check_key = $this->_dataStore->query($id);
+			$check_key = $this->_dataStore->query(array('id' => $id));
 			//If key is not valid, return 
 			if($key != $check_key) {
 				$response->send405();
@@ -61,7 +70,10 @@ class FormHelper extends BaseComponent {
 		if(!array_key_exists('validate', $options) || $options['validate'] == true) {
 			$idHash = md5(session_id().$action);
 			$valHash = md5((string)microtime(true).(string)rand(0, 1000));
-			$this->_dataStore->create(array($idHash => $valHash));
+			$obj = $this->_dataStore->newObj();
+			$obj->id = $idHash;
+			$obj->value = $valHash;
+			$this->_dataStore->create($obj);
 			$output .= '<input type="hidden" name="validate_id" value="'.$idHash.'">';
 			$output .= '<input type="hidden" name="validate_value" value="'.$valHash.'">';
 		}
@@ -77,8 +89,9 @@ class FormHelper extends BaseComponent {
 		foreach($attrs as $key => $val) {
 			$attributes .= $key.'="'.$val.'" ';
 		}
-		$for = self::$_formId.'-'.strtolower($for);
-		return $output = '<label for="'. $for .'" '. $attributes .'>'.$label.'</label>';
+
+		$for = (self::$_formId ? self::$_formId .'-' : '') . strtolower($for);
+		return sprintf('<label for="%s" %s>%s</label>', $for, $attributes, $label);
 	}
 	
 	public function textFieldTag($name, $value = null, $options = array()) {
@@ -143,7 +156,12 @@ class FormHelper extends BaseComponent {
 	}
 	
 	protected function _buildTag($type, $name, $value, $attrs) {
-		$id = self::$_formId.'-'.str_ireplace('[]', '', $name);
+		if (!isset($attrs['id'])) {
+			$id = (self::$_formId ? self::$_formId .'-' : '') . str_ireplace('[]', '', $name);
+		}
+		else {
+			$id = $attrs['id'];
+		}
 		//if($value)
 		//	$id .= "-".strtolower($value);
 		$output = "<input id=\"$id\" type=\"$type\" name=\"$name\" value=\"$value\" ";
@@ -153,4 +171,17 @@ class FormHelper extends BaseComponent {
 		$output .= ">";
 		return $output;
 	}
+  /**
+   * Implementation of the getInfo method
+   * @param void
+   * @return array
+   **/
+  public static function getInfo() {
+    return array(
+      'name' => 'Cumula Form Helper',
+      'description' => 'Helper Component for creating, protecting, and sanitizing forms',
+      'version' => '0.1.0',
+      'dependencies' => array(),
+    );
+  } // end function getInfo
 }

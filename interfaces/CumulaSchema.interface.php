@@ -1,4 +1,5 @@
 <?php
+namespace Cumula;
 /**
  * Cumula
  *
@@ -37,4 +38,6 @@ interface CumulaSchema {
 	public function getIdField();
 	
 	public function setIdField($idField);
+	
+	public function getObjInstance();
 }      

@@ -1,4 +1,6 @@
 <?php
+namespace Logger;
+use Cumula\BaseDataStore as BaseDataStore;
 //TODO: Figure out what todo with this, whether to keep it.
 /**
  * Cumula

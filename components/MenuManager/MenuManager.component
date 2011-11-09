@@ -1,4 +1,7 @@
 <?php
+namespace MenuManager;
+use Cumula\BaseComponent as BaseComponent;
+use Cumula\Application as Application;
 /**
  * Cumula
  *
@@ -32,7 +35,7 @@ class MenuManager extends BaseComponent {
 		
 		$this->_menus = array();
 		
-		Application::getInstance()->addEventListener(BOOT_POSTPROCESS, array(&$this, 'renderMenus'));
+		$this->addEventListenerTo('Application', 'boot_postprocess', array(&$this, 'renderMenus'));
 	}
 
 	//Item should be an array defining an itemTitle and itemPath
@@ -49,10 +52,9 @@ class MenuManager extends BaseComponent {
 	}
 	
 	public function renderMenus($event) {
-		$this->dispatch(MENUMANAGER_COLLECT_MENUS);
-		
+		$this->dispatch('menu_collect_menus');
 		foreach($this->_menus as $menuId => $menu) {
-			$block = new ContentBlock();
+			$block = new \ContentBlock\ContentBlock();
 			$block->content = $this->_renderMenu($menu);
 			$block->data['variable_name'] = $menu->menuId;
 			$this->addOutputBlock($block);
@@ -87,4 +89,17 @@ class MenuManager extends BaseComponent {
 		$this->_menus[] =& $menu;
 		return $menu;
 	}	
+  /**
+   * Implementation of the getInfo method
+   * @param void
+   * @return array
+   **/
+  public static function getInfo() {
+    return array(
+      'name' => 'Menu Manager Component',
+      'description' => 'Cumula Component that manages menus',
+      'version' => '0.1.0',
+      'dependencies' => array(),
+    );
+  } // end function getInfo
 }

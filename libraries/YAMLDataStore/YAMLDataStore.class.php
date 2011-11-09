@@ -1,4 +1,5 @@
 <?php
+namespace YAMLDataStore;
 /**
  * Cumula
  *
@@ -26,7 +27,7 @@ require_once dirname(__FILE__) . '/includes/sfYamlParser.php';
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class YAMLDataStore extends BaseDataStore {
+class YAMLDataStore extends \Cumula\BaseDataStore {
 	private $_storage;
 	private $_sourceDirectory;
 	private $_filename;
@@ -39,11 +40,12 @@ class YAMLDataStore extends BaseDataStore {
 	 * @param $config_values
 	 * @return unknown_type
 	 */
-	public function __construct(CumulaSchema $schema, $configValues) {
+	public function __construct(\Cumula\CumulaSchema $schema, $configValues) {
 		parent::__construct($schema, $configValues);
 		$this->_storage = array();
 		$this->_sourceDirectory = $configValues['source_directory'];
 		$this->_filename = $configValues['filename'];
+		$this->connect();
 	}
 	
 	/* (non-PHPdoc)
@@ -60,24 +62,34 @@ class YAMLDataStore extends BaseDataStore {
 		$this->_save();
 	}
 	
+	public function create($obj) {
+		$this->_createOrUpdate($obj);
+	}
+	
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#create($obj)
 	 */
-	public function create($obj) {
-		foreach($obj as $key => $value) {
-			$this->_storage[$key] = $value;
+	protected function _createOrUpdate($obj) {
+		$idField = $this->_schema->getIdField();
+		$key = $this->_getIdValue($obj);
+		//If object is a simple key/value (count == 2), set the value to be the remaining attribute, otherwise set the object as the value
+		if(count((array)$obj) == 2) {
+			foreach($obj as $k => $value) {
+				if($k != $idField)
+					$this->_storage[$key] = $value;
+			}
+		} else {
+			unset($obj->$idField);
+			$this->_storage[$key] = $obj;
 		}
-		$this->_save();
+		return $this->_save();
 	}
 	
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#update($obj)
 	 */
 	public function update($obj) {
-		foreach($obj as $key => $value) {
-			$this->_storage[$key] = $value;
-		}
-		$this->_save();
+		$this->_createOrUpdate($obj);
 	}
 	
 	/**
@@ -87,13 +99,7 @@ class YAMLDataStore extends BaseDataStore {
 	 * @return unknown_type
 	 */
 	public function createOrUpdate($obj) {
-		foreach($obj as $key => $value) {
-			if ($this->recordExists($key)) {
-				$this->update($obj);
-			} else {
-				$this->create($obj);
-			}
-		}
+		return $this->_createOrUpdate($obj);
 	}
 	
 	/* (non-PHPdoc)
@@ -101,32 +107,43 @@ class YAMLDataStore extends BaseDataStore {
 	 */
 	public function destroy($obj) {
 		if(is_string($obj)) {
+			//if Obj is an ID (string), unset the entire record
 			if ($this->recordExists($obj)) {
 				unset($this->_storage[$obj]);
 			}
 		} else {
-			foreach($obj as $key => $value) {
-				unset($this->_storage[$key]);
-			}
+			//if obj is an object, unset the object based on the passed id
+			$key = $this->_getIdValue($obj);
+			unset($this->_storage[$key]);
 			$this->_save();
 		}
 	}
 	
 	/* (non-PHPdoc)
-	 * @see core/interfaces/DataStore#query($args, $order, $sort)
+	 * @see core/interfaces/DataStore#query($args, $order, $limit)
 	 */
-	public function query($args, $order = null, $sort = null) {
+	public function query($args, $order = null, $limit = null) {
+		$idField = $this->getSchema()->getIdField();
+		if (is_array($args) && isset($args[$idField])) {
+			$args = $args[$idField];
+		}
+
 		if ($this->recordExists($args)) {
-			$obj = $this->_storage[$args];
+			$obj = (array)$this->_storage[$args];
 		} else {
 			$obj = null;
 		}
-		return $obj;
+		return array($obj);
 	}
 	
 	public function recordExists($id) {
 		if(!isset($this->_storage))
 			return false;
+
+		$idField = $this->getSchema()->getIdField();
+		if (is_array($id) && isset($id[$idField])) {
+			$id = $id[$idField];
+		}
 		return array_key_exists($id, $this->_storage);
 	}
 	
@@ -136,9 +153,9 @@ class YAMLDataStore extends BaseDataStore {
 	 */
 	protected function _save() {
 		if(!empty($this->_storage)) {
-			$dumper = new sfYamlDumper();
+			$dumper = new \sfYamlDumper();
 			$yaml = $dumper->dump($this->_storage, 2);
-			file_put_contents($this->_dataStoreFile(), $yaml);
+			return file_put_contents($this->_dataStoreFile(), $yaml);
 		}
 	}
 	
@@ -169,9 +186,8 @@ class YAMLDataStore extends BaseDataStore {
 	 */
 	protected function _load() {
 		if (file_exists($this->_dataStoreFile())) {
-			$yaml = new sfYamlParser();
+			$yaml = new \sfYamlParser();
 			$this->_storage = $yaml->parse(file_get_contents($this->_dataStoreFile()));
-			//$this->_storage = Spyc::YAMLLoadString(file_get_contents($this->_dataStoreFile()));
 			return true;
 		} else {
 			return false;

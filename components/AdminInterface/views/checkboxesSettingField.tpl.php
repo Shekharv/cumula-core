@@ -1,7 +1,6 @@
 <?php
-$x = 0;
-foreach($setting['values'] as $option) {
-	$label = ((count($setting['labels']) > $x) ? $setting['labels'][$x] : 'None');
+foreach($setting['values'] as $key => $option) {
+	$label = $setting['labels'][$key];
 	if(isset($setting['selected'])) {
 		$selected = in_array($option, $setting['selected']);
 	} else {
@@ -14,5 +13,5 @@ foreach($setting['values'] as $option) {
 		echo $this->fh->labelFor($label, $setting['name'].'-'.$option, array('class' => 'checkbox'));
 	?>
 	</div>
-	<?php $x++; } 
+	<?php } 
 ?>

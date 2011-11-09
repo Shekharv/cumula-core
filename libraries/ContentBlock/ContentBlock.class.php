@@ -1,4 +1,5 @@
 <?php
+namespace ContentBlock;
 /**
  * Cumula
  *
@@ -21,9 +22,9 @@
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class ContentBlock extends EventDispatcher {
+class ContentBlock extends \Cumula\EventDispatcher {
 	public $data;
-	public $content;
+	public $content = '';
 	
 	public function __construct() {
 		parent::__construct();

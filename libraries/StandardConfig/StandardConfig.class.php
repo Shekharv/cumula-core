@@ -1,4 +1,5 @@
 <?php
+namespace StandardConfig;
 /**
  * Cumula
  *
@@ -21,7 +22,7 @@
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class StandardConfig implements CumulaConfig {
+class StandardConfig implements \Cumula\CumulaConfig {
 	private $_dataStore;
 	
 	/**
@@ -33,9 +34,11 @@ class StandardConfig implements CumulaConfig {
 	 */
 	public function __construct($source_directory, $source_file) {
 		global $App;
-		$schema = new SimpleSchema('id', array('id' => 'integer',
-					 'value' => 'string'));
-		$this->_dataStore = new YAMLDataStore($schema, array('source_directory' => $source_directory, 'filename' => $source_file));
+		$schema = new \Cumula\SimpleSchema(array('id' => 'string',
+					 					 'value' => 'string'), 
+								   'id', 
+								   'config');
+		$this->_dataStore = new \YAMLDataStore\YAMLDataStore($schema, array('source_directory' => $source_directory, 'filename' => $source_file));
 		$this->_dataStore->connect();
 	}
 	
@@ -54,7 +57,7 @@ class StandardConfig implements CumulaConfig {
 	public function getConfigValue($config, $default = null) {
 		//$obj = null;
 		$obj = $this->_dataStore->query($config);
-		if (isset($obj)) {
+		if (isset($obj) && !is_null($obj[0])) {
 			return $obj;
 		} else {
 			return $default;
@@ -65,7 +68,9 @@ class StandardConfig implements CumulaConfig {
 	 * @see core/interfaces/CumulaConfig#setConfigValue($config, $value)
 	 */
 	public function setConfigValue($config, $value) {
-		$obj = array($config => $value);
+		$obj = $this->_dataStore->newObj();
+		$obj->id = $config;
+		$obj->value = $value;
 		$this->_dataStore->createOrUpdate($obj);
 	}
 	

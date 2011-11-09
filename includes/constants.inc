@@ -6,19 +6,19 @@
  */
 
 const SETTING_COMPONENT_MANAGER = 'component_manager';
-const DEFAULT_COMPONENT_MANAGER_CLASS = 'ComponentManager';
+const DEFAULT_COMPONENT_MANAGER_CLASS = 'Cumula\\ComponentManager';
 
 const SETTING_TEMPLATER = 'default_templater';
-const DEFAULT_TEMPLATER_CLASS = 'Templater';
+const DEFAULT_TEMPLATER_CLASS = 'Cumula\\Templater';
 
 const SETTING_ROUTER = 'default_router';
-const DEFAULT_ROUTER_CLASS = 'Router';
+const DEFAULT_ROUTER_CLASS = 'Cumula\\Router';
 
 const SETTING_DEFAULT_DATASTORE = 'default_datastore';
-const DEFAULT_DATASTORE_CLASS = 'YAMLDataStore';
+const DEFAULT_DATASTORE_CLASS = 'YAMLDataStore\\YAMLDataStore';
 
 const SETTING_DEFAULT_CONFIG = 'default_config';
-const DEFAULT_CONFIG_CLASS = 'StandardConfig';
+const DEFAULT_CONFIG_CLASS = 'StandardConfig\\StandardConfig';
 
 const SETTING_DEFAULT_BASE_PATH = 'default_base_path';
 const DEFAULT_SITE_BASE_PATH = '/index.php';

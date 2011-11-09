@@ -1,4 +1,5 @@
 <?php
+namespace Cumula;
 /**
  * Cumula
  *
@@ -45,113 +46,18 @@ abstract class BaseComponent extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function __construct() {
-		$this->_registerEvents();
 		parent::__construct();
 		$this->_output = array();
-		$this->config = new StandardConfig(ROOT.'/config', get_class($this).'.yaml');
+		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, get_class($this).'.yaml');
 		
-		@$this->addEventListenerTo('ComponentManager', COMPONENT_STARTUP_COMPLETE, 'startup');
-		$this->addEventListenerTo('Application', BOOT_SHUTDOWN, 'shutdown');
+		$this->addEventListenerTo('ComponentManager', 'component_startup_complete', 'startup');
+		$this->addEventListenerTo('Application', 'boot_shutdown', 'shutdown');
+	}
+	
 
-		$this->addEvent(EVENT_LOGGED);
-	}
-
-	
-	/**
-	 * Registers any constant defined in an 'events.inc' file in the component directory.
-	 * 
-	 * @return unknown_type
-	 */
-	protected function _registerEvents() {
-		if(file_exists(static::rootDirectory() . '/events.inc')) {
-			//Grab current consts
-			$prev_consts = get_defined_constants(true);
-			$prev_consts = $prev_consts['user'];
-			
-			//Pull in the consts defined in events.inc
-			require_once static::rootDirectory() . '/events.inc';
-			
-			//Grab all defined consts plus new events in the current user space
-			$new_consts = get_defined_constants(true);
-			$new_consts = $new_consts['user'];
-			
-			//Find only the new consts added
-			$consts = array_diff_assoc($new_consts, $prev_consts);
-			
-			//Iterate through and automatically register all new events
-			foreach($consts as $name => $const) {
-				$this->addEvent($const);
-			}
-		}
-	}
-	
-	/**********************************************
-	* Logging Functions
-	***********************************************/
-	
-	/**
-	 * @param $message
-	 * @param $args
-	 * @return unknown_type
-	 */
-	protected function _logInfo($message, $args = null) {
-		$this->_logMessage(LOG_LEVEL_INFO, $message, $args);
-	}
-	
-	/**
-	 * @param $message
-	 * @param $args
-	 * @return unknown_type
-	 */
-	protected function _logDebug($message, $args = null) {
-		$this->_logMessage(LOG_LEVEL_DEBUG, $message, $args);
-	}
-
-	/**
-	 * @param $message
-	 * @param $args
-	 * @return unknown_type
-	 */
-	protected function _logError($message, $args = null) {
-		$this->_logMessage(LOG_LEVEL_ERROR, $message, $args);
-	}
-	
-	/**
-	 * @param $message
-	 * @param $args
-	 * @return unknown_type
-	 */
-	protected function _logWarning($message, $args = null) {
-		$this->_logMessage(LOG_LEVEL_WARN, $message, $args);
-	}
-	
-	/**
-	 * @param $message
-	 * @param $args
-	 * @return unknown_type
-	 */
-	protected function _logFatal($message, $args = null) {
-		$this->_logMessage(LOG_LEVEL_FATAL, $message, $args);
-	}
-	
-	/**
-	 * @param $logLevel
-	 * @param $message
-	 * @param $other_args
-	 * @return unknown_type
-	 */
-	protected function _logMessage($logLevel, $message, $other_args = null) {
-		$className = get_called_class();
-		$timestamp = date("r");
-		$message = "$timestamp $className: $message";
-		$args = array($logLevel, $message, $other_args);
-		$this->dispatch(EVENT_LOGGED, $args);
-	}
-	
 	/**********************************************
 	* Component Callback Functions
 	***********************************************/
-	
 	/**
 	 * Run once when the module is first installed.
 	 * 
@@ -196,7 +102,6 @@ abstract class BaseComponent extends EventDispatcher {
 		
 	}
 	
-	
 	/**
 	 * Placeholder function.  Should be overridden in client implementations to do anything.
 	 * 
@@ -215,10 +120,60 @@ abstract class BaseComponent extends EventDispatcher {
 		
 	}
 	
+
+	/**
+	 * Static method to provide information to the system aobut themselves
+	 * @param void
+	 * @return array
+	 **/
+	public static function getInfo() 
+	{
+		$class = get_class($this);
+		throw new \Exception(sprintf('%s needs  to implement getInfo itself', $class));
+	} // end function getInfo
+
+	/**********************************************
+	* Miscellaneous Installation Functions
+	***********************************************/
+	/**
+	 * Install the assets for the module in the public directory
+	 * @param void
+	 * @return void
+	 **/
+	public function installAssets() {
+		$class = get_class($this);
+		if (stripos($class, '\\'))
+		{
+			$classExploded = explode('\\', $class);
+			$class = $classExploded[1];
+		}
+
+		$files = glob(sprintf('{%s/%s/assets,%s/%s/assets}', COMPROOT, $class, CONTRIBCOMPROOT, $class), GLOB_BRACE | GLOB_NOSORT);
+		if (is_array($files) && count($files) > 0)
+		{
+			$assetDir = implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', 'assets'));
+			if (is_dir($assetDir) === FALSE) {
+				mkdir($assetDir);
+			} else {
+				if($sc = \I('SystemConfig')){
+					if($sc->getValue('setting_environment', false) != 'development')
+						return;
+				}
+			}
+
+			$componentPublicAssetDir = $assetDir . DIRECTORY_SEPARATOR . $class;
+			if (is_dir($componentPublicAssetDir) === FALSE) {
+				mkdir($componentPublicAssetDir);
+			}
+			foreach ($files as $componentAssetDir) {
+				$this->copyAssetFiles($componentAssetDir, $componentPublicAssetDir);
+			}
+		}
+	} // end function installAssets
+
 	/**********************************************
 	* Rendering Functions
 	***********************************************/
-	
 	/**
 	 * Renders a specific filename, or a view with the filename matching the original function.  The 
 	 * rendered content is sent to the templater as a block using the $var_name param.
@@ -258,12 +213,11 @@ abstract class BaseComponent extends EventDispatcher {
 	 * 
 	 */
 	public function renderContent($content, $var_name = 'content') {
-		$block = new ContentBlock();
+		$block = new \ContentBlock\ContentBlock();
 		$block->content = $content;
 		$block->data['variable_name'] = $var_name;
 		$this->addOutputBlock($block);
 	}
-	
 	
 	/**
 	 * @param $event
@@ -283,18 +237,22 @@ abstract class BaseComponent extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function addOutputBlock($block) {
+		$response = Response::instance();
 		
-		if(empty(Application::getResponse()->response['data'][$block->data['variable_name']]))
-			Application::getResponse()->response['data'][$block->data['variable_name']] = array($block);
-		else {
-			Application::getResponse()->response['data'][$block->data['variable_name']][] = $block;
+		if(empty($response->response['data'][$block->data['variable_name']]))
+		{
+			$response->response['data'][$block->data['variable_name']] = array($block);
+		}
+		else 
+		{
+			$response->response['data'][$block->data['variable_name']][] = $block;
 		}
 	}
 	
+
 	/**********************************************
 	* Utility Functions
 	***********************************************/
-	
 	/**
 	 * Convenience function to return the LSB instance.
 	 * 
@@ -304,13 +262,12 @@ abstract class BaseComponent extends EventDispatcher {
 		return $this;
 	}
 	
-	
 	/**
 	 * Returns the filepath of the basecomponent instance.
 	 * 
 	 */
 	protected function _getThisFile() {
-		$ref = new ReflectionClass(static::_getThis());
+		$ref = new \ReflectionClass(static::_getThis());
 		return $ref->getFileName();
 	}
 	
@@ -321,7 +278,7 @@ abstract class BaseComponent extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function redirectTo($url) {
-		Application::getResponse()->send302($url);
+		Response::instance()->send302($this->completeUrl($url));
 	}
 	
 	/**
@@ -331,8 +288,7 @@ abstract class BaseComponent extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function completeUrl($url) {
-		$session = Application::getSystemConfig();
-		$base = $session->getValue(SETTING_DEFAULT_BASE_PATH);
+		$base = SystemConfig::instance()->getValue(SETTING_DEFAULT_BASE_PATH);
 		return ($base == '/') ? $url : $base.$url;
 	}
 	
@@ -342,7 +298,8 @@ abstract class BaseComponent extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function defaultDataStore() {
-		return Application::getSystemConfig()->getValue(SETTING_DEFAULT_DATASTORE);
+		$store = SystemConfig::instance()->getValue('default_datastore', 'YAMLDataStore\\YAMLDataStore');
+		return $store[0][0];
 	}
 	
 	public function linkTo($title, $url, $args = array()) {
@@ -360,7 +317,32 @@ abstract class BaseComponent extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function rootDirectory() {
-		$class = new ReflectionClass(get_class($this));
+		$class = new \ReflectionClass(get_class($this));
 		return dirname($class->getFileName());	
 	}
+	/**
+	 * Recursive function to re-create the filestructure in the
+	 * component's asset directory in the public asset directory
+	 * @param string $source
+	 * @param string $destination
+	 * @return void
+	 **/
+	private function copyAssetFiles($source, $destination) {
+		if (is_dir($source)) {
+			// Find all of the files in the directory and create directories
+			// for the subdirectories
+			foreach(glob($source .'/*', GLOB_NOSORT) as $file) {
+				$dirname = basename($file);
+				$newDestination = $destination . DIRECTORY_SEPARATOR . $dirname;
+				if (is_dir($file) && is_dir($newDestination) === FALSE) {
+					mkdir($newDestination, 0777, TRUE);
+				}
+				$this->copyAssetFiles($file, $newDestination);
+			}
+		}
+		else {
+			// Copy the file to the public assets directory
+			copy($source, $destination);
+		}
+	} // end function copyAssetFiles
 }

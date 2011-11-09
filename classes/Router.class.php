@@ -1,4 +1,6 @@
 <?php
+namespace Cumula;
+use Templater\Templater as Templater;
 /**
  * Cumula
  *
@@ -22,70 +24,97 @@
  * @subpackage	Router
  * @author     Seabourne Consulting
  */
-class Router extends BaseComponent {
-	private $_routes;
+class Router extends BaseComponent 
+{
 
+	// Stores all routes registered with the application
 	protected $_collectedRoutes = array();
 
-	private $_routeStorage;
-
-	public function __construct() {
+	public function __construct() 
+	{
 		parent::__construct();
 
 		$this->_routes = array();
-		$this->addEvent(ROUTER_COLLECT_ROUTES);
-		$this->addEvent(ROUTER_FILE_NOT_FOUND);
-		$this->addEvent(ROUTER_ADD_ROUTE);
+		$this->addEvent('router_collect_routes');
+		$this->addEvent('router_file_not_found');
+		$this->addEvent('router_add_route');
 
-		Application::getInstance()->addEventListener(BOOT_PREPROCESS, array(&$this, 'collectRoutes'));
-		Application::getInstance()->addEventListener(BOOT_PROCESS, array(&$this, 'processRoute'));
-		$this->addEventListener(ROUTER_FILE_NOT_FOUND, array(&$this, 'filenotfound'));
-
-		//$this->_routeStorage = new YAMLDataStore(array('source_directory' => dirname(__FILE__), 'filename' => 'routes.yml'));
+		$this->addEventListenerTo('Application', 'boot_preprocess', array(&$this, 'collectRoutes'));
+		$this->addEventListenerTo('Application', 'boot_process', array(&$this, 'processRoute'));
+		$this->addEventListener('router_file_not_found', array(&$this, 'filenotfound'));
 	}
 
-	public function filenotfound($event, $dispatcher, $request, $response) {
+	public function filenotfound($event, $dispatcher, $request, $response) 
+	{
 		//TODO: do something more smart here
-		$fileName = Application::getTemplater()->config->getConfigValue('template_directory', TEMPLATEROOT).'404.tpl.php';
+		$fileName = Templater::instance()->config->getConfigValue('template_directory', TEMPLATEROOT).'404.tpl.php';
 		$this->render($fileName);
-		$response->response['content'] = $this->renderPartial(ROOT.'/404.html');
+		$response->response['content'] = $this->renderPartial(implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', '404.html')));
 		$response->send404();
 	}
 
-	public function addRoutes($routes) {
-		$this->_collectedRoutes = array_merge($this->_collectedRoutes, $routes);
+	public function addRoutes($routes) 
+	{
+		if(is_array($routes))
+		{
+			$this->_collectedRoutes = array_merge($this->_collectedRoutes, $routes);
+		}
+	}
+	
+	public function setRoutes($routes) 
+	{
+		$this->_collectedRoutes = $routes;
+	}
+	
+	public function getRoutes() 
+	{
+		return $this->_collectedRoutes;
 	}
 
-	public function collectRoutes($event) {
-		$this->dispatch(ROUTER_COLLECT_ROUTES);
+	public function collectRoutes($event) 
+	{
+		$this->dispatch('router_collect_routes', array(), 'addRoutes');
 		$routes = $this->_collectedRoutes;
-		if(!$routes)
+
+		if (!$routes)
+		{
 			return;
-		foreach($routes as $route => $return) {
-			if(is_array($return[0])) {
+		}
+
+		foreach ($routes as $route => $return) 
+		{
+			if (is_array($return[0])) 
+			{
 				$handler = $return[0];
 				$args = !empty($return[1]) ? $return[1] : array();
-			} else {
+			} 
+			else 
+			{
 				$handler = $return;
 				$args = array();
 			}
-			$this->dispatch(ROUTER_ADD_ROUTE, array($route, $handler, $args));
+			$this->dispatch('router_add_route', array($route, $handler, $args));
 			$this->_addRoute($route, $handler);
 		}
 	}
 
-	public function processRoute($event, $dispatcher, $request, $response) {
+	public function processRoute($event, $dispatcher, $request, $response) 
+	{
 		$routes = $this->_parseRoute($request);
-		if(!count($routes)) {
-			$this->dispatch(ROUTER_FILE_NOT_FOUND, array($request, $response));
+		if (!count($routes)) 
+		{
+			$this->dispatch('router_file_not_found', array($request, $response));
 		}
-		foreach($routes as $route => $args) {
-			$args = array_merge($_GET, $args);
+
+		foreach ($routes as $route => $args) 
+		{
+			$args = array_merge($request->params, $args);
 			$this->dispatch($route, array($args, $request, $response));
 		}
 	}
 
-	protected function _parseRoute($request) {
+	protected function _parseRoute($request) 
+	{
 		//The return array of matching handlers
 		$return_handlers = array();
 
@@ -94,73 +123,101 @@ class Router extends BaseComponent {
 
 		//Trim off trailing slash
 		if(substr($path, strlen($path)-1, strlen($path)) == '/')
+		{
 			$path = substr($path, 0, strlen($path)-1);
+		}
 			
 		//Generate array of url segments
 		$segments = explode('/', $path);
 		//Iterate through passed routes
-		foreach($this->_eventTable as $route => $handlers) {
-			if($route == '/' && ($path == '/' || $path == '')) {
+		foreach ($this->getEvents() as $route => $handlers) 
+		{
+			if ($route == '/' && ($path == '/' || $path == '')) 
+			{
 				$return_handlers[$route] = array();
 				return $return_handlers;
 			}
 			
 			//Check if the event is a route, if not continue
-			if(substr($route, 0, 1) != '/')
-			continue;
+			if (substr($route, 0, 1) != '/')
+			{
+				continue;
+			}
 
 			//Extract route segemtns
 			$route_segments = explode('/', substr($route, 1, strlen($route)));
 			$match = false;
 			$args = array();
 
-			if(count($segments) != count($route_segments))
-			continue;
+			if (count($segments) != count($route_segments))
+			{
+				continue;
+			}
 
 			//Iterate through all URL segments
-			for($i = 0; $i < count($segments); $i++) {
-				$segment = $segments[$i];
+			foreach ($segments as $i => $segment)
+			{
 				$route_segment = $i < count($route_segments) ? $route_segments[$i] : false;
 
 				//If the route is shorter than the url, go to next route
-				if(!$route_segment) {
+				if(!$route_segment) 
+				{
 					$match = false;
 					break;
 				}
 
-
-
 				//Route segment is a variable, save for parsing
-				if(substr($route_segment, 0, 1) == '$') {
+				if (substr($route_segment, 0, 1) == '$') 
+				{
 					$args[substr($route_segment, 1, strlen($route_segment))] = $segment;
 					$match = true;
-				} else if($route_segment == $segment) {
+				} 
+				else if ($route_segment == $segment) 
+				{
 					//Route segment and segment match, go to next iterator
 					$match = true;
-				} else {
+				} 
+				else 
+				{
 					$match = false;
 					break;
 				}
 
 				//If route is wildcard the rest of the url will match
-				if($route_segment == '*') {
+				if($route_segment == '*') 
+				{
 					$match = true;
 					break;
 				}
 			}
 
 			//The urls match, so we call the passed handler function, passing in the args
-			if($match) {
-				$args = array_merge(Application::getRequest()->params, $args);
+			if ($match) 
+			{
+				$args = array_merge(Request::instance()->params, $args);
 				$return_handlers[$route] = $args;
 			}
 		}
 		return $return_handlers;
 	}
 
-	protected function _addRoute($route, $handler) {
-		if(!$this->eventExists($route))
-			$this->addEvent($route);
+	protected function _addRoute($route, $handler) 
+	{
 		$this->addEventListener($route, $handler);
 	}
+
+  /**
+   * Implmentation of getInfo method
+   * @param void
+   * @return array
+   **/
+	public static function getInfo() 
+	{
+		return array(
+			'name' => 'Path Router',
+			'description' => 'Used to manage the URL Paths that are passed to the Cumula Framework',
+			'dependencies' => array(),
+			'version' => '0.1.0',
+		);
+	} // end function getInfo
 }

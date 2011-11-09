@@ -1,4 +1,5 @@
 <?php
+namespace Cumula;
 /**
  * Cumula
  *
@@ -24,10 +25,14 @@
 
 abstract class BaseSqlDataStore extends BaseDataStore {
 	protected $_db;
-	
-	public function __construct($schema, $config_values) {
-		parent::__construct($schema, $config_values);
-	}
+	/**
+	 * Schema Object Used for this DataStore
+	 * @var SimpleSchema
+	 **/
+	private $schema;
+
+	abstract public function escapeString($dirtyString);
+
 	
 	protected function doExec($sql) {
 		
@@ -41,14 +46,14 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 	 * @see core/interfaces/DataStore#create($obj)
 	 */
 	public function create($obj) {
-		$sql = "INSERT INTO {$this->_schema->name} ";
+		$sql = "INSERT INTO {$this->getSchema()->getName()} ";
 		$keys = array();
 		$values = array();
-		foreach($this->_schema->getFields() as $field => $args) {
+		foreach($this->getSchema()->getFields() as $field => $args) {
 			if(!isset($obj->$field))
 				continue;
 			$keys[] = $field;
-			$values[] = is_numeric($obj->$field) ? $obj->$field : "'".$this->_db->escapeString($obj->$field)."'";
+			$values[] = is_numeric($obj->$field) ? $obj->$field : $this->escapeString($obj->$field);
 		}
 		$sql .= "(".implode(',', $keys).")";
 		$sql .= "VALUES (".implode(',', $values).");";
@@ -56,9 +61,9 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 	}
 	
 	public function install() {
-		$sql_output = "CREATE TABLE IF NOT EXISTS {$this->_schema->name}(";
+		$sql_output = "CREATE TABLE IF NOT EXISTS {$this->getSchema()->getName()}(";
 		$fields = array();
-		foreach(static::translateFields($this->_schema->getFields()) as $field => $attrs) {
+		foreach(static::translateFields($this->getSchema()->getFields()) as $field => $attrs) {
 			$field = "$field {$attrs['type']}";
 			if(array_key_exists('size', $attrs))
 				$field .= $attrs['size'];
@@ -66,7 +71,8 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 				$field .= $attrs['default'];
 			if(array_key_exists('autoincrement', $attrs))
 				$field .= $attrs['autoincrement'];
-				
+			if(array_key_exists('primary', $attrs))
+				$field .= $attrs['primary'];	
 			$fields[] = $field;	
 		}
 		$sql_output .= implode(', ', $fields).');';
@@ -74,25 +80,31 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 	}
 	
 	public function uninstall() {
-		return "DROP TABLE {$this->_schema->name}";
+		return "DROP TABLE {$this->getSchema()->getName()}";
 	}
 
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#update($obj)
 	 */
 	public function update($obj) {
-		$idField = $this->_schema->getIdField();
-		if(!$this->recordExists($obj->$idField))
+		$this->_log('BaseSQLDataStore::update called');
+		$idField = $this->getSchema()->getIdField();
+		if (!$this->recordExists($obj->$idField)) 
+		{
 			return false;
-		$sql = "UPDATE {$this->_schema->name} SET ";
+		}
+		$sql = "UPDATE {$this->getSchema()->getName()} SET ";
 		$fields = array();
-		foreach($this->_schema->getFields() as $field => $args) {
-			if(property_exists($obj, $field)) {
-				$fields[] = " $field=" . (is_numeric($obj->$field) ? $obj->$field : "'".$this->_db->escapeString($obj->$field)."'");
+		foreach ($this->getSchema()->getFields() as $field => $args) 
+		{
+			if (property_exists($obj, $field)) 
+			{
+				$fields[] = " $field=" . (is_numeric($obj->$field) ? $obj->$field : $this->escapeString($obj->$field));
 			}
 		}
 		$sql .= implode(", ", $fields);
-		$sql .= " WHERE {$idField}=".$obj->$idField.";";
+		$id = is_numeric($obj->$idField) ? $obj->$idField : $this->escapeString($obj->$idField);
+		$sql .= " WHERE {$idField}=". $id .";";
 		return $this->doExec($sql);
 	}
 
@@ -102,49 +114,128 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 	 * @param $obj
 	 * @return unknown_type
 	 */
-	public function createOrUpdate($obj) {
-		$idField = $this->_schema->getIdField();
-		if(isset($obj->$idField) && $this->query($obj->$idField))
+	public function createOrUpdate($obj) 
+	{
+		$idField = $this->getSchema()->getIdField();
+		if (isset($obj->$idField) && $this->query(array($idField => $obj->$idField))) 
+		{
 			return $this->update($obj);
-		else
-			return $this->create($obj);
+		} 
+		else 
+		{
+			$create = $this->create($obj);
+			if ($create) 
+			{
+				$id = $this->lastRowId();
+				return $id;
+			}
+			else 
+			{
+				return FALSE;
+			}
+		}
 	}
 
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#delete($obj)
 	 */
 	public function destroy($obj) {
-		$idField = $this->_schema->getIdField();
-		$sql = "DELETE FROM {$this->_schema->name} WHERE ";
+		$idField = $this->getSchema()->getIdField();
+		$sql = "DELETE FROM {$this->getSchema()->getName()} WHERE ";
 		if(is_numeric($obj))
-			$sql .= "$idField=$obj;";
+			$sql .= $idField.' = '.$obj.';';
 		else
-			$sql .= "$idField={$obj->$idField};";
+			$sql .= $idField.' = "'.$obj->$idField.'";';
 		return $this->doExec($sql);
 	}
 
 	/* (non-PHPdoc)
-	 * @see core/interfaces/DataStore#query($args, $order, $sort)
+	 * @see core/interfaces/DataStore#query($args, $order, $limit)
 	 */
-	public function query($args, $order = null, $sort = null) {
-		$sql = "SELECT * FROM {$this->_schema->name} WHERE ";
+	public function query($args, $order = array(), $limit = array()) {
+		$sql = "SELECT * FROM {$this->getSchema()->getName()} ";
 		//Args is an id
 		if (is_numeric($args)) {
-			$sql .= "{$this->_schema->getIdField()}=$args";
-		} else if (is_array($args)) {
+			$sql .= "WHERE {$this->getSchema()->getIdField()}=$args";
+		// Args is an array
+		} else if (is_array($args) && !empty($args)) {
 			$conditions = array();
+			$sql .= 'WHERE ';
 			foreach($args as $key => $val) {
-				$conditions[] = " ".$key."=" . (is_numeric($val) ? $val : "'".$this->_db->escapeString($val)."'");
+				$conditions[] = " ".$key."=" . (is_numeric($val) ? $val : $this->escapeString($val));
 			}
 			$sql .= implode(' AND ', $conditions);
+		// Args is a string of sql that will be appended
+		} elseif (is_string($args)) {
+			$sql .= 'WHERE ' . $args . ' ';
 		} else {
-			//no parsible arguments found
-			return false;
+			// do nothing, no args passed
 		}
+    
+    if (!empty($order) && is_array($order)) {
+      $order_clause = array();
+      foreach ($order as $fieldname => $direction) {
+        $order_clause[] = $fieldname.' '.$direction;
+      }
+      $sql .= ' ORDER BY '.implode(',', $order_clause);
+    }
+    
+    if ($limit && !empty($limit)) {
+      if (is_int($limit)) 
+        $sql .= ' LIMIT '.$limit;
+      elseif (is_array($limit) && count($limit) == 1)
+        $sql .= ' LIMIT '.$limit[0];
+      elseif (is_array($limit) && count($limit) == 2)
+        $sql .= ' LIMIT '.implode (',', $limit);
+      else {
+        // something invalid.  do nothing.
+      }
+    }
+    
 		$sql .= ';';
 		return $this->doQuery($sql);
 	}
+  
+  
+  /**
+   * Execute raw SQL.  CAUTION: this function does zero escaping or other work.
+   * You MUST make sure your query is sanitized before you use this function.
+   * @param str $sql
+   * @return result 
+   */
+  public function queryRaw($sql)
+  {
+    return $this->doQuery($sql);
+  }
 
+  
 	public function recordExists($id) {
 	}
+	/**
+	 * Getter for $this->schema
+	 * @param void
+	 * @return SimpleSchema
+	 * @author Craig Gardner <craig@seabourneconsulting.com>
+	 **/
+	public function getSchema() 
+	{
+		return $this->schema;
+	} // end function getSchema()
+	
+	/**
+	 * Setter for $this->schema
+	 * @param SimpleSchema
+	 * @return void
+	 * @author Craig Gardner <craig@seabourneconsulting.com>
+	 **/
+	public function setSchema(CumulaSchema $arg0) 
+	{
+		if (($arg0 instanceOf BaseSchema) === FALSE)
+		{
+			throw new DataStoreException('Schema is not an instance of BaseSchema');
+		}
+		$this->schema = $arg0;
+		return $this;
+	} // end function setSchema()
+
 }

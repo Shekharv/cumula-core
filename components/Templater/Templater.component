@@ -1,4 +1,10 @@
 <?php
+namespace Templater;
+use Cumula\BaseComponent as BaseComponent;
+use Cumula\CumulaTemplater as CumulaTemplater;
+use Cumula\Application as Application;
+use Cumula\SystemConfig as SystemConfig;
+
 /**
  * Cumula
  *
@@ -32,12 +38,13 @@ class Templater extends BaseComponent implements CumulaTemplater {
 	public function __construct() {
 		parent::__construct();
 	
-		Application::getInstance()->addEventListener(BOOT_POSTPROCESS, array(&$this, 'render'));
-		$this->addEventListener(TEMPLATER_RENDER, array(&$this, 'renderTemplate'));
-		$this->_template_dir = $this->config->getConfigValue('template_directory', ROOT.'/templates');
+		$this->addEventListenerTo('Application', 'boot_postprocess', array(&$this, 'postProcessRender'));
+		$this->addEventListener('templater_render', array(&$this, 'renderTemplate'));
+
+		$this->_template_dir = $this->config->getConfigValue('template_directory', ROOT.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'templates');
 		$this->_template_file = $this->config->getConfigValue('template_file', 'template.tpl.php');
 		$this->_output = '';
-		$this->_title = Application::getSystemConfig()->getValue(SETTING_SITE_TITLE);
+		$this->_title = SystemConfig::instance()->getValue(SETTING_SITE_TITLE);
 	}
 	
 	public function setOutput($output) {
@@ -64,7 +71,7 @@ class Templater extends BaseComponent implements CumulaTemplater {
 		return $this->_template_file;
 	}
 	
-	public function render($event, $dispatcher, $request, $response) {
+	public function postProcessRender($event, $dispatcher, $request, $response) {
 		//$args = $response->data;
 		$args = array('stylesheets' => array(), 
 					  'javascript' => array(), 
@@ -72,13 +79,13 @@ class Templater extends BaseComponent implements CumulaTemplater {
 					  'title' => '', 
 					  'content' => '');
 		
-		$this->dispatch(TEMPLATER_PREPARE, array($args));
+		$this->dispatch('templater_prepare', array($args));
 		$args = $response->response['data'];
-		$this->dispatch(TEMPLATER_RENDER, array($args, $request, $response));
+		$this->dispatch('templater_render', array($args, $request, $response));
 		
 		$response->response['content'] = $this->_output;
 		
-		$this->dispatch(TEMPLATER_CLEANUP, array($args));
+		$this->dispatch('templater_cleanup', array($args));
 	}
 	
 	protected function _processStylesheets($stylesheets = array()) {
@@ -108,15 +115,8 @@ class Templater extends BaseComponent implements CumulaTemplater {
 	public function renderTemplate($event, $dispatcher, $args) {
 		$args = $this->_processArgs($args);
 		$fileName = $this->_template_dir.DIRECTORY_SEPARATOR.$this->_template_file;
-		
-		extract($args, EXTR_OVERWRITE);
-		$title = $this->_title;
-		ob_start();
-			include $fileName;
-			$contents = ob_get_contents();
-		ob_end_clean();
-		$this->setOutput($contents);
-		return;
+		$args['title'] = $this->_title;
+		$this->setOutput(\Cumula\Renderer::renderFile($fileName, $args));
 	}
 	
 	protected function _processArgs($args) {
@@ -134,4 +134,18 @@ class Templater extends BaseComponent implements CumulaTemplater {
 	public function setTitle($title) {
 		$this->_title = $title;
 	}
+
+  /**
+   * Implementation of the getInfo method
+   * @param void
+   * @return array
+   **/
+  public static function getInfo() {
+    return array(
+      'name' => 'Cumula Templater',
+      'description' => 'Default Template Class',
+      'version' => '0.1.0',
+      'dependencies' => array(),
+    );
+  } // end function getInfo
 }

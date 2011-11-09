@@ -1,4 +1,7 @@
 <?php
+namespace Cumula;
+use Templater\Templater as Templater;
+
 /**
  * Cumula
  *
@@ -26,7 +29,7 @@ abstract class BaseMVCController extends EventDispatcher {
 	
 	protected $_before_filters = array();
 	protected $_after_filters = array();
-	protected $_template = false;
+	protected $_template = 'template.tpl.php';
 	protected $_data;
 	protected $_alerts;
 	protected $_renderCalled;
@@ -46,16 +49,19 @@ abstract class BaseMVCController extends EventDispatcher {
 		$this->_afterFilter('_doAlerts');
 	}
 	
+  
 	protected function setTemplateFile($file) {
-		$this->_beforeFilter(function() {
+    $this->_beforeFilter(function() {
 			if($templater = Application::getTemplater())
-				$templater->setTemplateFile('dashboard.tpl.php');
+				$templater->setTemplateFile('template.tpl.php');
 		});
 	}
 	
+  
 	protected function _setTemplate() {
 		if ($this->_template) {
-			Application::getTemplater()->setTemplateDir($App->rootDirectory.'/../templates/'.$this->_template.'/');
+			Templater::instance()->setTemplateDir(APPROOT.DIRECTORY_SEPARATOR.'templates');
+			Templater::instance()->setTemplateFile($this->_template);
 		}	
 	}
 	
@@ -98,12 +104,27 @@ abstract class BaseMVCController extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function registerRoute($route, $method = null) {
-		if(!$method) {
-			$parts = explode('/', $route);
-			$last = $parts[count($parts)-1];
-			$method = $last;
+		$parts = explode('/', $route);
+		$last = $parts[count($parts)-1];
+		$first = $parts[0];
+		if(substr($route, 0, 1) == '/') { 
+			if($method == null)
+				$method = $last;
+		} else {
+			$comp = static::_getThis()->component;
+			$raw_class = explode("\\", get_class($comp));
+			$class = strtolower(str_ireplace('Component', '', $raw_class[count($raw_class)-1]));
+			$cont_class = explode("\\", get_called_class());
+			$controller = strtolower(str_ireplace('Controller', '', $cont_class[count($cont_class)-1]));
+			if($method == null) 
+				$method = $first;
+			if($route == 'index') {
+				$new_route = '/'.$class.'/'.$controller;
+				$this->component->registerRoute($new_route, $this, "____".$method);
+			}
+			$route = '/'.$class.'/'.$controller.'/'.$route;
 		}
-		$this->component->registerRoute($route, &$this, "____".$method);
+		$this->component->registerRoute($route, $this, "____".$method);
 	}
 
 	/**
@@ -120,11 +141,11 @@ abstract class BaseMVCController extends EventDispatcher {
 		if($arguments[1] instanceof Router) {
 			foreach($this->_before_filters as $filter) {
 				//stop processing if the before filter returns false
-				if($filter instanceof Closure) {
+				if($filter instanceof \Closure) {
 					if(call_user_func_array($filter, $arguments) === false)
 						return;
 				} else {
-					if(method_exists($this, $filter) && is_callable(array(&$this, $filter)) && call_user_func_array(array(&$this, $filter), $arguments) === false)
+					if (method_exists($this, $filter) && is_callable(array(&$this, $filter)) && call_user_func_array(array(&$this, $filter), $arguments) === false)
 						return;
 				}
 			}
@@ -134,8 +155,9 @@ abstract class BaseMVCController extends EventDispatcher {
 		if(method_exists(static::_getThis(), $func)) {
 			$output = call_user_func_array(array(static::_getThis(), $func), $arguments);
 		}
-		if(file_exists($this->getRenderFileName($func)) && !$this->_renderCalled)
+		if(file_exists($this->getRenderFileName($func)) && !$this->_renderCalled) {
 			$this->render($func);
+        }
 		
 		
 		foreach($this->_after_filters as $filter) {
@@ -148,9 +170,25 @@ abstract class BaseMVCController extends EventDispatcher {
 	
 	
 	public function getRenderFileName($func) {
-		$view_dir = $this->component->config->getConfigValue('views_directory', static::_getThis()->component->rootDirectory().'/views/'.lcfirst(str_replace('Controller', '', get_called_class())));
+		$defaultViewDir = $this->getDefaultViewDir();
+		$view_dir = $this->component->config->getConfigValue('views_directory', $defaultViewDir);
 		return $view_dir.'/'.$func.'.tpl.php';
 	}
+
+	/**
+	 * Get the default view directory for an action
+	 * @param void
+	 * @return string path to the default view directory
+	 **/
+	private function getDefaultViewDir() 
+	{
+		$className = lcfirst(basename(str_replace(array('Controller', '\\'), array('', '/'), get_called_class())));
+		return implode(DIRECTORY_SEPARATOR, array(
+			static::_getThis()->component->rootDirectory(),
+			'views',
+			$className,
+		));
+	} // end function getDefaultViewDir
 	
 	public function linkTo($title, $url, $args = array()) {
 		$output = '<a href="'.$this->component->completeUrl($url).'" ';
@@ -203,25 +241,51 @@ abstract class BaseMVCController extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	protected function renderContent($content, $name = 'content') {
-		$block = new ContentBlock();
+		$block = new \ContentBlock\ContentBlock();
 		$block->content = $content;
 		$block->data['variable_name'] = $name;
 		$this->component->addOutputBlock($block);
 	}
 	
 	protected function renderPlain($output, $useTemplate = false, $contentType = 'text/plain') {
-		if(($response = Response::getInstance()) && ($app = Application::getInstance())) {
+		if(($response = Response::instance()) && ($app = Application::instance())) {
 			$response->response['content'] = $output;
 			$response->response['headers']['Content-Type'] = $contentType;
-			$app->removeEventListener(BOOT_POSTPROCESS, array(Templater::getInstance(), 'render'));
+			$app->removeEventListener('boot_postprocess', array(Templater::instance(), 'postProcessRender'));
 		}
 	}
 	
 	protected function renderNothing() {
-		if($app = Application::getInstance()) {
+		if($app = Application::instance()) {
 			$response->response['content'] = '';
-			$app->removeEventListener(BOOT_POSTPROCESS, array(Templater::getInstance(), 'render'));
+			$app->removeEventListener('boot_postprocess', array(Templater::instance(), 'postProcessRender'));
 		}
+	}
+	
+		/**
+	 * Returns a rendered view specified in $file_name.  $args is exposed to the view.
+	 * 
+	 * @param $url
+	 * @return unknown_type
+	 */
+	protected function renderPartial($file_name = null, $args = array()) {
+		$ext = '.tpl.php';
+		if(pathinfo($file_name, PATHINFO_EXTENSION) == '' && !strpos($file_name, $ext)) {
+			$class = explode("\\", get_called_class());
+			$cont_name = strtolower(str_replace("Controller", "", $class[count($class)-1]));
+			$file_name = realpath(dirname($this->_getThisFile()).'/../views/'.$cont_name."/")."/_".$file_name.$ext;
+		}
+		extract($args, EXTR_OVERWRITE);
+		ob_start();
+		include $file_name;
+		$contents = ob_get_contents();
+		ob_end_clean();
+		return $contents;
+	}
+	
+	protected function _getThisFile() {
+		$ref = new \ReflectionClass(static::_getThis());
+		return $ref->getFileName();
 	}
 	
 	/**
@@ -232,8 +296,7 @@ abstract class BaseMVCController extends EventDispatcher {
 	 */
 	protected function redirectTo($url) {
 		if(substr($url, 0, 1) == '/') {
-			$config = Application::getSystemConfig();
-			$base_path = $config->getValue(SETTING_DEFAULT_BASE_PATH, '');
+			$base_path = SystemConfig::instance()->getValue(SETTING_DEFAULT_BASE_PATH, '');
 			$url = $base_path.$url;
 		}
 		$this->component->redirectTo($url);
@@ -290,7 +353,7 @@ abstract class BaseMVCController extends EventDispatcher {
 		$this->_alerts['messages'][] = $message;
 	}
 	
-	public function dispatch($event, $args) {
-		$this->component->dispatch($event, $args);
+	public function dispatch($event, $data = array(), $callback = false) {
+		$this->component->dispatch($event, $data);
 	}
 }

@@ -23,7 +23,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
  
 	<!-- CSS : implied media="all" -->
-	<link rel="stylesheet" href="/core/components/AdminInterface/template/css/admin.css">
+	<link rel="stylesheet" href="/assets/AdminInterface/css/admin.css">
  
 	<!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects -->
 	<script src="/templates/shared/js/libs/modernizr-1.6.min.js"></script>

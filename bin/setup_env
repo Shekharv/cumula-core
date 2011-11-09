@@ -1,0 +1,59 @@
+#!/usr/bin/env php
+<?php
+
+if (trim(exec('whoami')) !== 'root') {
+    echo "This script needs to be run as root.  Executing with sudo\n";
+    system('sudo '. $argv[0]);
+    exit(0);
+}
+
+system('pear upgrade pear');
+
+$pear_channels = array(
+    'pear.phing.info',
+    'pear.phpunit.de',
+    'components.ez.no',
+    'pear.symfony-project.com',
+    'pear.domain51.com',
+    'pear.php-tools.net',
+);
+
+$pear_projects = array(
+    'phing/phing',
+    'HTTP_Request2-beta',
+    'phpunit/PHPUnit',
+    'pat/vfsStream-beta',
+);
+
+$required_extensions = array(
+    'xsl' => 'http://www.php.net/manual/en/xsl.installation.php',
+    'xdebug' => 'http://xdebug.org/docs/install',
+);
+
+
+// Set-up pear channels to install from
+foreach ($pear_channels as $channel) {
+    system('pear channel-discover '. escapeshellarg($channel));
+}
+
+// Install projects
+foreach ($pear_projects as $project) {
+    system('pear install '. escapeshellarg($project));
+}
+
+$extensions = get_loaded_extensions();
+
+foreach ($required_extensions as $extension => $installInstructionsUrl) {
+    if (!in_array($extension, $extensions)) {
+        // Install the extension or display a meessage to the user to install it
+        if (PHP_OS == 'Linux' && stristr(php_uname('v'), 'Ubuntu') !== FALSE) {
+            system('apt-get -y install '. escapeshellarg('php5-'. $extension), $returnVal);
+            if ($returnVal !== 0) {
+                printf("The PHP Extension %s failed to install. Please install manually.\nIntstallation Instructions can be found at %s\n", $extension, $installInstructionsUrl);
+            }
+        }
+        else {
+            printf("Please follow the instructions at  to install XDebug\n", $installInstructionsUrl);
+        }
+    }
+}

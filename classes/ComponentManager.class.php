@@ -1,4 +1,8 @@
 <?php
+namespace Cumula;
+
+use \ReflectionClass as ReflectionClass;
+
 /**
  * Cumula
  *
@@ -30,11 +34,21 @@
  */
 final class ComponentManager extends BaseComponent {
 	private $_components = array();
-	private $_classes = array();
 	private $_enabledClasses = array();
 	private $_installedClasses = array();
 	private $_availableClasses = array();
 	private $_startupClasses = array();
+	private $componentFiles = array();
+	
+	private $_installList = array("Install\\Install", 
+		'FormHelper\\FormHelper', 
+		'UserManager\\UserManager', 
+		'Templater\\Templater', 
+		'Logger\\Logger', 
+		'MenuManager\\MenuManager', 
+		'Authentication\\Authentication',
+		'AdminInterface\\AdminInterface'
+	);
 
 	/**
 	 * Constructor.
@@ -43,69 +57,90 @@ final class ComponentManager extends BaseComponent {
 	 */
 	public function __construct() {
 		parent::__construct();
-		//print_r(Application::getInstance());
-		Application::getInstance()->addEventListener(BOOT_INIT, array(&$this, 'loadComponents'));
-		Application::getInstance()->addEventListener(BOOT_STARTUP, array(&$this, 'startupComponents'));
-		$this->addEvent(COMPONENT_INIT_COMPLETE);
-		$this->addEvent(COMPONENT_STARTUP_COMPLETE);
-		Application::getInstance()->addEventListener(BOOT_SHUTDOWN, array(&$this, 'shutdown'));
 
-		$this->config = new StandardConfig(ROOT.'/config', 'components.yaml');
+		// Create new events for component management
+		$this->addEvent('component_init_complete');
+		$this->addEvent('component_startup_complete');
 
+		// Set listeners for events
+		$this->addEventListener('component_startup_complete', array(&$this, 'startup'));
+
+		$this->addEventListenerTo('Application', 'boot_init', 'loadComponents');
+		$this->addEventListenerTo('Application', 'boot_startup', 'startupComponents');
+		$this->addEventListenerTo('Application', 'boot_shutdown', 'shutdown');
+		$this->addEventListenerTo('Cumula\\Autoloader', 'event_autoload', 'getComponentFiles');
+
+		// Initialize config and settings
+		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, 'components.yaml');
 		$this->loadSettings();
-		$this->_output = array();
 
-		$this->addEventListener(COMPONENT_STARTUP_COMPLETE, array(&$this, 'startup'));
+		// Set output
+		$this->_output = array();
 	}
+	
+	/**
+	 * Implementation of the getInfo method
+	 * @param void
+	 * @return array
+	 **/
+	public static function getInfo() 
+	{
+		return array(
+			'name' => 'Component Manager',
+			'description' => 'Component to manage other components',
+			'version' => '0.1.0',
+			'dependencies' => array(),
+		);
+	} // end function getInfo
 	
 	/**
 	 * Implementation of the basecomponent startup function.
 	 * 
 	 */
-	public function startup() {
-		if(Application::getAdminInterface())
-			$this->addEventListenerTo('AdminInterface', ADMIN_COLLECT_SETTINGS_PAGES, 'setupAdminPages');
+	public function startup()
+	{
+		$this->addEventListenerTo('AdminInterface', 'admin_collect_settings_pages', 'setupAdminPages');
 	}
-	
-	
+
 	/**
 	 * Defines and adds the admin pages to the admin interface, exposing the installed/enabled class lists.
 	 * 
 	 */
-	public function setupAdminPages($event, $args = null) {
-		$am = Application::getAdminInterface();
-		if(!$am)
-			return;
+	public function setupAdminPages($event, $dispatcher) {
 		$uninstalled = array_diff($this->_availableClasses, $this->_installedClasses);
-		$page = $am->newAdminPage();
+		$page = $dispatcher->newAdminPage();
 		$page->title = 'Components';
 		$page->description = 'Below are the installed and enabled components in the system.';
 		$page->route = '/admin/installed_components';
 		$page->component = &$this;
 		$page->callback = 'loadSettings';
 		$page->fields = array(array('name' => 'enabled_components', 
-									'title' => 'Enabled Components',
-									'type' => 'checkboxes',
-									'values' => $this->_installedClasses,
-									'selected' => $this->_enabledClasses,
-									'labels' => $this->_installedClasses),
-							);					
-		$am->addAdminPage($page);
+			'title' => 'Enabled Components',
+			'type' => 'checkboxes',
+			'values' => $this->_installedClasses,
+			'selected' => $this->_enabledClasses,
+			'labels' => $this->_installedClasses),
+		);
+		$dispatcher->addAdminPage($page);
 		
 		/**
 		 * If there are uninstalled components, show a menu item for those with the number of components in the title 
 		 */
 
-		$page = $am->newAdminPage();
+		$page = $dispatcher->newAdminPage();
 		$page->title = 'New Components';
-		if(count($uninstalled) > 0) {
+
+		if(count($uninstalled) > 0) 
+		{
 			$componentNumber = ' <strong>'.count($uninstalled).'</strong>';
 			$page->title .= $componentNumber;
 		}
+
 		$page->description = 'Below are the components available for installation.';
 		$page->route = '/admin/new_components';				
 		$page->component = &$this;
 		$page->callback = 'installComponents';
+
 		if (count($uninstalled) > 0)
 		{
 			$page->fields = array(array('name' => 'installed_components',
@@ -114,39 +149,42 @@ final class ComponentManager extends BaseComponent {
 				'values' => array_merge($uninstalled),
 				'labels' => array_merge($uninstalled)
 				));
-		} else {
+		} 
+		else 
+		{
 			$page->fields = array();
 		}
-		$am->addAdminPage($page);
-		
+		$dispatcher->addAdminPage($page);
 	}
 	
 	/**
 	 * Ensures that the installed and enabled components are saved on shutdown.
-	 * 
 	 */
-	public function shutdown() {
+	public function shutdown() 
+	{
 		$this->config->setConfigValue('installed_components', $this->_installedClasses);
 		$this->config->setConfigValue('enabled_components', $this->_enabledClasses);
+		$this->config->setConfigValue('startup_components', $this->_startupClasses);
 	}
 
 	/**
 	 * Loads the saved settings, or if the first bootup, the default settings
 	 * 
 	 */
-	public function loadSettings() {
+	public function loadSettings() 
+	{
 		$this->_availableClasses = $this->_getAvailableComponents();
-		$this->_installedClasses = array_merge(array_intersect($this->_availableClasses, $this->config->getConfigValue('installed_components', array())));
-		$this->_enabledClasses = array_merge(array_intersect($this->_availableClasses, $this->config->getConfigValue('enabled_components', array())));
-		$this->_startupClasses = array_merge(array_intersect($this->_availableClasses, $this->config->getConfigValue('startup_components', array())));	
+		$this->_installedClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('installed_components', array()));
+		$this->_enabledClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('enabled_components', array()));
+		$this->_startupClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('startup_components', array()));
 	}
 
 	/**
 	 * Helper function to add a component to the startup list.
 	 */
-	public function registerStartupComponent($obj) {
+	public function registerStartupComponent($obj) 
+	{
 		$this->_startupClasses[] = get_class($obj);
-		$this->config->setConfigValue('startup_components', $this->_startupClasses);
 	}
 	
 	/**
@@ -155,16 +193,11 @@ final class ComponentManager extends BaseComponent {
 	 * @param $url
 	 * @return unknown_type
 	 */
-	public function startStartupComponents() {
-		foreach($this->_startupClasses as $component) {
-			if (!class_exists($component) && in_array($component, $this->_enabledClasses)) {
-				$root = dirname(__FILE__).'/../components';
-				$class_file = $root.'/'.$component.'/'.$component.'.component';
-				if (is_file($class_file) && !class_exists($component)) {
-					require $class_file;
-				}
-			}
-			$this->startupComponent($component);
+	public function startStartupComponents()
+	{
+		foreach ($this->_startupClasses as $className)
+		{
+			$this->startupComponent($className);
 		}
 	}
 
@@ -174,67 +207,9 @@ final class ComponentManager extends BaseComponent {
 	 * @param $url
 	 * @return unknown_type
 	 */
-	protected function _getAvailableComponents() {
-		$ret = array();
-		//TODO: replace the hard-coded components directory with a system config
-		$dir = dir(COMPROOT);
-		while (false !== ($comp = $dir->read())) {
-			if(!strstr($comp, '.')) {
-				$comp_dir = $dir->path.'/'.$comp;
-				$class_name = ucfirst(basename($comp));
-				$ret[] = $class_name;
-			}
-		}
-		$dir = dir(CONTRIBCOMPROOT);
-		while (false !== ($comp = $dir->read())) {
-			if(!strstr($comp, '.')) {
-				$comp_dir = $dir->path.'/'.$comp;
-				$class_name = ucfirst(basename($comp));
-				$ret[] = $class_name;
-			}
-		}
-		return $ret;
-	}
-
-	/**
-	 * Installs an array of components.
-	 */
-	public function installComponents($components) {
-		foreach($components as $component) {
-			$this->installComponent($component);
-		}
-	}
-
-	/**
-	 * Installs a single component, based on the string $component parameter.
-	 * 
-	 */
-	public function installComponent($component) {
-		$found = false;
-		//TODO: replace the hard-coded components directory with a system config
-		$dir = dir(COMPROOT);
-		$comp_dir = $dir->path.'/'.$component;
-		$class_file = $comp_dir.'/'.$component.'.component';
-		if (is_file($class_file)) {
-			$found = true;
-		} else {
-			$dir = dir(CONTRIBCOMPROOT);
-			$comp_dir = $dir->path.'/'.$component;
-			$class_file = $comp_dir.'/'.$component.'.component';
-			if(is_file($class_file))
-				$found = true;
-		}
-		if($found) {
-			require_once $class_file;
-			if(!in_array($component, $this->_installedClasses))
-			$this->_installedClasses[] = $component;
-			if(!in_array($component, $this->_enabledClasses))
-			$this->_enabledClasses[] = $component;
-			if(!array_key_exists($component, $this->_components))
-			$this->_components[$component] = new $component;
-			$instance = $this->_components[$component];
-			$instance->install();
-		}
+	protected function _getAvailableComponents()
+	{
+		return array_keys($this->getComponentFiles());
 	}
 
 	/**
@@ -244,51 +219,38 @@ final class ComponentManager extends BaseComponent {
 	 *  components later.
 	 * @return unknown_type
 	 */
-	public function loadComponents() {
-		if (empty($this->_installedClasses)) {
-			$this->installComponents($this->_availableClasses);
+	public function loadComponents() 
+	{
+		// If no components are installed, install all available components
+		if (empty($this->_installedClasses)) 
+		{
+			$this->installComponents($this->_getAvailableComponents());
 		}
-		
-		//TODO: replace the hard-coded components directory with a system config
-		$this->parseComponentDir(COMPROOT);
-		$this->parseComponentDir(CONTRIBCOMPROOT);
 
-		$this->dispatch(COMPONENT_INIT_COMPLETE);
-	}
-	
-	protected function parseComponentDir($path) {
-		$dir = dir($path);
-		while (false !== ($comp = $dir->read())) {
-			if(!strstr($comp, '.')) {
-				$comp_dir = $dir->path.'/'.$comp;
-				$class_name = ucfirst(basename($comp));
-				$class_file = $comp_dir.'/'.$class_name.'.component';
-				if (is_file($class_file) && (in_array($class_name, $this->_installedClasses)) && !class_exists($class_name)) {
-					require $class_file;
-				}
-			}
-		}
+		$this->dispatch('component_init_complete');
 	}
 
 	/**
 	 * This function instantiates the components by iterating through the internal library array and creating
 	 * new class instances for each entry.
 	 *
-	 * After all the components have been instantiated, the event COMPONENT_LOAD_COMPLETE is dispatched.
+	 * After all the components have been instantiated, the event COMPONENT_STARTUP_COMPLETE is dispatched.
 	 *
 	 * @return unknown_type
 	 */
-	public function startupComponents() {
-		if (empty($this->_enabledClasses)) {
-			$this->installComponents($this->_installedClasses);
-			$list = $this->_installedClasses;
-		} else {
-			$list = $this->_enabledClasses;
+	public function startupComponents() 
+	{
+		if (empty($this->_enabledClasses)) 
+		{
+			$this->enableComponents($this->_installedClasses);
 		}
-		foreach($list as $class_name) {
+		$list = $this->_enabledClasses;
+
+		foreach ($list as $class_name) 
+		{
 			$this->startupComponent($class_name);
 		}
-		$this->dispatch(COMPONENT_STARTUP_COMPLETE);
+		$this->dispatch('component_startup_complete');
 	}
 
 	/**
@@ -297,13 +259,25 @@ final class ComponentManager extends BaseComponent {
 	 * @param $component_class
 	 * @return unknown_type
 	 */
-	public function startupComponent($component_class) {
-		if(class_exists($component_class) &&
-		!isset($this->_components[$component_class]) &&
-		(in_array($component_class, $this->_enabledClasses))) {
-			$this->_components[$component_class] = new $component_class();
-		} else
-			return false;
+	public function startupComponent($component_class, $enable_override = FALSE) 
+	{
+		if(!isset($this->_components[$component_class]))
+		{
+			if ($enable_override || in_array($component_class, $this->_enabledClasses)) 
+			{
+				$instance = new $component_class();
+				$this->_components[$component_class] = $instance;
+				$instance->installAssets();
+			}
+			else
+			{
+				return FALSE;
+			}
+		}
+		else
+		{
+			return FALSE;
+		}
 	}
 
 	/**
@@ -312,81 +286,234 @@ final class ComponentManager extends BaseComponent {
 	 * @param $className	string	 The classname to search for.
 	 * @return unknown_type
 	 */
-	public function getComponentInstance($className) {
+	public function getComponentInstance($className) 
+	{
 		if(isset($this->_components[$className]))
-		return $this->_components[$className];
+		{
+			return $this->_components[$className];
+		}
 		else
-		return false;
+		{
+			return FALSE;
+		}
 	}
 
 	/**
-	 * Getter for returning the current list of component instances.
-	 * 
+   * Get the Files that should contain components
+   * @param void
+   * @return array
+   **/
+	public function getComponentFiles()
+	{
+		if (is_null($this->componentFiles) || count($this->componentFiles) == 0)
+		{
+			foreach(glob(sprintf('{%s*/*.component,%s*/*.component}', COMPROOT, CONTRIBCOMPROOT), GLOB_BRACE) as $file)
+			{
+				$basename = basename($file, '.component');
+				$this->componentFiles[sprintf('%s\\%s', $basename, $basename)] = $file;
+			}
+		}
+		return $this->componentFiles;
+	} // end function getComponentFiles
+
+	/*
+	 * *************************************************************************
+	 * *****************    ComponentManager API    ****************************
+	 * *************************************************************************
 	 */
-	public function getComponentInstances() {
-		return $this->_components;
+
+	/**
+	 * Installs a single component, based on the string $component parameter.
+	 */
+	public function installComponent($component) 
+	{
+		$component = Autoloader::absoluteClassName($component);
+
+		if (!in_array($component, $this->_availableClasses)) 
+		{
+			//throw new Exception("Install fail. $component does not exist, please verify file location");
+		}
+
+		if (in_array($component, $this->_installedClasses)) 
+		{
+			return FALSE;
+		}
+
+		$this->_installedClasses[] = $component;
+		$this->startupComponent($component, TRUE);
+		$instance = $this->getComponentInstance($component);
+
+		if ($instance) 
+		{
+			$instance->install();
+		}
+
+		return $component;
 	}
 
 	/**
-	 * Getter for returning the current list of installed components.
-	 * 
+	 * Installs an array of components.
 	 */
-	public function getInstalledComponentList() {
-		return $this->_installedClasses;
+	public function installComponents($components) 
+	{
+		$installed_components = array();
+		foreach($components as $component) 
+		{
+			$installed = $this->installComponent($component);
+			if ($installed) $installed_components[] = $component;
+		}
+		return $installed_components;
 	}
 
 	/**
-	 * Getter for returning the current list of available components.
-	 * 
+	 * Installs all components in input component array and uninstalls any components not found in the input
+	 * component list
 	 */
-	public function getAvailableComponentList() {
-		return $this->_availableClasses;
+	public function setInstalledComponents($components) 
+	{
+		$uninstall_list = array_diff($this->_installedClasses, $components);
+		$install_list = array_diff($components, $this->_installedClasses);
+		$this->uninstallComponents($uninstall_list);
+		$this->installComponents($install_list);
 	}
 
 	/**
-	 * Setter for the installed component list
-	 * 
+	 * @throws Exception
+	 * @param  $component
+	 * @return component string if successful, false otherwise
 	 */
-	public function setInstalledComponentList($class_list) {
-		$this->_installedClasses = $class_list;
-		//$this->config->setConfigValue('installed_components', $this->_installedClasses);
+	public function enableComponent($component) 
+	{
+		$component = Autoloader::absoluteClassName($component);
+
+		if (in_array($component, $this->_enabledClasses)) 
+		{
+			return FALSE;
+		}
+
+		// Install the component if it's not already
+		if (!in_array($component, $this->_installedClasses)) 
+		{
+			$this->installComponent($component);
+		}
+
+		$this->startupComponent($component);
+		$instance = $this->getComponentInstance($component);
+		if ($instance) 
+		{
+			$instance->enable();
+		}
+
+		$this->_enabledClasses[] = $component;
+
+		return $component;
 	}
 
 	/**
-	 * Getter for returning the current list of enabled components.
-	 * 
+	 * Setter for enabling components
+	 * @return array of components that were enabled
 	 */
-	public function getEnabledComponentList() {
+	public function enableComponents($components) 
+	{
+		$enabled_components = array();
+		foreach ($components as $component)
+	 	{
+			$enabled = $this->enableComponent($component);
+			if ($enabled) $enabled_components[] = $enabled;
+		}
+		return $enabled_components;
+	}
+
+	/**
+	 * Takes an array of components and enables components not currently enabled while disabling enabled components
+	 * not in the input list
+	 */
+	public function setEnabledComponents($components) 
+	{
+		$disable_list = array_diff($this->_enabledClasses, $components);
+		$enable_list = array_diff($components, $this->_enabledClasses);
+		$this->disableComponents($disable_list);
+		$this->enableComponents($enable_list);
+	}
+
+	public function disableComponent($component) {
+		$component = Autoloader::absoluteClassName($component);
+
+		$instance = $this->getComponentInstance($component);
+		if ($instance) {
+			$instance->disable();
+			$key = array_search($component, $this->_enabledClasses);
+			unset($this->_enabledClasses[$key]);
+			return $component;
+		} else {
+			return FALSE;
+		}
+	}
+
+	public function disableComponents($components) {
+		foreach($components as $component) {
+			$this->disableComponent($component);
+		}
+	}
+
+	public function uninstallComponent($component) {
+		$component = Autoloader::absoluteClassName($component);
+
+		if (!in_array($component, $this->_installedClasses)) {
+			return FALSE;
+		}
+
+		$instance = $this->getComponentInstance($component);
+		if ($instance) {
+			if (in_array($component, $this->_enabledClasses)) {
+				$this->disableComponent($component);
+			}
+			$instance->uninstall();
+			$key = array_search($component, $this->_installedClasses);
+			unset($this->_installedClasses[$key]);
+			return $component;
+		} else {
+			return FALSE;
+		}
+	}
+
+	public function uninstallComponents($components) {
+		foreach($components as $component) {
+			$this->uninstallComponent($component);
+		}
+	}
+
+
+	/**
+	 * Getter for enabled components list
+	 * @return array of enabled components
+	 */
+	public function getEnabledComponents() {
 		return $this->_enabledClasses;
 	}
 
 	/**
-	 * Setter for the enabled component list
-	 * 
+	 * Getter for installed components list
+	 * @return array of installed components
 	 */
-	public function setEnabledComponentList($class_list) {
-		$disabled_list = array_diff($this->_installedClasses, $class_list);
-		$enabled_list = array_diff($class_list, $this->_enabledClasses);
-		foreach($disabled_list as $class_name) {
-			$instance = $this->getComponentInstance($class_name);
-			if($instance)
-				$instance->disable();
-		}			
-		$this->_enabledClasses = $class_list;
-		foreach($enabled_list as $class_name) {
-			$this->startupComponent($class_name);
-			$instance = $this->getComponentInstance($class_name);
-			if($instance)
-				$instance->enable();
-		}
-		$this->config->setConfigValue('enabled_components', $this->_enabledClasses);
+	public function getInstalledComponents() {
+		return $this->_installedClasses;
 	}
 
 	/**
-	 * Getter for returning the current list of components initialized at startup.
-	 * 
+	 * Getter for startup components
+	 * @return array of startup components
 	 */
-	public function getStartupComponentList() {
+	public function getStartupComponents() {
 		return $this->_startupClasses;
 	}
+
+	/**
+	 * Getter for available components
+	 * @return array of available components
+	 */
+	public function getAvailableComponents() {
+		return $this->_availableClasses;
+	}
+
 }

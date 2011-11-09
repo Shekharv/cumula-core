@@ -1,4 +1,6 @@
 <?php
+namespace AdminInterface;
+use Cumula\BaseComponent as BaseComponent;
 /**
  * Cumula
  *
@@ -11,8 +13,6 @@
  * @copyright  2011 Seabourne Consulting
  * @link       http://cumula.org
  */
-
-require 'lib/AdminPage.class.php';
 
 /**
  * AdminInterface Component
@@ -58,20 +58,49 @@ class AdminInterface extends BaseComponent {
 	 * @param	ComponentManager	The ComponentManager instance.
 	 *
 	 **/
-	public function startup($event, $dispatcher) {
-		$this->addEventListenerTo('Application', BOOT_PREPARE, 'dispatchCollectEvent');
+	public function startup() {
+
+		/**
+		 * If we add parameters to the method, we get errors saying that the method definition
+		 * does not match that of BaseComponent::startup()
+		 */
+		$args = func_get_args();
+		$event = isset($args[0]) ? $args[0] : NULL;
+		$dispatcher = isset($args[1]) ? $args[1] : NULL;
+
+		$this->addEventListenerTo('Application', 'boot_prepare', 'dispatchCollectEvent');
 		
-		//If router is installed, bind to the route collector event
-		if(defined('ROUTER_COLLECT_ROUTES'))
-			$this->addEventListenerTo('Router', ROUTER_COLLECT_ROUTES, 'collectAdminPages');
+		// bind to the route collector event
+		$this->addEventListenerTo('Router', 'router_collect_routes', 'collectAdminPages');
 		
-		//If the menu manager is installed, bind to the menu collector event
-		if(defined('MENUMANAGER_COLLECT_MENUS'))
-			$this->addEventListenerTo('MenuManager', MENUMANAGER_COLLECT_MENUS, 'sendMenus');
+		// bind to the menu collector event
+		$this->addEventListenerTo('MenuManager', 'menu_collect_menus', 'sendMenus');
 		
 		//Initialize stats for display on homepage.
-		$this->stats['installed_components'] = count($dispatcher->getEnabledComponentList());
+		$this->stats['installed_components'] = count($dispatcher->getEnabledComponents());
+
+		$this->addEventListenerTo('Autoloader', 'event_autoload', 'autoload');
+
+		$this->addEventListener('admin_collect_settings_pages', array(\Cumula\SystemConfig::instance(), 'setupAdminPages'));
+		
+		$this->addEventListenerTo('UserManager', 'register_auth_domain', function($event, $dispatcher) {
+			$dispatcher->registerAuthDomain('admin_interface', array('paths' => array('/admin', '/admin/*')));
+		});
 	}
+
+	/**
+	 * Event Handler for Autoloader::EVENT_AUTOLOAD
+	 * @param string $event Name of the event that was dispatched
+	 * @param Cumula\Autoloader $dispatcher Instance of the Object that dispatched the event
+	 * @param string $className Name of the class being loaded
+	 * @return void
+	 **/
+	public function autoload($event, $dispatcher, $className) 
+	{
+		return array(
+			'AdminInterface\\AdminPage' => realpath(dirname(__FILE__)) .'/lib/AdminPage.class.php',
+		);
+	} // end function autoload
 	
 	/**
 	 * Listener for the BOOT_PREPARE event.  Dispatches the ADMIN_COLLECT_SETTINGS_PAGES event to listeners.  
@@ -85,7 +114,7 @@ class AdminInterface extends BaseComponent {
 	public function dispatchCollectEvent($event, $dispatcher, $request, $response) {
 		//only dispatch the event if the request is for one of the admin routes.
 		if (strstr($request->path, '/admin')) {	
-			$this->dispatch(ADMIN_COLLECT_SETTINGS_PAGES);
+			$this->dispatch('admin_collect_settings_pages');
 		}
 	}
 	
@@ -171,7 +200,7 @@ class AdminInterface extends BaseComponent {
 	public function adminPage($route, $router, $args, $request) {
 		if(!$this->checkUser($request))
 			return;
-		$this->addEventListenerTo('Templater', TEMPLATER_PREPARE, function($event, $templater) {
+		$this->addEventListenerTo('Templater\\Templater', 'templater_prepare', function($event, $templater) {
 			$templater->setTemplateDir(COMPROOT.'AdminInterface/template/');
 		});
 		
@@ -179,10 +208,10 @@ class AdminInterface extends BaseComponent {
 		foreach($this->_pages as $page) {
 			//If the route matches, render a form based on the passed settings.
 			if($page->route == $route) {
-				$this->fh = Application::getFormHelper();
+				$this->fh = \FormHelper\FormHelper::instance();
 				$this->page = $page;
 				$title = $page->title;
-				$this->addEventListenerTo('Templater', TEMPLATER_PREPARE, function($event, $templater) use ($title) {
+				$this->addEventListenerTo('Templater\\Templater', 'templater_prepare', function($event, $templater) use ($title) {
 					$templater->setTitle($title);
 				});
 				$this->render();
@@ -197,7 +226,7 @@ class AdminInterface extends BaseComponent {
 	public function index($route, $router, $args, $request) {
 		if(!$this->checkUser($request))
 			return;
-		$this->addEventListenerTo('Templater', TEMPLATER_PREPARE, function($event, $templater) {
+		$this->addEventListenerTo('Templater\\Templater', 'templater_prepare', function($event, $templater) {
 			$templater->setTemplateDir(COMPROOT.'AdminInterface/template/');
 		});
 		$this->pages = $this->_pages;
@@ -223,8 +252,8 @@ class AdminInterface extends BaseComponent {
 	 **/
 	protected function _checkPerms() {
 		$this->perms = array();
-		$readable_files = array(CONFIGROOT, APPROOT, COMPROOT);
-		$writable_files = array(CONFIGROOT, DATAROOT);
+		$readable_files = array(CONFIGROOT, APPROOT, COMPROOT, DATAROOT, PUBLICROOT, ASSETROOT, CONTRIBCOMPROOT);
+		$writable_files = array(CONFIGROOT, DATAROOT, PUBLICROOT, ASSETROOT, CONTRIBCOMPROOT);
 		foreach($readable_files as $file) {
 			if(!isset($this->perms[$file]))
 				$this->perms[$file] = TRUE;
@@ -246,20 +275,29 @@ class AdminInterface extends BaseComponent {
 	 * @param	array	The array of POST form values.
 	 *
 	 **/
-	public function saveSettings($route, $dispatcher, $args, $request) {
-		if(!$this->checkUser($request))
+	public function saveSettings($route, $dispatcher, $args, $request) 
+	{
+		if (!$this->checkUser($request))
+		{
 			return;
-		foreach($this->_pages as $page) {
-			if($page->route == $args['setting-page']) {
+		}
+
+		foreach ($this->_pages as $page) 
+		{
+			if ($page->route == $args['setting-page'])
+			{
 				$component = $page->component;
-				foreach($page->fields as $setting) {
+				foreach ($page->fields as $setting) 
+				{
 					$vals = $args[$setting['name']];
 					$component->config->setConfigValue($setting['name'], $vals);
 					$callback = $page->callback;
-					if(is_callable(array($component, $callback)))
+					if (is_callable(array($component, $callback)))
+					{
 						$component->$callback($vals);
+					}
 				}
-				$this->redirectTo($this->completeUrl($page->route));
+				$this->redirectTo($page->route);
 				return;
 			}
 		}
@@ -277,4 +315,18 @@ class AdminInterface extends BaseComponent {
     //}
 		return true;
 	}
+
+  /**
+   * Implementation of the getInfo method
+   * @param void
+   * @return array
+   **/
+  public static function getInfo() {
+    return array(
+      'name' => 'Administration Interface',
+      'description' => 'Default Administrative interface for Cumula',
+      'version' => '0.1.0',
+      'dependencies' => array(),
+    );
+  } // end function getInfo
 }

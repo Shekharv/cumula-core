@@ -3,50 +3,179 @@
     <property file="build.properties" />
 
     <!-- Clean the repository -->
-    <target name="test.clean">
+    <target name="test.clean" description="clean up after the automated tests">
         <delete dir="${project.coveragedir}" />
     </target>
 
     <!-- Prepare the directory for the tests -->
-    <target name="test.prepare" depends="test.clean">
+    <target name="test.prepare" depends="test.clean" description="Prepare to run the Automated Testss">
         <mkdir dir="${project.coveragedir}" />
         <mkdir dir="${tests.reportdir}" />
         <mkdir dir="${coverage.reportdir}" />
     </target>
 
+		<!-- Execute Unit Tests for a single class -->
+		<target name="test.one" depends="test.prepare" description="Run a single test class">
+			<propertyprompt propertyName="test.tmpclass" defaultValue="" promptText="Which Class would you like to run?" />
+			<propertyprompt propertyName="test.buildreport" defaultValue="n" promptText="Would you like to build a report?" />
+			<phingCall target="test.execute">
+				<property name="test.class" value="${test.tmpclass}.Test" />
+			</phingCall>
+		</target>
+
+		<!-- Execute Unit Tests -->
+		<target name="test.execute" description="Execute unit tests">
+			<fail unless="test.class" msg="No Class available to Test" />
+
+			<if>
+				<and>
+					<not><isset property="test.coverage" /></not>
+					<equals arg1="${test.buildreport}" arg2="y" casesensitive="false" />
+				</and>
+				<then>
+					<property name="test.coverage" value="true" />
+				</then>
+				<else>
+					<property name="test.coverage" value="false" />
+				</else>
+			</if>
+
+			<if>
+				<equals arg1="${test.buildreport}" arg2="y" casesensitive="false" />
+				<then>
+					<!-- Prepare the coverage report -->
+					<coverage-setup database="${coverage.db}">
+							<fileset dir="${project.basedir}">
+									<include name="**/*.php" />
+									<include name="**/*.inc" />
+									<include name="**/*.component" />
+									<exclude name="interfaces/*" />
+									<exclude name="**/templates/*" />
+									<exclude name="test/**/*" />
+									<exclude name="**/views/**/*.php" />
+									<exclude name="**/template/*" />
+									<exclude name="**/components/**/libraries/**" />
+							</fileset>
+					</coverage-setup>
+				</then>
+			</if>
+			<!-- Run the automated tests -->
+			<phpunit haltonerror="false" haltonfailure="false" codecoverage="${test.coverage}"
+					haltonskipped="false" bootstrap="${project.basedir}/test/bootstrap.php">
+					<formatter type="xml" usefile="true" todir="${tests.reportdir}" />
+					<formatter type="plain" usefile="false" />
+					<batchtest name="Cumula Automated Tests">
+							<fileset dir="${project.basedir}/test">
+									<include name="**/${test.class}.php" />
+									<exclude name="base/*.php" />
+									<exclude name="bootstrap.php" />
+							</fileset>
+					</batchtest>
+			</phpunit>
+
+			<if>
+				<equals arg1="${test.buildreport}" arg2="y" casesensitive="false" />
+				<then>
+					<!-- Build the report -->
+					<phpunitreport infile="${tests.reportdir}/testsuites.xml" todir="${tests.reportdir}" />
+					<coverage-report outfile="${coverage.reportdir}/coverage.xml">
+							<report todir="${coverage.reportdir}" />
+					</coverage-report>
+				</then>
+			</if>
+		</target>
+
     <!-- Perform Automated Tests -->
-    <target name="test" depends="test.prepare">
-        <!-- Prepare the coverage report -->
-        <coverage-setup database="${coverage.db}">
-            <fileset dir="${project.basedir}">
-                <include name="**/*.php" />
-                <include name="**/*.inc" />
-                <include name="**/*.component" />
-                <exclude name="**/events.inc" />
-                <exclude name="interfaces/*" />
-                <exclude name="**/templates/*" />
-                <exclude name="test/*" />
-                <exclude name="**/views/**/*.php" />
-                <exclude name="**/template/*" />
-            </fileset>
-        </coverage-setup>
-
-        <!-- Run the automated tests -->
-        <phpunit haltonerror="false" haltonfailure="false" codecoverage="true"
-            haltonskipped="false" bootstrap="${project.basedir}/test/bootstrap.php">
-            <formatter type="xml" usefile="true" todir="${tests.reportdir}" />
-            <formatter type="plain" usefile="false" />
-            <batchtest name="Cumula Automated Tests">
-                <fileset dir="${project.basedir}/test">
-                    <include name="**/*.php" />
-                </fileset>
-            </batchtest>
-        </phpunit>
-
-        <!-- Build the report -->
-        <phpunitreport infile="${tests.reportdir}/testsuites.xml" todir="${tests.reportdir}" />
-        <coverage-report>
-            <report todir="${coverage.reportdir}" />
-        </coverage-report>
+    <target name="test" depends="test.prepare" description="Run the Automated Tests and generate reports">
+				<phingCall target="test.execute">
+					<property name="test.coverage" value="true" />
+					<property name="test.class" value="*" />
+					<property name="test.buildreport" value="y" />
+				</phingCall>
     </target>
+
+		<target name="app.clean.all" depends="app.clean.prompt, app.clean.data, app.clean.config" 
+			description="Clean all of the applications data and config files">
+		</target>
+
+		<target name="app.clean.data" depends="app.clean.prompt" description="Remove the application data directory">
+			<delete dir="${app.path}data" />
+		</target>
+
+		<target name="app.clean.config" depends="app.clean.prompt" description="Remove the application config directory">
+			<delete dir="${app.path}config" />
+		</target>
+
+		<target name="app.clean.prompt" description="Prompt the user for the application information">
+			<if>
+				<not><isset property="app.clean.assertTrue" /></not>
+				<then>
+					<propertyprompt propertyName="app.clean.assertTrue" defaultValue="n" 
+						promptText="Are you sure you want to delete the application files?" />
+				</then>
+			</if>
+
+			<condition property="cleanTrue">
+				<or>
+					<equals arg1="${app.clean.assertTrue}" arg2="y" />
+					<equals arg1="${app.clean.assertTrue}" arg2="Y" />
+				</or>
+			</condition>
+
+			<fail unless="cleanTrue"  message="Decided not to clean the application" />
+
+			<condition property="getAppName">
+				<and>
+					<not><isset property="app.name" /></not>
+				</and>
+			</condition>
+
+			<if>
+				<istrue value="${getAppName}" />
+				<then>
+					<propertyprompt propertyName="app.name" defaultValue="app" promptText="Application you wish to clean" />
+					<property name="app.path" value="${project.basedir}/../${app.name}/" />
+				</then>
+			</if>
+		</target>
+
+		<!-- Build Archives -->
+		<target name="build" depends="build.prepare" description="Build a tarball and zip for the project">
+			<propertyprompt propertyName="build.ref" defaultValue="master" promptText="Which Ref are you building for?" />
+			<exec command="git clone --recursive git://github.com/Cumula/framework.git ${project.builddir}/cumula-${build.ref}" 
+				dir="${project.basedir}" />
+			<exec command="git checkout ${build.ref}; git submodule update" dir="${project.builddir}/cumula-${build.ref}" />
+
+			<!-- .tar.gz file -->
+			<tar destfile="${project.builddir}/cumula-${build.ref}.tgz" compression="gzip">
+				<fileset dir="${project.builddir}/cumula-${build.ref}/">
+					<include name="**/**" />
+					<exclude name="**/.git**" />
+				</fileset>
+			</tar>
+
+			<!-- .tar.bz2 file -->
+			<tar destfile="${project.builddir}/cumula-${build.ref}.tbz" compression="bzip2">
+				<fileset dir="${project.builddir}/cumula-${build.ref}/">
+					<include name="**/**" />
+					<exclude name="**/.git**" />
+				</fileset>
+			</tar>
+
+			<!-- .zip file -->
+			<zip destfile="${project.builddir}/cumula-${build.ref}.zip">
+				<fileset dir="${project.builddir}/cumula-${build.ref}/">
+					<include name="**/**" />
+					<exclude name="**/.git**" />
+				</fileset>
+			</zip>
+		</target>
+
+		<target name="build.prepare" depends="build.clean" description="Prepare the repository for a build">
+			<mkdir dir="${project.builddir}" />
+		</target>
+
+		<target name="build.clean" description="Clean the build directory in preparation for a new build">
+			<delete dir="${project.builddir}" />
+		</target>
 </project>

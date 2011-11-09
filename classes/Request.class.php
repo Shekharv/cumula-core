@@ -1,4 +1,5 @@
 <?php
+namespace Cumula;
 /**
  * Cumula
  *
@@ -35,6 +36,7 @@ final class Request extends EventDispatcher {
 	protected function init() {
 		$this->path = array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : '';
 		$this->requestIp = $_SERVER['REMOTE_ADDR'];
-		$this->params = $_POST;
+		$this->params = array_merge($_GET, $_POST);
+		array_walk_recursive($this->params, function(&$ele, $key) {$ele = str_replace("\\\\", "\\", $ele);});
 	}
 }

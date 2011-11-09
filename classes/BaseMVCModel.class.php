@@ -1,15 +1,32 @@
 <?php
+namespace Cumula;
 
 abstract class BaseMVCModel extends EventDispatcher {
 	protected static $_fields;
 	protected $_data;
 	protected static $_dataStore = array();
 	protected $_fieldsToSerialize = array();
-	protected $exists = false;
+	protected $exists;
 	
-	abstract public static function setupDataStore();
+	/**
+	 * Set Up the Data Store
+	 * @param void
+	 * @return void
+	 **/
+	public static function setupDataStore() 
+	{
+		throw new \Exception(sprintf('%s needs to implement setupDataStore() itself', get_class($this)));
+	} // end function setupDataStore
 	
-	abstract public static function setupFields();
+	/**
+	 * Set up the Fields for the Data Store
+	 * @param void
+	 * @return void
+	 **/
+	public static function setupFields() 
+	{
+		throw new \Exception(sprintf('%s needs to implement setupFields() itself', get_class($this)));
+	} // end function setupFields
 	
 	public function __construct($args = array(), $exists = false) {
 		parent::__construct();
@@ -19,7 +36,7 @@ abstract class BaseMVCModel extends EventDispatcher {
 		$fields = static::getFields();
 		foreach($fields as $field => $data) {
 			if(isset($args[$field]))
-				$this->$field = $args[$field];
+				$this->_data[$field] = $args[$field];
 		}
 		$this->exists = $exists;
 	}
@@ -31,18 +48,37 @@ abstract class BaseMVCModel extends EventDispatcher {
 			$this->_fieldsToSerialize[] = $fields;
 	}
 	
-	public static function find($args) {
-		$res = static::getDataStore()->query($args);
+	public static function find($args, $order = array(), $limit = null) {
+		$res = static::getDataStore()->query($args, $order, $limit);
 		$class = get_called_class();
 		if($res && is_array($res)) {
-			for($i = 0; $i < count($res); $i++) {
-				$res[$i] = new $class($res[$i], true);
+			if(count($res) > 1) {
+				for($i = 0; $i < count($res); $i++) {
+					$res[$i] = new $class($res[$i], true);
+				}
+			} else {
+				$res = new $class($res[0], true);
 			}
 			return $res;
 		} else {
 			return false;
 		}	
 	}
+  
+  
+  public static function findOne($args) {
+		$res = static::getDataStore()->query($args, null, 1);
+		$class = get_called_class();
+		if($res && is_array($res)) {
+			for($i = 0; $i < count($res); $i++) {
+				$res[$i] = new $class($res[$i], true);
+			}
+			return $res[0];
+		} else {
+			return false;
+		}	
+	}
+  
 	
 	public static function findAll() {
 		$res = static::find(array());
@@ -74,7 +110,10 @@ abstract class BaseMVCModel extends EventDispatcher {
 	}
 	
 	public function save() {
-		return $this->update();
+		if($this->exists)
+			return $this->update();
+		else
+			return $this->create();
 	}
 	
 	public function destroy() {
@@ -87,18 +126,25 @@ abstract class BaseMVCModel extends EventDispatcher {
 	public function create() {
 		$res = static::getDataStore()->create($this->rawObject());
 		if($res) {
-			$id = $this->_schema->getIdField();
-			$this->$id = $this->_dataStore->lastRowId();
+			$id = static::getSchema()->getIdField();
+			$this->$id = static::getDataStore()->lastRowId();
 			$this->exists = true;
 		}
 		return $res;
 	}
 	
 	public function update() {
-		return static::getDataStore()->createOrUpdate($this->rawObject());
+		$this->_log('MVCModel::update called');
+		return static::getDataStore()->update($this->rawObject());
 	}
 	
-	public function getSchema() {
+	public function updateValues($vals) {
+		foreach($vals as $key => $value) {
+			$this->_data[$key] = $value;
+		}
+	}
+	
+	public static function getSchema() {
 		//implemented by children classes
 	}
 	
@@ -125,7 +171,7 @@ abstract class BaseMVCModel extends EventDispatcher {
 	}
 	
 	public function rawObject() {
-		$obj = new stdClass();
+		$obj = new \stdClass();
 		foreach($this->_data as $key => $value) {
 			if(in_array($key, $this->_fieldsToSerialize)){
 				$value = serialize($value);

@@ -1,4 +1,5 @@
 <?php
+namespace Cumula;
 /**
  * Cumula
  *
@@ -12,7 +13,6 @@
  * @link       http://cumula.org
  */
 
-require_once(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."includes".DIRECTORY_SEPARATOR."core.inc");
 
 /**
  * Application Class
@@ -102,14 +102,16 @@ final class Application extends EventDispatcher {
 	 * 
 	 * @var array
 	 */
-	public $bootProcess = array(BOOT_INIT, 
-						  	 	   BOOT_STARTUP, 
-								   BOOT_PREPARE,
-						   		   BOOT_PREPROCESS, 
-						   		   BOOT_PROCESS, 
-						   		   BOOT_POSTPROCESS, 
-						   		   BOOT_CLEANUP, 
-						   		   BOOT_SHUTDOWN);
+	public $bootProcess = array(
+			'boot_init', 
+			'boot_startup', 
+			'boot_prepare',
+			'boot_preprocess', 
+			'boot_process', 
+			'boot_postprocess', 
+			'boot_cleanup', 
+			'boot_shutdown',
+	);
 						   	
 	
 	protected static $_request;
@@ -122,7 +124,6 @@ final class Application extends EventDispatcher {
 	public function __construct($startupCallback = null, $paths = null) {
 		$this->_setupConstants($paths);
 		$this->_setupBootstrap();
-				
 		parent::__construct();
 		
 		if(is_callable($startupCallback))
@@ -130,65 +131,64 @@ final class Application extends EventDispatcher {
 		
 		$this->boot();
 	}
+
 	
 	private function _setupConstants($paths = array()) {
+        // Only define ROOT if it isn't already defined
+        defined('ROOT') ||
+            define('ROOT', realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', '..'))));
+
+        //TODO: rewrite the part to support passing in arbitrary paths
+        defined('APPROOT') ||
+            define('APPROOT', ROOT . DIRECTORY_SEPARATOR . 'app');
+
 		if(count($paths) < 1) {
-			$core_path	= 'core';
-			$core_component_path = 'core/components';
-			$contrib_component_path = 'components';
-			$config_path = 'config';
-			$data_path = 'data';
-			$template_path = 'templates';
+			$core_path	= ROOT . DIRECTORY_SEPARATOR . 'cumula';
+			$core_component_path = $core_path . DIRECTORY_SEPARATOR . 'components';
+			$contrib_component_path = APPROOT . DIRECTORY_SEPARATOR . 'components';
+			$config_path = APPROOT . DIRECTORY_SEPARATOR . 'config';
+			$data_path = APPROOT . DIRECTORY_SEPARATOR . 'data';
+			$template_path = APPROOT . DIRECTORY_SEPARATOR . 'templates';
 		} else {
 			extract($paths);
 		}
 
+        defined('COMPROOT') ||
+            define('COMPROOT', $core_component_path . DIRECTORY_SEPARATOR);
 
-		define('ROOT', realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR));
+        defined('CONFIGROOT') ||
+            define('CONFIGROOT', $config_path . DIRECTORY_SEPARATOR);
+        if (!file_exists(CONFIGROOT)) {
+            mkdir(CONFIGROOT, 0775, true);
+        }
 
-		if(isset($core_path) && !is_dir($core_path))
-			$core_path = ROOT.DIRECTORY_SEPARATOR.$core_path;
+        defined('DATAROOT') ||
+            define('DATAROOT', $data_path . DIRECTORY_SEPARATOR);
+        if (!file_exists(DATAROOT)) {
+            mkdir(DATAROOT, 0775, true);
+        }
 
-		if(isset($core_component_path) && !is_dir($core_component_path))
-			$core_component_path = ROOT.DIRECTORY_SEPARATOR.$core_component_path;
+        defined('CONTRIBCOMPROOT') ||
+            define('CONTRIBCOMPROOT', $contrib_component_path . DIRECTORY_SEPARATOR);
+        if (!file_exists(CONTRIBCOMPROOT)) {
+            mkdir(CONTRIBCOMPROOT, 0775, true);
+        }
 
-		if(isset($config_path) && !is_dir($config_path)) {
-			$config_path = ROOT.DIRECTORY_SEPARATOR.$config_path;
-			if(!file_exists($config_path)) {
-				mkdir($config_path, 0775, true);
-			}
-		}
-			
-		if(isset($data_path) && !is_dir($data_path)) {
-			$data_path = ROOT.DIRECTORY_SEPARATOR.$data_path;
-			if(!file_exists($data_path)) {
-				mkdir($data_path, 0775, true);
-			}
-		}
+        defined('TEMPLATEROOT') ||
+            define('TEMPLATEROOT', $template_path . DIRECTORY_SEPARATOR);
+
+		define('CUMULAVERSION', "0.3.0");
 		
-		if(isset($contrib_component_path) && !is_dir($contrib_component_path)) {
-			$contrib_component_path = ROOT.DIRECTORY_SEPARATOR.$contrib_component_path;
-			if(!file_exists($contrib_component_path)) {
-				mkdir($contrib_component_path, 0775, true);
-			}
-		}
-			
-		if(isset($template_path) && !is_dir($template_path))
-			$template_path = ROOT.DIRECTORY_SEPARATOR.$template_path;	
-
-		define('APPROOT', realpath($core_path).DIRECTORY_SEPARATOR);
-		define('COMPROOT', realpath($core_component_path).DIRECTORY_SEPARATOR);
-		define('CONTRIBCOMPROOT', realpath($contrib_component_path).DIRECTORY_SEPARATOR);
-		define('CONFIGROOT', realpath($config_path).DIRECTORY_SEPARATOR);
-		define('DATAROOT', realpath($data_path).DIRECTORY_SEPARATOR);
-		define('TEMPLATEROOT', realpath($template_path).DIRECTORY_SEPARATOR);
-		define('CUMULAVERSION', "0.2.0");
+		define('PUBLICROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR);
+		define('ASSETROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR);
+		define('LIBDIR', $core_path.DIRECTORY_SEPARATOR.'libraries');
 	}
 	
 	/**
 	 * Initializes the boot process by adding the individual steps as events
 	 */
 	private function _setupBootstrap() {
+		//$this->addEvent('event_dispatcher_created');
 		foreach($this->bootProcess as $step) {
 			$this->addEvent($step);
 		}
@@ -199,15 +199,18 @@ final class Application extends EventDispatcher {
 	 */
 	public function boot() {
 		foreach($this->bootProcess as $step) {
-			$this->dispatch($step, array(Request::getInstance(), Response::getInstance()));
+			$this->dispatch($step, array(Request::instance(), Response::instance()));
 		}
 	}
 	
 	public static function __callStatic($name, $args) {
 		if(strstr($name, 'get')) {
-			$className = str_replace('get', '', $name);
-			
-			return call_user_func(array($className, 'getInstance'));
+			$className = str_replace('get', '', "$name\\$name");
+			if (class_exists($className)) 
+			{
+				return call_user_func(array($className, 'instance'));
+			}
+			return FALSE;
 		}
 	}
 }

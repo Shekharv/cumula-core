@@ -1,4 +1,5 @@
 <?php
+namespace SqliteDataStore;
 /**
  * Cumula
  *
@@ -21,22 +22,24 @@
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class SqliteDataStore extends BaseSqlDataStore {
+class SqliteDataStore extends \Cumula\BaseSqlDataStore {
 	protected $_db;
 	
 	public function __construct($schema, $config_values) {
 		parent::__construct($schema, $config_values);
 		$this->_sourceDirectory = $config_values['source_directory'];
 		$this->_filename = $config_values['filename'];
-		$this->_db = new SQLite3($this->_sourceDirectory.'/'.$this->_filename);
+		$this->_db = new \SQLite3($this->_sourceDirectory.'/'.$this->_filename);
 		$this->connect();
 	}
 	
 	protected function doExec($sql) {
+		$this->_log('SQL Executed', $sql);
 		return $this->_db->exec($sql);
 	}
 	
 	protected function doQuery($sql) {
+		$this->_log('SQL Queried', $sql);
 		return $this->_db->query($sql);
 	}
 
@@ -44,7 +47,7 @@ class SqliteDataStore extends BaseSqlDataStore {
 	 * @see core/interfaces/DataStore#connect()
 	 */
 	public function connect() {
-		$this->_db->exec($this->install());
+		$this->doExec($this->install());
 	}
 
 	/* (non-PHPdoc)
@@ -55,26 +58,35 @@ class SqliteDataStore extends BaseSqlDataStore {
 	}
 
 	/* (non-PHPdoc)
-	 * @see core/interfaces/DataStore#query($args, $order, $sort)
+	 * @see core/interfaces/DataStore#query($args, $order, $limit)
 	 */
-	public function query($args, $order = null, $sort = null) {
-		$result = parent::query($args, $order, $sort);
+	public function query($args, $order = null, $limit = null) 
+	{
+		$result = parent::query($args, $order, $limit);
 		$arr = array();
-		if(!$result)
+		if (!$result )
+		{
 			return false;
+		}
 		
-		while($res = $result->fetchArray(SQLITE3_ASSOC)) {
+		while ($res = $result->fetchArray(SQLITE3_ASSOC)) 
+		{
 			$arr[] = $res;
 		}
 		
-		if(count($arr) == 0)
+		if (count($arr) == 0)
+		{
 			return false;
+		}
 		else
+		{
 			return $arr;
+		}
 	}
 
 	public function recordExists($id) {
-		return $this->query($id);
+		$idField = $this->getSchema()->getIdField();
+		return $this->query(array($idField => $id));
 	}
 	
 	public function lastRowId() {
@@ -126,4 +138,13 @@ class SqliteDataStore extends BaseSqlDataStore {
 		}
 		return $return;
 	}
+	/**
+	 * Escape a string
+	 * @param string $dirtyString Dirty string to be escaped
+	 * @return string Clean String
+	 **/
+	public function escapeString($dirtyString) 
+	{
+		return sprintf("'%s'", $this->_db->escapeString($dirtyString));
+	} // end function escapeString
 }

@@ -1,4 +1,5 @@
 <?php
+namespace Cumula;
 /**
  * Cumula
  *
@@ -24,10 +25,10 @@
 class SystemConfig extends BaseComponent {
 	public function __construct() {
 		parent::__construct();
-		$this->config = new StandardConfig(CONFIGROOT, 'system.yaml');
+		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, 'system.yaml');
 		
-		$this->addEvent(SYSTEMCONFIG_SET_VALUE);
-		$this->addEvent(SYSTEMCONFIG_GET_VALUE);
+		$this->addEvent('systemconfig_set_value');
+		$this->addEvent('systemconfig_get_value');
 		
 		$this->setupDefaults();
 		
@@ -35,7 +36,7 @@ class SystemConfig extends BaseComponent {
 	}
 	
 	public function setupListeners() {
-		$this->addEventListenerTo('ComponentManager', COMPONENT_STARTUP_COMPLETE, 'startup');
+		$this->addEventListenerTo('Cumula\\ComponentManager', 'component_startup_complete', 'startup');
 	}
 	
 	
@@ -74,16 +75,17 @@ class SystemConfig extends BaseComponent {
 	 * Implements the BaseComponent startup function
 	 * 
 	 */
-	public function startup($event) {
-		$this->addEventListenerTo('AdminInterface', ADMIN_COLLECT_SETTINGS_PAGES, 'setupAdminPages');
+
+	public function startup() {
+		$this->addEventListenerTo('AdminInterface\\AdminInterface', 'admin_collect_settings_pages', 'setupAdminPages');
 	}
 	
 	/**
 	 * Sets the admin pages for the system settings.
 	 * 
 	 */
-	public function setupAdminPages($event) {
-		$am = AdminInterface::getInstance();
+
+	public function setupAdminPages($event, $am) {
 		$page = $am->newAdminPage();
 		$page->title = 'Site Settings';
 		$page->description = 'Basic Site Settings.';
@@ -146,7 +148,7 @@ class SystemConfig extends BaseComponent {
 	 * @return unknown_type
 	 */
 	public function setValue($config, $value) {
-		$this->dispatch(SYSTEMCONFIG_SET_VALUE, array($config, $value));
+		$this->dispatch('systemconfig_set_value', array($config, $value));
 		$this->config->setConfigValue($config, $value);
 	}
 	
@@ -159,7 +161,15 @@ class SystemConfig extends BaseComponent {
 	 */
 	public function getValue($config, $default = null) {
 		$value = $this->config->getConfigValue($config, $default);
-		$this->dispatch(SYSTEMCONFIG_GET_VALUE, array($config, $value));
+		$this->dispatch('systemconfig_get_value', array($config, $value));
 		return $value;
 	}
+    /**
+     * Implementation of getInfo
+     * @param void
+     * @return array
+     **/
+    public static function getInfo() {
+        
+    } // end function getInfo
 }
