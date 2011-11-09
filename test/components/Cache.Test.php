@@ -33,7 +33,7 @@ class Test_Cache extends Test_BaseTest
 		$this->assertFalse(\Cache\Cache::get($key));
 
 		\Cache\Cache::set($key, $value);
-		$this->assertEquals(\Cache\Cache::get($key), $value);
+		$this->assertEquals($value, \Cache\Cache::get($key));
 	} // end function testCacheGet
 
 	/**
