@@ -3,9 +3,6 @@
 namespace Cumula;
 use \Cumula\EventDispatcher as EventDispatcher;
 
-require_once(implode(DIRECTORY_SEPARATOR, array(ROOT, 'cumula', 'classes', 'EventDispatcher.class.php')));
-require_once(implode(DIRECTORY_SEPARATOR, array(ROOT, 'cumula', 'classes', 'Renderer.class.php')));
-
 class Error extends EventDispatcher {
 	public static $levels = array(
 		0                  => 'Error',
