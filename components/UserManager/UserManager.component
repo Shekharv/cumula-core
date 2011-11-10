@@ -106,15 +106,20 @@ class UserManager extends BaseComponent {
 			$this->_userStore->delete($user);
 	}
 	
-	public function authenticate($route, $router, $args) {
+	public function authenticate($route, $router, $args) 
+	{
 		$domain = \I('Session')->domain;
 		$returnUrl = \I('Session')->returnUrl;
 
 		//get the username and credentail from auth
-		if($this->_userStore->query(array('domain' => $domain, 'username' => $args['username'], 'password' => md5($args['password'])))) {
+		$userReturn = $this->_userStore->query(array('domain' => $domain, 'username' => $args['username'], 'password' => md5($args['password'])));
+		if ($userReturn) 
+		{
 			$this->redirectTo($returnUrl);
 			\I('Session')->user = new \stdClass();
-		} else {
+		} 
+		else 
+		{
 			\I('Session')->warning = 'Username or Password Incorrect.';
 			$this->redirectTo('/user/login');
 		}

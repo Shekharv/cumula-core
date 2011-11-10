@@ -3,24 +3,44 @@ namespace Session;
 use \Cumula\BaseComponent as BaseComponent;
 use \Cumula\ComponentManager as ComponentManager;
 
-class Session extends BaseComponent {
-	public function __construct() {
+class Session extends BaseComponent 
+{
+
+	/**
+	 * Class Constructor
+	 * @param void
+	 * @return void
+	 */
+	public function __construct() 
+	{
 		parent::__construct();
 	
-		//Add  listener to app BOOT_INIT event
+		// Add listener to app BOOT_INIT event
 		$this->addEventListenerTo('Application', 'boot_init', 'startSession');
 		$this->addEventListenerTo('Application', 'boot_shutdown', 'clearFlash');
 	}
-	
-	public function clearFlash() {
-		if(\I('Response')->response['status_code'] != 302) {
+
+	/**
+	 * Startup Method
+	 * @param void
+	 * @return void
+	 **/
+	public function startup() 
+	{
+		$this->startSession();
+	} // end function startup
+
+	public function clearFlash() 
+	{
+		if (\I('Response')->response['status_code'] != 302) 
+		{
 			unset($this->warning);
 			unset($this->notice);
 		}
 	}
 	
-	public function startSession() {
-		//session_name($this->_composeName());
+	public function startSession() 
+	{
 		session_start();
 		$this->_logInfo("session is ", $_SESSION);
 	}
@@ -39,7 +59,8 @@ class Session extends BaseComponent {
 		return preg_replace("/\W/", "", $url);
 	}
 	
-	public function setValue($name, $value) {
+	public function setValue($name, $value) 
+	{
 		$_SESSION[$name] = $value;
 	}
 	
@@ -48,11 +69,16 @@ class Session extends BaseComponent {
 			unset($_SESSION[$name]);
 	}
 	
-	public function getValue($name, $default = false) {
-		if(empty($_SESSION[$name]))
+	public function getValue($name, $default = false) 
+	{
+		if (!isset($_SESSION[$name]))
+		{
 			return $default;
+		}
 		else
+		{
 			return $_SESSION[$name];
+		}
 	}
 	
 	public function install() {
@@ -60,11 +86,13 @@ class Session extends BaseComponent {
 		$cm->registerStartupComponent($this);
 	}
 	
-	public function __get($name) {
+	public function __get($name) 
+	{
 		return $this->getValue($name, false);
 	}
 	
-	public function __set($name, $value) {
+	public function __set($name, $value) 
+	{
 		return $this->setValue($name, $value);
 	}
 	
