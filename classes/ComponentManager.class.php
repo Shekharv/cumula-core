@@ -108,19 +108,22 @@ final class ComponentManager extends BaseComponent {
 	 * 
 	 */
 	public function setupAdminPages($event, $dispatcher) {
-		$uninstalled = array_diff($this->_availableClasses, $this->_installedClasses);
+		$uninstalled = array_diff($this->_availableClasses, $this->getInstalledComponents());
 		$page = $dispatcher->newAdminPage();
 		$page->title = 'Components';
 		$page->description = 'Below are the installed and enabled components in the system.';
 		$page->route = '/admin/installed_components';
 		$page->component = &$this;
 		$page->callback = 'loadSettings';
-		$page->fields = array(array('name' => 'enabled_components', 
-			'title' => 'Enabled Components',
-			'type' => 'checkboxes',
-			'values' => $this->_installedClasses,
-			'selected' => $this->_enabledClasses,
-			'labels' => $this->_installedClasses),
+		$page->fields = array(
+			array(
+				'name' => 'enabled_components', 
+				'title' => 'Enabled Components',
+				'type' => 'checkboxes',
+				'values' => $this->getInstalledComponents(),
+				'selected' => $this->_enabledClasses,
+				'labels' => $this->getInstalledComponents(),
+			),
 		);
 		$dispatcher->addAdminPage($page);
 		
