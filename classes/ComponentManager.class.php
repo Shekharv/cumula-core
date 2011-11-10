@@ -64,8 +64,6 @@ final class ComponentManager extends BaseComponent {
 
 		// Set listeners for events
 		$this->addEventListener('component_startup_complete', array(&$this, 'startup'));
-
-		$this->addEventListenerTo('Application', 'boot_init', 'loadComponents');
 		$this->addEventListenerTo('Application', 'boot_startup', 'startupComponents');
 		$this->addEventListenerTo('Application', 'boot_shutdown', 'shutdown');
 		$this->addEventListenerTo('Cumula\\Autoloader', 'event_autoload', 'getComponentFiles');
@@ -76,6 +74,9 @@ final class ComponentManager extends BaseComponent {
 
 		// Set output
 		$this->_output = array();
+
+		// Load the Components so they can interact with boot_init
+		$this->loadComponents();
 	}
 	
 	/**

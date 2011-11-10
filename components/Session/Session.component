@@ -20,16 +20,6 @@ class Session extends BaseComponent
 		$this->addEventListenerTo('Application', 'boot_shutdown', 'clearFlash');
 	}
 
-	/**
-	 * Startup Method
-	 * @param void
-	 * @return void
-	 **/
-	public function startup() 
-	{
-		$this->startSession();
-	} // end function startup
-
 	public function clearFlash() 
 	{
 		if (\I('Response')->response['status_code'] != 302) 
