@@ -90,24 +90,33 @@ class SystemConfig extends BaseComponent {
 		$page->title = 'Site Settings';
 		$page->description = 'Basic Site Settings.';
 		$page->route = '/admin/site_settings';
-		$page->fields = array(array('name' => SETTING_DEFAULT_BASE_PATH, 
-									'title' => 'Base Path',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_DEFAULT_BASE_PATH)),
-							  array('name' => SETTING_SITE_URL, 
-									'title' => 'Base URL',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_SITE_URL, '')),
-							  array('name' => SETTING_SITE_TITLE, 
-										'title' => 'Site Title',
-										'type' => 'string',
-										'value' => $this->config->getConfigValue(SETTING_SITE_TITLE)),		
-							  array('name' => SETTING_ENVIRONMENT, 
-									'title' => 'Environment',
-									'type' => 'select',
-									'values' => array("Development" => ENV_DEVELOPMENT, "Test" => ENV_TEST, "Production" => ENV_PRODUCTION),
-									'selected' => $this->config->getConfigValue(SETTING_ENVIRONMENT)),
-							);		
+		$page->fields = array(
+			array(
+				'name' => SETTING_DEFAULT_BASE_PATH, 
+				'title' => 'Base Path',
+				'type' => 'string',
+				'value' => $this->getConfigValue(SETTING_DEFAULT_BASE_PATH, DEFAULT_SITE_BASE_PATH)
+			),
+			array(
+				'name' => SETTING_SITE_URL, 
+				'title' => 'Base URL',
+				'type' => 'string',
+				'value' => $this->getConfigValue(SETTING_SITE_URL, '')
+			),
+			array(
+				'name' => SETTING_SITE_TITLE, 
+				'title' => 'Site Title',
+				'type' => 'string',
+				'value' => $this->getConfigValue(SETTING_SITE_TITLE, DEFAULT_SITE_TITLE)
+			),
+			array(
+				'name' => SETTING_ENVIRONMENT, 
+				'title' => 'Environment',
+				'type' => 'select',
+				'values' => array("Development" => ENV_DEVELOPMENT, "Test" => ENV_TEST, "Production" => ENV_PRODUCTION),
+				'selected' => $this->getConfigValue(SETTING_ENVIRONMENT, DEFAULT_ENVIRONMENT)
+			),
+		);		
 		$page->component = &$this;
 		$am->addAdminPage($page);
 		
@@ -115,31 +124,55 @@ class SystemConfig extends BaseComponent {
 		$page->title = 'Component Defaults';
 		$page->route = '/admin/component_defaults';
 		$page->description = 'Set the default classes used in Cumula.  WARNING: only edit this page if you know what you are doing!';
-		$page->fields = array(array('name' => SETTING_COMPONENT_MANAGER, 
-									'title' => 'Component Manager Class',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_COMPONENT_MANAGER)),
-								array('name' => SETTING_TEMPLATER, 
-									'title' => 'Templater Class',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_TEMPLATER)),	
-								array('name' => SETTING_ROUTER, 
-									'title' => 'Router Class',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_ROUTER)),
-								array('name' => SETTING_DEFAULT_DATASTORE, 
-									'title' => 'Default DataStore Class',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_DEFAULT_DATASTORE)),
-								array('name' => SETTING_DEFAULT_CONFIG, 
-										'title' => 'Default Config Class',
-										'type' => 'string',
-										'value' => $this->config->getConfigValue(SETTING_DEFAULT_CONFIG)),
-							);		
+
+		$page->fields = array(
+			array(
+				'name' => SETTING_COMPONENT_MANAGER, 
+				'title' => 'Component Manager Class',
+				'type' => 'string',
+				'value' => $this->getConfigValue(SETTING_COMPONENT_MANAGER, DEFAULT_COMPONENT_MANAGER_CLASS),
+			),
+			array(
+				'name' => SETTING_TEMPLATER, 
+				'title' => 'Templater Class',
+				'type' => 'string',
+				'value' => $this->getConfigValue(SETTING_TEMPLATER, DEFAULT_TEMPLATER_CLASS),
+			),
+			array(
+				'name' => SETTING_ROUTER, 
+				'title' => 'Router Class',
+				'type' => 'string',
+				'value' => $this->getConfigValue(SETTING_ROUTER, DEFAULT_ROUTER_CLASS),
+			),
+			array(
+				'name' => SETTING_DEFAULT_DATASTORE, 
+				'title' => 'Default DataStore Class',
+				'type' => 'string',
+				'value' => $this->getConfigValue(SETTING_DEFAULT_DATASTORE, DEFAULT_DATASTORE_CLASS),
+			),
+			array(
+				'name' => SETTING_DEFAULT_CONFIG, 
+				'title' => 'Default Config Class',
+				'type' => 'string',
+				'value' => $this->getConfigValue(SETTING_DEFAULT_CONFIG, DEFAULT_CONFIG_CLASS),
+			),
+		);		
 		$page->component = &$this;
 		$am->addAdminPage($page);
 	}
 	
+	/**
+	 * undocumented function
+	 * @param void
+	 * @return void
+	 **/
+	public function getConfigValue($name, $default = NULL) 
+	{
+		$value = $this->config->getConfigValue($name, $default);
+		return $value[0][0];
+		
+	} // end function getConfigValue
+
 	/**
 	 * Saves a new setting and value
 	 * 
