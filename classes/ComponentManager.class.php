@@ -175,10 +175,26 @@ final class ComponentManager extends BaseComponent {
 	public function loadSettings() 
 	{
 		$this->_availableClasses = $this->_getAvailableComponents();
-		$this->_installedClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('installed_components', array()));
-		$this->_enabledClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('enabled_components', array()));
-		$this->_startupClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('startup_components', array()));
+		$this->_installedClasses = array_intersect($this->_availableClasses, $this->getConfigValue('installed_components', array()));
+		$this->_enabledClasses = array_intersect($this->_availableClasses, $this->getConfigValue('enabled_components', array()));
+		$this->_startupClasses = array_intersect($this->_availableClasses, $this->getConfigValue('startup_components', array()));
 	}
+
+	/**
+	 * Wrapper for config->getConfigValue
+	 * @param string $name Name of the parameter to get
+	 * @param mixed $default Default value of the parameter
+	 * @return mixed
+	 **/
+	public function getConfigValue($name, $default = NULL) 
+	{
+		$value = $this->config->getConfigValue($name, $default);
+		if (isset($value[0]))
+		{
+			return $value[0];
+		}
+		return $default;
+	} // end function getConfigValue
 
 	/**
 	 * Helper function to add a component to the startup list.
