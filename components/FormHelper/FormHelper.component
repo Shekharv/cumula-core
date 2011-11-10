@@ -56,7 +56,7 @@ class FormHelper extends BaseComponent {
 			//Check id:key is valid and matches saved version
 			$check_key = $this->_dataStore->query(array('id' => $id));
 			//If key is not valid, return 
-			if($key != $check_key) {
+			if($key != $check_key[0][0]) {
 				$response->send405();
 			} else {
 				$this->_dataStore->destroy($key);
