@@ -377,10 +377,13 @@ final class ComponentManager extends BaseComponent {
 	public function installComponents($components) 
 	{
 		$installed_components = array();
-		foreach($components as $component) 
+		foreach ($components as $component) 
 		{
 			$installed = $this->installComponent($component);
-			if ($installed) $installed_components[] = $component;
+			if ($installed)
+			{	
+				$installed_components[] = $component;
+			}
 		}
 		return $installed_components;
 	}
@@ -484,25 +487,27 @@ final class ComponentManager extends BaseComponent {
 		}
 
 		$instance = $this->getComponentInstance($component);
-		if ($instance) {
-			if (in_array($component, $this->_enabledClasses)) {
+		if ($instance) 
+		{
+			if (in_array($component, $this->_enabledClasses)) 
+			{
 				$this->disableComponent($component);
 			}
 			$instance->uninstall();
 			$key = array_search($component, $this->_installedClasses);
 			unset($this->_installedClasses[$key]);
 			return $component;
-		} else {
+		} 
+		else 
+		{
 			return FALSE;
 		}
 	}
-
 	public function uninstallComponents($components) {
 		foreach($components as $component) {
 			$this->uninstallComponent($component);
 		}
 	}
-
 
 	/**
 	 * Getter for enabled components list
