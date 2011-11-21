@@ -177,7 +177,7 @@ final class Application extends EventDispatcher {
         defined('TEMPLATEROOT') ||
             define('TEMPLATEROOT', $template_path . DIRECTORY_SEPARATOR);
 
-		define('CUMULAVERSION', "0.3.0");
+		define('CUMULAVERSION', "0.4.0");
 		
 		define('PUBLICROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR);
 		define('ASSETROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR);

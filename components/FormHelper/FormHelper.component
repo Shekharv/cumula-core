@@ -31,14 +31,19 @@ use Cumula\SimpleSchema as SimpleSchema;
 class FormHelper extends BaseComponent {
 	private static $_formId;
 	
-	public function __construct() {
+	public function __construct() 
+	{
 		parent::__construct();
 		$ds = $this->defaultDataStore();
-		$schema = new SimpleSchema(array('id' => 'string',
-									 'value' => 'string'), 
-								   'id', 
-								   'config');
-		$this->_dataStore = new $ds($schema, array('source_directory' => DATAROOT, 'filename' => 'data.yaml'));
+		$schema = new SimpleSchema(array(
+			'id' => 'string',
+			'value' => 'string'
+		), 'id', 'config');
+
+		$this->_dataStore = new $ds($schema, array(
+			'source_directory' => DATAROOT, 
+			'filename' => 'data.yaml'
+		));
 		self::$_formId = '';
 	}
 	
