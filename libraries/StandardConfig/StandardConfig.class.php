@@ -56,10 +56,20 @@ class StandardConfig implements \Cumula\CumulaConfig {
 	 */
 	public function getConfigValue($config, $default = null) {
 		$obj = $this->_dataStore->query($config);
-		if (isset($obj) && !is_null($obj[0])) {
-			return $obj;
-		} else {
-			return array(array($default));
+		if (isset($obj) && is_array($obj) && !is_null($obj[0]))
+		{
+			if (count($obj[0]) == 1)
+			{
+				return $obj[0][0];
+			}
+			else
+			{
+				return $obj;
+			}
+		} 
+		else 
+		{
+			return $default;
 		}
 	}
 	

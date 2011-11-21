@@ -169,8 +169,7 @@ class SystemConfig extends BaseComponent {
 	public function getConfigValue($name, $default = NULL) 
 	{
 		$value = $this->config->getConfigValue($name, $default);
-		return $value[0][0];
-		
+		return $value;
 	} // end function getConfigValue
 
 	/**
@@ -195,7 +194,11 @@ class SystemConfig extends BaseComponent {
 	public function getValue($config, $default = null) {
 		$value = $this->config->getConfigValue($config, $default);
 		$this->dispatch('systemconfig_get_value', array($config, $value));
-		return $value[0][0];
+		if (is_array($value) && count($value) == 1)
+		{
+			return array_shift($value);
+		}
+		return $value;
 	}
     /**
      * Implementation of getInfo

@@ -192,11 +192,7 @@ final class ComponentManager extends BaseComponent {
 	public function getConfigValue($name, $default = NULL) 
 	{
 		$value = $this->config->getConfigValue($name, $default);
-		if (isset($value[0]))
-		{
-			return $value[0];
-		}
-		return $default;
+		return $value !== FALSE ? $value : $default;
 	} // end function getConfigValue
 
 	/**

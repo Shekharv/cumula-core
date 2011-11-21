@@ -75,8 +75,7 @@ class Templater extends BaseComponent implements CumulaTemplater {
 	public function getTemplateFile() {
 		if (is_null($this->_template_file))
 		{
-			$templateFile = $this->config->getConfigValue('template_file', 'template.tpl.php');
-			$this->setTemplateFile($templateFile[0][0]);
+			$this->setTemplateFile($this->config->getConfigValue('template_file', 'template.tpl.php'));
 		}
 		return $this->_template_file;
 	}
