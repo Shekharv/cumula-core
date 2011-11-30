@@ -47,7 +47,6 @@ class AdminInterface extends BaseComponent {
 	public function __construct() {
 		parent::__construct();
 		$this->_pages = array();
-		$this->_menuItems = array('/admin' => 'Admin Home');
 		$this->stats = array();
 	}
 	
