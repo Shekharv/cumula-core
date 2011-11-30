@@ -82,9 +82,6 @@
 			<nav id="primary" role="navigation">
 				<ul class="group">
 					<li><a class="ir home" href="/">Home</a></li>
-					<li><a href="/documentation">Documentation</a></li>
-					<li><a href="/docs/api" target="_blank">API</a></li>
-					<li><a href="/blog">Blog</a></li>
 				</ul>
 			</nav>
 		</div>
