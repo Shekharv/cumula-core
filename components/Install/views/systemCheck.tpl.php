@@ -1,13 +1,13 @@
-	<h2>Installation: Step 2</h2>
-	
-	<?php if (!in_array(FALSE, $this->perms)) { ?>
-	<p>We've performed an initial system check and it looks like your system is ready to support Cumula.  Results are below.</p>
-	<?php } else {?>
-	<p>We've performed an initial system check and there were some problems.  Please see below for more details.</p>
-	<?php } ?>
+<h1>Installation: Step 2</h1>
+
+<?php if (!in_array(FALSE, $this->perms)) { ?>
+<p>We've performed an initial system check and it looks like your system is ready to support Cumula. Results are below.</p>
+<?php } else { ?>
+<p>We've performed an initial system check and there were some problems. Please see below for more details.</p>
+<?php } ?>
+<hr>
 <section id="messages" class="box">
-	<h3>System notes</h3>
-	<ul>
+	<ul class="linkList">
 		<?php if (PHP_VERSION_ID > 50300) { ?>
 		<li class="success">Cumula will work with your version of PHP (<?php echo PHP_VERSION ?>).</li>
 		<?php } ?>
@@ -24,7 +24,7 @@
 							if(!$writable)
 								echo "<li><strong>$file</strong> is not writable.</li>";
 						}
-							
+						
 					}?>
 				</ul>
 			</li>
@@ -32,10 +32,11 @@
 			<li class="success">File Permissions Are All Good.</li>
 		<?php } ?>
 		<?php if($this->rewrite == true) { ?>
-			<li class='success'>Apache mod_rewrite is enabled.</li>
+			<li class="success">Apache mod_rewrite is enabled.</li>
 		<?php } else { ?>
-			<li class='error'>Apache mod_rewrite is not enabled.  You will not be able to use clean URLs.</li>
+			<li class="error">Apache mod_rewrite is not enabled.  You will not be able to use clean URLs.</li>
 		<?php } ?>
 	</ul>
 </section>
-	<p class="green"><?php echo $this->linkTo('Next &#187;', '/install/setup_user'); ?></p>
+
+<?php echo $this->linkTo('Next &#187;', '/install/setup_user', array('class' => 'button')); ?>

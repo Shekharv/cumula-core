@@ -1,4 +1,5 @@
 <h1>Dashboard</h1>
+
 <section id="messages" class="box">
 	<h1>System notes</h1>
 	<ul>

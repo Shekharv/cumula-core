@@ -36,6 +36,6 @@ foreach($this->page->fields as $setting) {
 }
 
 echo $this->fh->hiddenFieldTag('setting-page', $this->page->route);
-echo $this->fh->submitTag('Save');
+echo $this->fh->submitTag('Save', array('class' => 'button'));
 echo '</fieldset>';
 echo $this->fh->formEnd(); ?>
