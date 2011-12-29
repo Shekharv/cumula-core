@@ -57,9 +57,9 @@ class StandardConfig implements \Cumula\CumulaConfig {
 	public function getConfigValue($config, $default = null) {
 		$obj = $this->_dataStore->query($config);
 		if (isset($obj) && !is_null($obj[0])) {
-			return $obj;
+			return $obj[0];
 		} else {
-			return array(array($default));
+			return $default;
 		}
 	}
 	

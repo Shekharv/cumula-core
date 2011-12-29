@@ -64,8 +64,10 @@ class MenuManager extends BaseComponent {
 	protected function _renderMenu(MenuMenu $menu) {
 		$items = $menu->getItems();
 		$output = '<ul>';
-		foreach($items as $item) {
-			$output .= $this->_renderItem($item);
+		if(count($items) > 0) {
+			foreach($items as $item) {
+				$output .= $this->_renderItem($item);
+			}
 		}
 		$output .= "</ul>";
 		return $output;

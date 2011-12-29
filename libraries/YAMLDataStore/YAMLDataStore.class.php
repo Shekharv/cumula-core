@@ -129,11 +129,11 @@ class YAMLDataStore extends \Cumula\BaseDataStore {
 		}
 
 		if ($this->recordExists($args)) {
-			$obj = (array)$this->_storage[$args];
+			$obj = array($this->_storage[$args]);
 		} else {
 			$obj = null;
 		}
-		return array($obj);
+		return $obj;
 	}
 	
 	public function recordExists($id) {

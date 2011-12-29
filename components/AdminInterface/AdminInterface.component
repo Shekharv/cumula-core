@@ -181,10 +181,11 @@ class AdminInterface extends BaseComponent {
 	 **/
 	public function sendMenus($event, $dispatcher) {
 		$menu = $dispatcher->newMenu('adminMenu');
-		
-		foreach($this->_menuItems as $route => $title) {
-			$item = $menu->newItem($title, $route);
-			$menu->addItem($item);
+		if(count($this->_menuItems) > 0) {
+			foreach($this->_menuItems as $route => $title) {
+				$item = $menu->newItem($title, $route);
+				$menu->addItem($item);
+			}
 		}
 	}
 	

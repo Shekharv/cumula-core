@@ -94,8 +94,8 @@
 	
 	<div id="container">
 		<div class="bucket">
-			<?php echo $this->instance('Session')->warning; ?>
-			<?php echo $this->instance('Session')->notice; ?>
+			<?php echo \I('Session')->warning; ?>
+			<?php echo \I('Session')->notice; ?>
 			<?php echo $content; ?>
 		</div>
 	</div>

@@ -162,7 +162,7 @@ class SystemConfig extends BaseComponent {
 	public function getValue($config, $default = null) {
 		$value = $this->config->getConfigValue($config, $default);
 		$this->dispatch('systemconfig_get_value', array($config, $value));
-		return $value[0][0];
+		return $value;
 	}
     /**
      * Implementation of getInfo
