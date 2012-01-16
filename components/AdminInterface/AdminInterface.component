@@ -63,9 +63,9 @@ class AdminInterface extends BaseComponent {
 		 * If we add parameters to the method, we get errors saying that the method definition
 		 * does not match that of BaseComponent::startup()
 		 */
-		$args = func_get_args();
-		$event = isset($args[0]) ? $args[0] : NULL;
-		$dispatcher = isset($args[1]) ? $args[1] : NULL;
+		//$args = func_get_args();
+		//$event = isset($args[0]) ? $args[0] : NULL;
+		//$dispatcher = isset($args[1]) ? $args[1] : NULL;
 
 		$this->addEventListenerTo('Application', 'boot_prepare', 'dispatchCollectEvent');
 		
@@ -75,12 +75,14 @@ class AdminInterface extends BaseComponent {
 		// bind to the menu collector event
 		$this->addEventListenerTo('MenuManager', 'menu_collect_menus', 'sendMenus');
 		
+		$cm = \I('ComponentManager');
+		
 		//Initialize stats for display on homepage.
-		$this->stats['installed_components'] = count($dispatcher->getEnabledComponents());
+		$this->stats['installed_components'] = count($cm->getEnabledComponents());
 
 		$this->addEventListenerTo('Autoloader', 'event_autoload', 'autoload');
 
-		$this->addEventListener('admin_collect_settings_pages', array(\Cumula\SystemConfig::instance(), 'setupAdminPages'));
+		$this->addEventListener('admin_collect_settings_pages', array(\I('SystemConfig'), 'setupAdminPages'));
 		
 		$this->addEventListenerTo('UserManager', 'register_auth_domain', function($event, $dispatcher) {
 			$dispatcher->registerAuthDomain('admin_interface', array('paths' => array('/admin', '/admin/*')));

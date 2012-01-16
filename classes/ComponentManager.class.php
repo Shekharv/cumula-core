@@ -162,6 +162,10 @@ final class ComponentManager extends BaseComponent {
 	 */
 	public function shutdown() 
 	{
+		$this->_writeConfig();
+	}
+	
+	protected function _writeConfig() {
 		$this->config->setConfigValue('installed_components', $this->_installedClasses);
 		$this->config->setConfigValue('enabled_components', $this->_enabledClasses);
 		$this->config->setConfigValue('startup_components', $this->_startupClasses);
@@ -340,6 +344,7 @@ final class ComponentManager extends BaseComponent {
 		}
 
 		$this->_installedClasses[] = $component;
+		$this->_writeConfig();
 		$this->startupComponent($component, TRUE);
 		$instance = $this->getComponentInstance($component);
 
