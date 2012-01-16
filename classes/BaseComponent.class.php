@@ -189,6 +189,14 @@ abstract class BaseComponent extends EventDispatcher {
 		$this->renderContent($contents, $var_name);
 	}
 	
+	protected function renderPlain($output, $useTemplate = false, $contentType = 'text/plain') {
+		if(($response = \I('Response')) && ($app = \I('Application'))) {
+			$response->response['content'] = $output;
+			$response->response['headers']['Content-Type'] = $contentType;
+			$app->removeEventListener('boot_postprocess', array(\I('Templater'), 'postProcessRender'));
+		}
+	}
+	
 	/**
 	 * Returns a rendered view specified in $file_name.  $args is exposed to the view.
 	 * 
