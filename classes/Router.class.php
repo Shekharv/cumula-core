@@ -48,7 +48,7 @@ class Router extends BaseComponent
 	{
 		//TODO: do something more smart here
 		$fileName = Templater::instance()->config->getConfigValue('template_directory', TEMPLATEROOT).'404.tpl.php';
-		$this->render($fileName);
+		$this->renderContent($this->renderPartial($fileName), 'content');
 		$response->response['content'] = $this->renderPartial(implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', '404.html')));
 		$response->send404();
 	}

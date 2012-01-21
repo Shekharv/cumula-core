@@ -89,15 +89,14 @@ class EventDispatcher {
 	 */
 	public function addEvent($event) 
 	{
-		$class = __CLASS__;
 		$calledClass = get_called_class();
-		$eventHash = $class::getEventHash();
+		$eventHash = static::getEventHash();
 
 		// See if the event exists.  If not, set it up in the eventHash
 		if (!isset($eventHash[$calledClass][$event]))
 		{
 			$eventHash[$calledClass][$event] = array();
-			$class::setEventHash($eventHash);
+			static::setEventHash($eventHash);
 		}
 	}
 
@@ -108,13 +107,12 @@ class EventDispatcher {
 	 */
 	public function removeEvent($event) 
 	{
-		$class = __CLASS__;
 		$calledClass = get_called_class();
-		$eventHash = $class::getEventHash();
+		$eventHash = static::getEventHash();
 		if (isset($eventHash[$calledClass][$event])) 
 		{
 			unset($eventHash[$calledClass][$event]);
-			$class::setEventHash($eventHash);
+			static::setEventHash($eventHash);
 		}
 	}
 	
@@ -149,8 +147,8 @@ class EventDispatcher {
 
 		$myClass = get_class($this);
 		$absClass = Autoloader::absoluteClassName($class);
-		$myClass::addClassListenerHash($absClass, $event, $callback);
-		$myClass::instance()->dispatch('event_registered', array($absClass, $event));
+		static::addClassListenerHash($absClass, $event, $callback);
+		static::instance()->dispatch('event_registered', array($absClass, $event));
 	}
 	
 	/**
@@ -198,9 +196,8 @@ class EventDispatcher {
 	 */
 	public function removeEventListener($event, $handler) 
 	{
-		$class = __CLASS__;
 		$calledClass = get_called_class();
-		$eventHash = $class::getEventHash();
+		$eventHash = static::getEventHash();
 		if (isset($eventHash[$calledClass][$event]))
 		{
 			foreach ($eventHash[$calledClass][$event] as $key => $listener)
@@ -208,7 +205,7 @@ class EventDispatcher {
 				if ($listener === $handler)
 				{
 						unset($eventHash[$calledClass][$event][$key]);
-						$class::setEventHash($eventHash);
+						static::setEventHash($eventHash);
 						return;
 				}
 			}
@@ -217,13 +214,13 @@ class EventDispatcher {
 	
 	public function removeEventListeners($event) 
 	{
-		$class = __CLASS__;
 		$calledClass = get_called_class();
-		$eventHash = $class::getEventHash();
+		$eventHash = static::getEventHash();
 		if (isset($eventHash[$calledClass][$event])) 
 		{
 			$eventHash[$calledClass][$event] = array();
 		}
+		static::setEventHash($eventHash);
 	}
 	
 	/**
@@ -235,8 +232,11 @@ class EventDispatcher {
 	 */
 	public function dispatch($event, $data = array(), $callback = false) 
 	{
-		if (($listeners = self::eventHashExists($event)) !== FALSE)
+		$class = get_called_class();
+		$hash = static::getEventHash();
+		if (isset($hash[$class][$event]) && count($hash[$class][$event]) > 0)
 		{
+			$listeners = $hash[$class][$event];
 			//if $callback is a string, wrap it as a callable array with $this
 			if (is_string($callback))
 			{
@@ -363,8 +363,7 @@ class EventDispatcher {
 	 **/
 	private static function getEventHash() 
 	{
-		$class = __CLASS__;
-		return $class::$eventHash;
+		return static::$eventHash;
 	} // end function getEventHash()
 	
 	/**

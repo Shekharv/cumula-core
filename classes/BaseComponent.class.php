@@ -179,21 +179,20 @@ abstract class BaseComponent extends EventDispatcher {
 	 * rendered content is sent to the templater as a block using the $var_name param.
 	 * 
 	 */
-	public function render($file_name = null, $var_name = 'content') {
-		if($file_name == null) {
-			$bt = debug_backtrace(false); //TODO: See if there's a better way to do this than debug backtrace.
-			$caller = $bt[1]['function'];
-			$file_name = dirname($this->_getThisFile()).'/views/'.$caller.'.tpl.php';
-		}
-		$contents = $this->renderPartial($file_name);
-		$this->renderContent($contents, $var_name);
+	public function render($args = array()) {
+		$bt = debug_backtrace(false); //TODO: See if there's a better way to do this than debug backtrace.
+		$caller = $bt[1]['function'];
+		$file_name = dirname($this->_getThisFile()).'/views/'.$caller.'.tpl.php';
+		$contents = $this->renderPartial($file_name, $args);
+		$this->renderContent($contents, 'content');
 	}
 	
 	protected function renderPlain($output, $useTemplate = false, $contentType = 'text/plain') {
 		if(($response = \I('Response')) && ($app = \I('Application'))) {
 			$response->response['content'] = $output;
 			$response->response['headers']['Content-Type'] = $contentType;
-			$app->removeEventListener('boot_postprocess', array(\I('Templater'), 'postProcessRender'));
+			if(!$useTemplate) 
+				$app->removeEventListener('boot_postprocess', array(\I('Templater'), 'postProcessRender'));
 		}
 	}
 	
@@ -350,7 +349,8 @@ abstract class BaseComponent extends EventDispatcher {
 		}
 		else {
 			// Copy the file to the public assets directory
-			copy($source, $destination);
+			if(md5_file($source) != md5_file($destination))
+				copy($source, $destination);
 		}
 	} // end function copyAssetFiles
 }
