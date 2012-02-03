@@ -178,4 +178,13 @@
 		<target name="build.clean" description="Clean the build directory in preparation for a new build">
 			<delete dir="${project.builddir}" />
 		</target>
+
+		<target name="build.docs" description="Build DocBlox Documentation">
+			<docblox title="Cumula API Documentation" destdir="docs">
+				<fileset dir="${project.basedir}">
+					<exclude name="**/.inc"/>
+					<exclude name="**/components/**/libraries/**" />
+				</fileset>
+			</docblox>
+		</target>
 </project>
