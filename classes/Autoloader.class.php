@@ -106,6 +106,7 @@ class Autoloader extends EventDispatcher
 			'Cumula\\BaseSchema' => $dir .'/BaseSchema.class.php',
 			'Cumula\\Renderer' => $dir .'/Renderer.class.php',
 			'Cumula\\Error' => $dir .'/Error.class.php',
+			'Cumula\\BaseTemplate' => $dir .'/BaseTemplate.class.php',
 			'I' => $dir .'/I.class.php',
 
 			// Exceptions

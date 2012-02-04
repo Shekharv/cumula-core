@@ -100,7 +100,7 @@ class Router extends BaseComponent
 
 	public function processRoute($event, $dispatcher, $request, $response) 
 	{
-		$routes = $this->_parseRoute($request);
+		$routes = $this->parseRoute($request->path);
 		if (!count($routes)) 
 		{
 			$this->dispatch('router_file_not_found', array($request, $response));
@@ -113,13 +113,13 @@ class Router extends BaseComponent
 		}
 	}
 
-	protected function _parseRoute($request) 
+	public function parseRoute($path) 
 	{
 		//The return array of matching handlers
 		$return_handlers = array();
 
 		//Trim off forward slash
-		$path = substr($request->path, 1, strlen($request->path));
+		$path = substr($path, 1, strlen($path));
 
 		//Trim off trailing slash
 		if(substr($path, strlen($path)-1, strlen($path)) == '/')

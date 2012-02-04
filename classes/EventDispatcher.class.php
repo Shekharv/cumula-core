@@ -148,7 +148,7 @@ class EventDispatcher {
 		$myClass = get_class($this);
 		$absClass = Autoloader::absoluteClassName($class);
 		static::addClassListenerHash($absClass, $event, $callback);
-		static::instance()->dispatch('event_registered', array($absClass, $event));
+		static::instance()->dispatch('event_registered', array($absClass, $event, $callback));
 	}
 	
 	/**
@@ -233,10 +233,12 @@ class EventDispatcher {
 	public function dispatch($event, $data = array(), $callback = false) 
 	{
 		$class = get_called_class();
+		$fireBeforeAndAfter = (stripos($event, 'before_') === FALSE) && (stripos($event, 'after_') === FALSE);
+		$beforeEvent = sprintf('before_%s', $event);
+		$afterEvent = sprintf('after_%s', $event);
 		$hash = static::getEventHash();
-		if (isset($hash[$class][$event]) && count($hash[$class][$event]) > 0)
+		if(true)// (isset($hash[$class][$event]) && count($hash[$class][$event]) > 0)
 		{
-			$listeners = $hash[$class][$event];
 			//if $callback is a string, wrap it as a callable array with $this
 			if (is_string($callback))
 			{
@@ -248,42 +250,41 @@ class EventDispatcher {
 			global $level;
 			
 			// Flag to determine whether to dispatch the before and after events
-			$fireBeforeAndAfter = (stripos($event, 'before_') === FALSE) && (stripos($event, 'after_') === FALSE);
-						
+
 			if ($event != 'eventdispatcher_event_dispatched' && $fireBeforeAndAfter)
 			{
 				$level++;
 			}
 			
-			$beforeEvent = sprintf('before_%s', $event);
-			
 			if ($fireBeforeAndAfter && $this->getEventListeners($beforeEvent))
 			{
-				$this->dispatch($beforeEvent, $data);
+				$new_data = array_slice($data, 2);
+				$this->dispatch($beforeEvent, $new_data, $callback);
 			}
-			
-			//For each listener call the handler function	
-			foreach ($listeners as $event_handler) 
-			{
-				//Fire of an EVENT_DISPATCHED event if there are active listeners
-				if ($event != 'eventdispatcher_event_dispatched') 
-				{	
-					$this->dispatch('eventdispatcher_event_dispatched', array($event, $this, $event_handler, $level), $callback);
-				}
-
-				$result = call_user_func_array($event_handler, $data);
-				
-				if($callback)
+			$hash = static::getEventHash();
+			if(isset($hash[$class][$event]) && count($hash[$class][$event]) > 0) {
+				$listeners = $hash[$class][$event];
+				//For each listener call the handler function	
+				foreach ($listeners as $event_handler) 
 				{
-					call_user_func($callback, $result);
+					//Fire of an EVENT_DISPATCHED event if there are active listeners
+					if ($event != 'eventdispatcher_event_dispatched') 
+					{	
+						$this->dispatch('eventdispatcher_event_dispatched', array($event, $this, $event_handler, $level), $callback);
+					}
+
+					$result = call_user_func_array($event_handler, $data);
+				
+					if($callback)
+					{
+						call_user_func($callback, $result);
+					}
 				}
 			}
-
-			$afterEvent = sprintf('after_%s', $event);
-
 			if ($fireBeforeAndAfter && $this->getEventListeners($afterEvent))
 			{
-				$this->dispatch($afterEvent, $data);
+				$data = array_slice($data, 2);
+				$this->dispatch($afterEvent, $data, $callback);
 			}
 
 			if ($event != 'eventdispatcher_event_dispatched' && $fireBeforeAndAfter)
@@ -340,7 +341,8 @@ class EventDispatcher {
 		$class = get_called_class();
 		if (!isset(self::$_instances[$class]) || is_null(self::$_instances[$class]))
 		{
-			self::$_instances[$class] = new $class();
+			//self::$_instances[$class] = new $class();
+			return false;
 		}
 		return self::$_instances[$class];
 	}

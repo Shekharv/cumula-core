@@ -47,7 +47,8 @@ final class ComponentManager extends BaseComponent {
 		'Logger\\Logger', 
 		'MenuManager\\MenuManager', 
 		'Authentication\\Authentication',
-		'AdminInterface\\AdminInterface'
+		'AdminInterface\\AdminInterface',
+		'CumulaTemplate\\CumulaTemplate'
 	);
 
 	/**
@@ -89,6 +90,7 @@ final class ComponentManager extends BaseComponent {
 			'name' => 'Component Manager',
 			'description' => 'Component to manage other components',
 			'version' => '0.1.0',
+			'group' => 'Core',
 			'dependencies' => array(),
 		);
 	} // end function getInfo
@@ -114,12 +116,21 @@ final class ComponentManager extends BaseComponent {
 		$page->route = '/admin/installed_components';
 		$page->component = &$this;
 		$page->callback = 'loadSettings';
+		$labels = array();
+		foreach($this->_installedClasses as $class) {
+			if(method_exists($class, 'getInfo')) {
+				$info = $class::getInfo();
+				$labels[] = $info['name'];
+			} else {
+				$labels[] = $class;
+			}
+		}
 		$page->fields = array(array('name' => 'enabled_components', 
 			'title' => 'Enabled Components',
 			'type' => 'checkboxes',
 			'values' => $this->_installedClasses,
 			'selected' => $this->_enabledClasses,
-			'labels' => $this->_installedClasses),
+			'labels' => $labels),
 		);
 		$dispatcher->addAdminPage($page);
 		
@@ -143,11 +154,20 @@ final class ComponentManager extends BaseComponent {
 
 		if (count($uninstalled) > 0)
 		{
+			$labels = array();
+			foreach($uninstalled as $class) {
+				if(method_exists($class, 'getInfo')) {
+					$info = $class::getInfo();
+					$labels[] = $info['name'];
+				} else {
+					$labels[] = $class;
+				}
+			}
 			$page->fields = array(array('name' => 'installed_components',
 				'title' => 'Uninstalled Components',
 				'type' => 'checkboxes',
 				'values' => array_merge($uninstalled),
-				'labels' => array_merge($uninstalled)
+				'labels' => array_merge($labels)
 				));
 		} 
 		else 
@@ -178,9 +198,9 @@ final class ComponentManager extends BaseComponent {
 	public function loadSettings() 
 	{
 		$this->_availableClasses = $this->_getAvailableComponents();
-		$this->_installedClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('installed_components', array()));
-		$this->_enabledClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('enabled_components', array()));
-		$this->_startupClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('startup_components', array()));
+		$this->_installedClasses = array_values(array_intersect($this->_availableClasses, $this->config->getConfigValue('installed_components', array())));
+		$this->_enabledClasses = array_values(array_intersect($this->_availableClasses, $this->config->getConfigValue('enabled_components', array())));
+		$this->_startupClasses = array_values(array_intersect($this->_availableClasses, $this->config->getConfigValue('startup_components', array())));
 	}
 
 	/**
@@ -311,14 +331,30 @@ final class ComponentManager extends BaseComponent {
 	{
 		if (is_null($this->componentFiles) || count($this->componentFiles) == 0)
 		{
-			foreach(glob(sprintf('{%s*/*.component,%s*/*.component}', COMPROOT, CONTRIBCOMPROOT), GLOB_BRACE) as $file)
+			foreach(glob(sprintf('{%s*/*.component}', COMPROOT), GLOB_BRACE) as $file)
 			{
 				$basename = basename($file, '.component');
 				$this->componentFiles[sprintf('%s\\%s', $basename, $basename)] = $file;
 			}
+			$files = $this->recurseCompDirectory(APPROOT);
+			$this->componentFiles = array_merge($this->componentFiles, $files);
 		}
 		return $this->componentFiles;
 	} // end function getComponentFiles
+	
+	protected function recurseCompDirectory($source) {
+		$ret = array();
+		foreach(glob(sprintf('{%s*/*,%s*/*.component}', $source, $source), GLOB_BRACE) as $file)
+		{
+			if(is_dir($file)) {
+				$ret = array_merge($ret, $this->recurseCompDirectory($file));
+			} else if(str_replace(basename($file, '.component'), '', basename($file)) == '.component') {
+				$basename = basename($file, '.component');
+				$ret[sprintf('%s\\%s', $basename, $basename)] = $file;
+			}
+		}
+		return $ret;
+	}
 
 	/*
 	 * *************************************************************************
