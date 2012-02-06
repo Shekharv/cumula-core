@@ -39,6 +39,7 @@ final class ComponentManager extends BaseComponent {
 	private $_availableClasses = array();
 	private $_startupClasses = array();
 	private $componentFiles = array();
+	private $_dependencies = array();
 	
 	private $_installList = array("Install\\Install", 
 		'FormHelper\\FormHelper', 
@@ -60,16 +61,16 @@ final class ComponentManager extends BaseComponent {
 		parent::__construct();
 
 		// Create new events for component management
-		$this->addEvent('component_init_complete');
-		$this->addEvent('component_startup_complete');
+		$this->addEvent('ComponentInitComplete');
+		$this->addEvent('ComponentStartupComplete');
 
 		// Set listeners for events
-		$this->addEventListener('component_startup_complete', array(&$this, 'startup'));
+		$this->addEventListenerTo('ComponentManager', 'ComponentStartupComplete', 'startup');
 
-		$this->addEventListenerTo('Application', 'boot_init', 'loadComponents');
-		$this->addEventListenerTo('Application', 'boot_startup', 'startupComponents');
-		$this->addEventListenerTo('Application', 'boot_shutdown', 'shutdown');
-		$this->addEventListenerTo('Cumula\\Autoloader', 'event_autoload', 'getComponentFiles');
+		$this->addEventListenerTo('Application', 'BootInit', 'loadComponents');
+		$this->addEventListenerTo('Application', 'BootStartup', 'startupComponents');
+		$this->addEventListenerTo('Application', 'BootShutdown', 'shutdown');
+		$this->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', 'getComponentFiles');
 
 		// Initialize config and settings
 		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, 'components.yaml');
@@ -95,13 +96,24 @@ final class ComponentManager extends BaseComponent {
 		);
 	} // end function getInfo
 	
+	public function getComponentDependencies($component) {
+		if(isset($this->_dependencies[Autoloader::absoluteClassName($component)]))
+			return $this->_dependencies[Autoloader::absoluteClassName($component)];
+		else
+			return array();
+	}
+	
+	public function getAllComponentDependencies() {
+		return $this->_dependencies;
+	}
+	
 	/**
 	 * Implementation of the basecomponent startup function.
 	 * 
 	 */
 	public function startup()
 	{
-		$this->addEventListenerTo('AdminInterface', 'admin_collect_settings_pages', 'setupAdminPages');
+		$this->addEventListenerTo('AdminInterface', 'AdminCollectSettingsPages', 'setupAdminPages');
 	}
 
 	/**
@@ -251,7 +263,7 @@ final class ComponentManager extends BaseComponent {
 			$this->installComponents($this->_getAvailableComponents());
 		}
 
-		$this->dispatch('component_init_complete');
+		$this->dispatch('ComponentInitComplete');
 	}
 
 	/**
@@ -269,12 +281,11 @@ final class ComponentManager extends BaseComponent {
 			$this->enableComponents($this->_installedClasses);
 		}
 		$list = $this->_enabledClasses;
-
 		foreach ($list as $class_name) 
 		{
 			$this->startupComponent($class_name);
 		}
-		$this->dispatch('component_startup_complete');
+		$this->dispatch('ComponentStartupComplete');
 	}
 
 	/**
@@ -291,7 +302,12 @@ final class ComponentManager extends BaseComponent {
 			{
 				$instance = new $component_class();
 				$this->_components[$component_class] = $instance;
-				$instance->installAssets();
+				if(method_exists($component_class,'getInfo') && ($info = $component_class::getInfo()) && isset($info['dependencies'])) {
+					$vals = $info['dependencies'];
+					array_walk($vals, function(&$a) {$a = \Cumula\Autoloader::absoluteClassName($a);});
+					$this->_dependencies[$component_class] = $vals;
+				}
+				
 			}
 			else
 			{
@@ -469,12 +485,17 @@ final class ComponentManager extends BaseComponent {
 	 * Takes an array of components and enables components not currently enabled while disabling enabled components
 	 * not in the input list
 	 */
-	public function setEnabledComponents($components) 
+	public function setEnabledComponents($components, $process = true) 
 	{
-		$disable_list = array_diff($this->_enabledClasses, $components);
-		$enable_list = array_diff($components, $this->_enabledClasses);
-		$this->disableComponents($disable_list);
-		$this->enableComponents($enable_list);
+		if($process) {
+			$disable_list = array_diff($this->_enabledClasses, $components);
+			$enable_list = array_diff($components, $this->_enabledClasses);
+			$this->disableComponents($disable_list);
+			$this->enableComponents($enable_list);
+		} else {
+			$this->_enabledClasses = $components;
+		}
+
 	}
 
 	public function disableComponent($component) {

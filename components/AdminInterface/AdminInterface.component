@@ -58,7 +58,6 @@ class AdminInterface extends BaseComponent {
 	 *
 	 **/
 	public function startup() {
-
 		/**
 		 * If we add parameters to the method, we get errors saying that the method definition
 		 * does not match that of BaseComponent::startup()
@@ -66,27 +65,26 @@ class AdminInterface extends BaseComponent {
 		//$args = func_get_args();
 		//$event = isset($args[0]) ? $args[0] : NULL;
 		//$dispatcher = isset($args[1]) ? $args[1] : NULL;
-
-		$this->addEventListenerTo('Application', 'boot_prepare', 'dispatchCollectEvent');
 		
 		// bind to the route collector event
-		$this->addEventListenerTo('Router', 'router_collect_routes', 'collectAdminPages');
+		$this->addEventListenerTo('Router', 'RouterCollectRoutes', 'collectAdminPages');
 		
 		// bind to the menu collector event
-		$this->addEventListenerTo('MenuManager', 'menu_collect_menus', 'sendMenus');
-		
-		$cm = \I('ComponentManager');
+		$this->addEventListenerTo('MenuManager', 'MenuCollectMenus', 'sendMenus');
 		
 		//Initialize stats for display on homepage.
-		$this->stats['installed_components'] = count($cm->getEnabledComponents());
-
-		$this->addEventListenerTo('Autoloader', 'event_autoload', 'autoload');
-
-		$this->addEventListener('admin_collect_settings_pages', array(\I('SystemConfig'), 'setupAdminPages'));
-		
-		$this->addEventListenerTo('UserManager', 'register_auth_domain', function($event, $dispatcher) {
-			$dispatcher->registerAuthDomain('admin_interface', array('paths' => array('/admin', '/admin/*')));
+		$stats = &$this->stats;
+		$this->addEventListenerTo('Application', 'AfterBootStartup', function() use(&$stats) {
+			$stats['installed_components'] = count(\I('ComponentManager')->getEnabledComponents());
 		});
+
+		$this->addEventListenerTo('Autoloader', 'EventAutoload', 'autoload');
+
+		$this->addEventListener('AdminCollectSettingsPages', array(\I('SystemConfig'), 'setupAdminPages'));
+		
+		//$this->addEventListenerTo('UserManager', 'register_auth_domain', function($event, $dispatcher) {
+		//	$dispatcher->registerAuthDomain('admin_interface', array('paths' => array('/admin', '/admin/*')));
+		//});
 	}
 
 	/**
@@ -104,22 +102,6 @@ class AdminInterface extends BaseComponent {
 	} // end function autoload
 	
 	/**
-	 * Listener for the BOOT_PREPARE event.  Dispatches the ADMIN_COLLECT_SETTINGS_PAGES event to listeners.  
-	 *
-	 * @param   string  The name of the event.
-	 * @param	Application	The Application instance.
-	 * @param	Request	The current Request instance
-	 * @param	Response	The current Response instance.
-	 *
-	 **/
-	public function dispatchCollectEvent($event, $dispatcher, $request, $response) {
-		//only dispatch the event if the request is for one of the admin routes.
-		if (strstr($request->path, '/admin')) {	
-			$this->dispatch('admin_collect_settings_pages');
-		}
-	}
-	
-	/**
 	 * Listener for ROUTER_COLLECT_ROUTES.  Parses through the list of admin pages and creates a new
 	 * route for each and sends to the Router.  Also sets up the default index route and the save_settings
 	 * handler.  
@@ -129,6 +111,7 @@ class AdminInterface extends BaseComponent {
 	 *
 	 **/
 	public function collectAdminPages($event, $dispatcher) {
+		$this->dispatch('AdminCollectSettingsPages');
 		$routes = array();
 
 		foreach($this->_pages as $page) {
@@ -138,7 +121,7 @@ class AdminInterface extends BaseComponent {
 		
 		$routes['/admin/save_settings'] = array(&$this, 'saveSettings');
 		$routes['/admin'] = array(&$this, 'index');
-		$dispatcher->addRoutes($routes);
+		return $routes;
 	}
 
 	/**
@@ -210,7 +193,7 @@ class AdminInterface extends BaseComponent {
 		foreach($this->_pages as $page) {
 			//If the route matches, render a form based on the passed settings.
 			if($page->route == $route) {
-				$this->fh = \FormHelper\FormHelper::instance();
+				$this->fh = I('FormHelper');
 				$this->page = $page;
 				$title = $page->title;
 				$this->addEventListenerTo('Templater\\Templater', 'templater_prepare', function($event, $templater) use ($title) {
@@ -328,7 +311,7 @@ class AdminInterface extends BaseComponent {
       'name' => 'Administration Interface',
       'description' => 'Default Administrative interface for Cumula',
       'version' => '0.1.0',
-      'dependencies' => array(),
+      'dependencies' => array('UserManager', 'MenuManager', 'FormHelper'),
     );
   } // end function getInfo
 }

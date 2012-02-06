@@ -44,8 +44,8 @@ class BaseTemplate extends BaseComponent {
 			return 'Override'.$file_name;
 		};
 		
-		$that = &static::instance();
-		$this->addEventListenerTo('Templater', 'templater_prepare', function($event, $templater) use ($that) {
+		$that = static::instance();
+		$this->addEventListenerTo('Templater', 'templater_prepare', function($event, $templater) use (&$that) {
 			$templater->setTemplateDir($that->rootDirectory().'/files');
 		});
 	}

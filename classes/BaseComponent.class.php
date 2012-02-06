@@ -50,9 +50,10 @@ abstract class BaseComponent extends EventDispatcher {
 		$this->_output = array();
 		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, get_class($this).'.yaml');
 		
-		$this->addEventListenerTo('ComponentManager', 'component_startup_complete', 'startup');
-		$this->addEventListenerTo('Application', 'boot_shutdown', 'shutdown');
+		$this->addEventListenerTo('ComponentManager', 'ComponentStartupComplete', 'startup');
+		$this->addEventListenerTo('Application', 'BootShutdown', 'shutdown');
 		$this->addEvent('RenderFile');
+		$this->installAssets();
 	}
 	
 
@@ -181,7 +182,7 @@ abstract class BaseComponent extends EventDispatcher {
 			$response->response['content'] = $output;
 			$response->response['headers']['Content-Type'] = $contentType;
 			if(!$useTemplate) 
-				$app->removeEventListener('boot_postprocess', array(\I('Templater'), 'postProcessRender'));
+				$app->removeEventListener('BootPostprocess', array(\I('Templater'), 'postProcessRender'));
 		}
 	}
 	
@@ -211,7 +212,7 @@ abstract class BaseComponent extends EventDispatcher {
 	public function renderNothing() {
 		if($app = Application::instance()) {
 			$response->response['content'] = '';
-			$app->removeEventListener('boot_postprocess', array(Templater::instance(), 'postProcessRender'));
+			$app->removeEventListener('BootPostprocess', array(Templater::instance(), 'postProcessRender'));
 		}
 	}
 	
@@ -226,9 +227,7 @@ abstract class BaseComponent extends EventDispatcher {
 		$this->addOutputBlock($block);
 	}
 	
-	dd
-	
-	protected function renderMarkup($markup, $args = array()) {
+	protected function renderString($markup, $args = array()) {
 		extract($args, EXTR_OVERWRITE);
 		ob_start();
 		eval("?>$markup<?");

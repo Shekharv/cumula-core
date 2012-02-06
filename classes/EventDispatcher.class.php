@@ -65,9 +65,9 @@ class EventDispatcher {
 		{
 			$level = 0;
 		}
-		$this->addEvent('eventdispatcher_event_dispatched');
-		$this->addEvent('event_registered');
-		$this->addEvent('event_logged');
+		$this->addEvent('EventDispatcherEventDispatched');
+		$this->addEvent('EventListenerRegistered');
+		$this->addEvent('EventLogged');
 		$disallow = array("Cumula\\EventDispatcher",
 							"Cumula\\Autoloader",
 							"Cumula\\Application");
@@ -76,7 +76,7 @@ class EventDispatcher {
 			$app = \Cumula\Application::instance();
 			if($app)
 			{
-				$app->dispatch('event_dispatcher_created', array(get_called_class()));
+				$app->dispatch('EventDispatcherCreated', array(get_called_class()));
 			}
 		}
 	}
@@ -148,7 +148,7 @@ class EventDispatcher {
 		$myClass = get_class($this);
 		$absClass = Autoloader::absoluteClassName($class);
 		static::addClassListenerHash($absClass, $event, $callback);
-		static::instance()->dispatch('event_registered', array($absClass, $event, $callback));
+		$myClass::instance()->dispatch('EventListenerRegistered', array($absClass, $event, $callback, $myClass));
 	}
 	
 	/**
@@ -233,9 +233,9 @@ class EventDispatcher {
 	public function dispatch($event, $data = array(), $callback = false) 
 	{
 		$class = get_called_class();
-		$fireBeforeAndAfter = (stripos($event, 'before_') === FALSE) && (stripos($event, 'after_') === FALSE);
-		$beforeEvent = sprintf('before_%s', $event);
-		$afterEvent = sprintf('after_%s', $event);
+		$fireBeforeAndAfter = (stripos($event, 'Before') === FALSE) && (stripos($event, 'After') === FALSE);
+		$beforeEvent = sprintf('Before%s', $event);
+		$afterEvent = sprintf('After%s', $event);
 		$hash = static::getEventHash();
 		if(true)// (isset($hash[$class][$event]) && count($hash[$class][$event]) > 0)
 		{
@@ -251,7 +251,7 @@ class EventDispatcher {
 			
 			// Flag to determine whether to dispatch the before and after events
 
-			if ($event != 'eventdispatcher_event_dispatched' && $fireBeforeAndAfter)
+			if ($event != 'EventDispatcherEventDispatched' && $fireBeforeAndAfter)
 			{
 				$level++;
 			}
@@ -268,9 +268,10 @@ class EventDispatcher {
 				foreach ($listeners as $event_handler) 
 				{
 					//Fire of an EVENT_DISPATCHED event if there are active listeners
-					if ($event != 'eventdispatcher_event_dispatched') 
+					if ($event != 'EventDispatcherEventDispatched') 
 					{	
-						$this->dispatch('eventdispatcher_event_dispatched', array($event, $this, $event_handler, $level), $callback);
+						$new_data = array_slice($data, 2);
+						$this->dispatch('EventDispatcherEventDispatched', array($event, $this, $event_handler, $level, $new_data));
 					}
 
 					$result = call_user_func_array($event_handler, $data);
@@ -287,7 +288,7 @@ class EventDispatcher {
 				$this->dispatch($afterEvent, $data, $callback);
 			}
 
-			if ($event != 'eventdispatcher_event_dispatched' && $fireBeforeAndAfter)
+			if ($event != 'EventDispatcherEventDispatched' && $fireBeforeAndAfter)
 			{
 				$level--;
 			}
@@ -444,7 +445,7 @@ class EventDispatcher {
 		$timestamp = date("r");
 		$message = "$timestamp $className: $message";
 		$args = array($logLevel, $message, $other_args);
-		$this->dispatch('event_logged', $args);
+		$this->dispatch('EventLogged', $args);
 	}
 	
 	protected function _log($message, $other_args = null) 

@@ -15,3 +15,16 @@ if($error != 'Error') {
 }
 ?>
 </div>
+<div>
+	Code:
+	<div>
+		<?php foreach($snippet as $number => $code) {
+			if($number == $line)
+				$class = ' class="highlight"';
+			else
+				$class = '';
+			echo "<div$class><span>$number</span><span>$code</span></div>";
+		}
+		?>
+	</div>
+</div>

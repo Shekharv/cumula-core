@@ -4,6 +4,8 @@ namespace Cumula;
 use \Cumula\EventDispatcher as EventDispatcher;
 
 class Error extends EventDispatcher {
+	public static $files = array();
+	
 	public static $levels = array(
 		0                  => 'Error',
 		E_ERROR            => 'Error',
@@ -21,19 +23,19 @@ class Error extends EventDispatcher {
 		E_STRICT           => 'Runtime Notice'
 	);
 
-	public static $exit_on = array(E_PARSE, E_ERROR, E_USER_ERROR, E_COMPILE_ERROR);
+	public static $exitOn = array(E_PARSE, E_ERROR, E_USER_ERROR, E_COMPILE_ERROR);
 	
 	public static $handled = false;
 	
 	public static function handleError($error, $message, $file, $line) {	
 		$instance = static::instance();
-		if($instance && count($instance->getEventListeners('error_encountered'))) {
-			$instance->dispatch('error_encountered', array($error, $message, $file, $line));
+		if($instance && count($instance->getEventListeners('ErrorEncountered'))) {
+			$instance->dispatch('ErrorEncountered', array($error, $message, $file, $line));
 			return;
 		}	
 		
 		static::processError($error, $message, $file, $line);
-		if ($error AND in_array($error, static::$exit_on)) {
+		if ($error AND in_array($error, static::$exitOn)) {
 			static::$handled = true;
 			exit;
 		}
@@ -41,13 +43,13 @@ class Error extends EventDispatcher {
 	
 	public static function handleException($e) {
 		$instance = static::instance();
-		if($instance && count($instance->getEventListeners('error_encountered'))) {
-			$instance->dispatch('error_encountered', array($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine()));
+		if($instance && count($instance->getEventListeners('ErrorEncountered'))) {
+			$instance->dispatch('ErrorEncountered', array($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine()));
 			return;
 		}	
 		
 		static::processError($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
-		if ($e->getCode() AND in_array($e->getCode(), static::$exit_on)) {
+		if ($e->getCode() AND in_array($e->getCode(), static::$exitOn)) {
 			static::$handled = true;
 			exit;
 		}
@@ -55,10 +57,10 @@ class Error extends EventDispatcher {
 	
 	public static function handleShutdown() {
 		$last_error = error_get_last();
-		if ($last_error AND in_array($last_error['type'], static::$exit_on) && !static::$handled) {
+		if ($last_error AND in_array($last_error['type'], static::$exitOn) && !static::$handled) {
 			$instance = static::instance();
-			if($instance && count($instance->getEventListeners('error_encountered'))) {
-				$instance->dispatch('error_encountered', array($last_error['type'], $last_error['message'], $last_error['file'], $last_error['line']));
+			if($instance && count($instance->getEventListeners('ErrorEncountered'))) {
+				$instance->dispatch('ErrorEncountered', array($last_error['type'], $last_error['message'], $last_error['file'], $last_error['line']));
 			} else {
 				while (ob_get_level() > 0)
 				{
@@ -74,7 +76,44 @@ class Error extends EventDispatcher {
 		echo \Cumula\Renderer::renderFile($view, array('error' => static::$levels[$error], 
 											'message' => $message, 
 											'file' => $file, 
-											'line' => $line));
+											'line' => $line,
+											'snippet' => static::getFileSnippet($file, $line)));
+	}
+	
+	public static function getFileSnippet($filepath, $lineNum, $highlight = true, $padding = 5)
+	{
+		// We cache the entire file to reduce disk IO for multiple errors
+		if ( ! isset(static::$files[$filepath]))
+		{
+			static::$files[$filepath] = file($filepath, FILE_IGNORE_NEW_LINES);
+			array_unshift(static::$files[$filepath], '');
+		}
+
+		$start = $lineNum - $padding;
+		if ($start < 0)
+		{
+			$start = 0;
+		}
+
+		$length = ($lineNum - $start) + $padding + 1;
+		if (($start + $length) > count(static::$files[$filepath]) - 1)
+		{
+			$length = NULL;
+		}
+
+		$debugLines = array_slice(static::$files[$filepath], $start, $length, TRUE);
+
+		if ($highlight)
+		{
+			$toReplace = array('<code>', '</code>', '<span style="color: #0000BB">&lt;?php&nbsp;', "\n");
+			$replaceWith = array('', '', '<span style="color: #0000BB">', '');
+
+			foreach ($debugLines as & $line)
+			{
+				$line = str_replace($toReplace, $replaceWith, highlight_string('<?php ' . $line, TRUE));
+			}
+		}
+		return $debugLines;
 	}
 	
 	//**********************************************
@@ -83,7 +122,7 @@ class Error extends EventDispatcher {
 	
 	public function __construct() {
 		parent::__construct();
-		$this->addEvent('error_encountered');
+		$this->addEvent('ErrorEncountered');
 
 		register_shutdown_function(array($this, 'handleShutdown'));
 		set_exception_handler(array($this, 'handleException'));

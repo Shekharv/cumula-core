@@ -36,9 +36,9 @@ class Autoloader extends EventDispatcher
 	{
 		spl_autoload_register(array('Cumula\\Autoloader', 'load'));
 		$instance = new self();
-		$instance->addEvent('event_autoload');
-		$instance->addEventListenerTo('Cumula\\Autoloader', 'event_autoload', array($instance, 'defaultAutoloader'));
-		$instance->addEventListenerTo('Cumula\\Autoloader', 'event_autoload', array($instance, 'libraryAutoloader'));
+		$instance->addEvent('EventAutoload');
+		$instance->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', array($instance, 'defaultAutoloader'));
+		$instance->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', array($instance, 'libraryAutoloader'));
 		static::$className_cache = array();
 	} // end function setup
 
@@ -53,7 +53,7 @@ class Autoloader extends EventDispatcher
 		// If we don't already know about the class, dispatch the event to find it.
 		if (($classFile = $instance->classExists($className)) === FALSE)
 		{
-			$instance->dispatch('event_autoload', array($className), 'registerClasses');
+			$instance->dispatch('EventAutoload', array($className), 'registerClasses');
 			if (($classFile = $instance->classExists($className)) === FALSE)
 			{
 				return FALSE;
@@ -211,7 +211,7 @@ class Autoloader extends EventDispatcher
 			}
 			else 
 			{
-				$instance->dispatch('event_autoload', array($className), 'registerClasses');
+				$instance->dispatch('EventAutoload', array($className), 'registerClasses');
 				$class = __CLASS__;
 				return $class::absoluteClassName($className, TRUE);
 			}

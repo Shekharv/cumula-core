@@ -25,7 +25,7 @@ namespace Cumula;
  * ### Events
  * The Application Class defines the following events:
  *
- * #### BOOT_INIT
+ * #### BootInit
  * The first part of the boot stage, BOOT_INIT can be used by any component that registers for startup treatment with the 
  * component manager.  BOOT_INIT should be used to initialize components.
  *
@@ -34,7 +34,7 @@ namespace Cumula;
  * 1. **Request**: the Request object 
  * 2. **Response**: the Response object
  * 
- * #### BOOT_STARTUP
+ * #### BootStartup
  * BOOT_STARTUP should be used to do startup tasks that are dependent on all classes being initialized and loaded into the 
  * global namespace.
  *
@@ -43,7 +43,7 @@ namespace Cumula;
  * 1. **Request**: the Request object 
  * 2. **Response**: the Response object
  *
- * #### BOOT_PREPARE
+ * #### BootPrepare
  * BOOT_PREPARE should be used to collect information or generally prepare components for processing.
  *
  * **Args**:
@@ -51,7 +51,7 @@ namespace Cumula;
  * 1. **Request**: the Request object 
  * 2. **Response**: the Response object
  *
- * #### BOOT_PREPROCESS
+ * #### BootPreprocess
  * BOOT_PREPROCESS can be used to filter and/or adjust functionality before the request is processed.
  *
  * **Args**:
@@ -59,7 +59,7 @@ namespace Cumula;
  * 1. **Request**: the Request object 
  * 2. **Response**: the Response object
  *
- * #### BOOT_PROCESS
+ * #### BootProcess
  * BOOT_PROCESS should be used to run application logic and render content for display on the client browser.
  *
  * **Args**:
@@ -67,7 +67,7 @@ namespace Cumula;
  * 1. **Request**: the Request object 
  * 2. **Response**: the Response object
  * 
- * #### BOOT_POSTPROCESS
+ * #### BootPostprocess
  * BOOT_POSTPROCESS can be used for any cleanup that needs to happen, or filtering of rendered content.
  *
  * **Args**:
@@ -75,7 +75,7 @@ namespace Cumula;
  * 1. **Request**: the Request object 
  * 2. **Response**: the Response object
  * 
- * #### BOOT_CLEANUP
+ * #### BootCleanup
  * BOOT_CLEANUP should be used by components to perform any actions that need to be done before the output is sent to the client.
  *
  * **Args**:
@@ -83,7 +83,7 @@ namespace Cumula;
  * 1. **Request**: the Request object 
  * 2. **Response**: the Response object
  *
- * #### BOOT_SHUTDOWN
+ * #### BootShutdown
  * BOOT_SHUTDOWN signals that the output has been dispatched to the client.  This should be used to save settings or do any 
  * cleanup before the entire system is shutdown.
  *
@@ -103,14 +103,14 @@ final class Application extends EventDispatcher {
 	 * @var array
 	 */
 	public $bootProcess = array(
-			'boot_init', 
-			'boot_startup', 
-			'boot_prepare',
-			'boot_preprocess', 
-			'boot_process', 
-			'boot_postprocess', 
-			'boot_cleanup', 
-			'boot_shutdown',
+			'BootInit', 
+			'BootStartup', 
+			'BootPrepare',
+			'BootPreprocess', 
+			'BootProcess', 
+			'BootPostprocess', 
+			'BootCleanup', 
+			'BootShutdown',
 	);
 						   	
 	
@@ -124,6 +124,8 @@ final class Application extends EventDispatcher {
 	public function __construct($startupCallback = null, $paths = null) {
 		$this->_setupConstants($paths);
 		$this->_setupBootstrap();
+		$this->addEvent('InstanceAccessed');
+		$this->addEvent('EventDispatcherCreated');
 		parent::__construct();
 		
 		if(is_callable($startupCallback))
@@ -149,6 +151,7 @@ final class Application extends EventDispatcher {
 			$config_path = APPROOT . DIRECTORY_SEPARATOR . 'config';
 			$data_path = APPROOT . DIRECTORY_SEPARATOR . 'data';
 			$template_path = APPROOT . DIRECTORY_SEPARATOR . 'templates';
+			$test_path = $core_path . DIRECTORY_SEPARATOR . 'test';
 		} else {
 			extract($paths);
 		}
@@ -177,7 +180,10 @@ final class Application extends EventDispatcher {
         defined('TEMPLATEROOT') ||
             define('TEMPLATEROOT', $template_path . DIRECTORY_SEPARATOR);
 
-		define('CUMULAVERSION', "0.3.0");
+        defined('TESTROOT') ||
+            define('TESTROOT', $test_path . DIRECTORY_SEPARATOR);
+
+		define('CUMULAVERSION', "0.4.0");
 		
 		define('PUBLICROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR);
 		define('ASSETROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR);
@@ -188,7 +194,7 @@ final class Application extends EventDispatcher {
 	 * Initializes the boot process by adding the individual steps as events
 	 */
 	private function _setupBootstrap() {
-		//$this->addEvent('event_dispatcher_created');
+		//$this->addEvent('EventDispatcherCreated');
 		foreach($this->bootProcess as $step) {
 			$this->addEvent($step);
 		}

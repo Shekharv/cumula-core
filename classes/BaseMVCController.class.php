@@ -27,8 +27,8 @@ use Templater\Templater as Templater;
 abstract class BaseMVCController extends EventDispatcher {
 	public $component;
 	
-	protected $_before_filters = array();
-	protected $_after_filters = array();
+	protected $_Beforefilters = array();
+	protected $_Afterfilters = array();
 	protected $_template = 'template.tpl.php';
 	protected $_data;
 	protected $_alerts;
@@ -83,7 +83,7 @@ abstract class BaseMVCController extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	protected function _beforeFilter($function) {
-		$this->_before_filters[] = $function;
+		$this->_Beforefilters[] = $function;
 	}
 	
 	/**
@@ -93,7 +93,7 @@ abstract class BaseMVCController extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	protected function _afterFilter($function) {
-		$this->_after_filters[] = $function;
+		$this->_Afterfilters[] = $function;
 	}
 	
 	/**
@@ -139,7 +139,7 @@ abstract class BaseMVCController extends EventDispatcher {
 		$func = $this->_parseFunc($name);
 
 		if($arguments[1] instanceof Router) {
-			foreach($this->_before_filters as $filter) {
+			foreach($this->_Beforefilters as $filter) {
 				//stop processing if the before filter returns false
 				if($filter instanceof \Closure) {
 					if(call_user_func_array($filter, $arguments) === false)
@@ -160,7 +160,7 @@ abstract class BaseMVCController extends EventDispatcher {
         }
 		
 		
-		foreach($this->_after_filters as $filter) {
+		foreach($this->_Afterfilters as $filter) {
 			if(method_exists($this, $filter) && is_callable(array(&$this, $filter))) 
 				call_user_func_array(array(&$this, $filter), $arguments);
 		}
@@ -251,14 +251,14 @@ abstract class BaseMVCController extends EventDispatcher {
 		if(($response = Response::instance()) && ($app = Application::instance())) {
 			$response->response['content'] = $output;
 			$response->response['headers']['Content-Type'] = $contentType;
-			$app->removeEventListener('boot_postprocess', array(Templater::instance(), 'postProcessRender'));
+			$app->removeEventListener('BootPostprocess', array(Templater::instance(), 'postProcessRender'));
 		}
 	}
 	
 	protected function renderNothing() {
 		if($app = Application::instance()) {
 			$response->response['content'] = '';
-			$app->removeEventListener('boot_postprocess', array(Templater::instance(), 'postProcessRender'));
+			$app->removeEventListener('BootPostprocess', array(Templater::instance(), 'postProcessRender'));
 		}
 	}
 	

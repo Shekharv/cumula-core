@@ -40,8 +40,8 @@ class Response extends EventDispatcher {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->addEventListenerTo('Cumula\\Application', 'boot_shutdown', 'send');
-		$this->addEvent('response_prepare');
+		$this->addEventListenerTo('Cumula\\Application', 'BootShutdown', 'send');
+		$this->addEvent('ResponsePrepare');
 		$this->addEvent('response_send');
 	}
 	
@@ -51,7 +51,7 @@ class Response extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function send() {
-		$this->dispatch('response_prepare');
+		$this->dispatch('ResponsePrepare');
 		$this->sendRawResponse($this->response['headers'], $this->response['content'], $this->response['status_code']);
 		$this->dispatch('response_send');
 	}

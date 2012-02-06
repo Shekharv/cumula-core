@@ -50,12 +50,12 @@ class Logger extends BaseComponent
 		}
 		$schema = new SimpleSchema(array('id' => 'string'), 'id', 'log');
 		$this->dataStore = new WriteOnlyTextDataStore($schema, array('logfile' => $log_dir .'/'.$log_file));
-		$this->addEventListenerTo('Application', 'event_dispatcher_created', 'registerForEvents');
+		$this->addEventListenerTo('Application', 'EventDispatcherCreated', 'registerForEvents');
 	}
 	
 	public function registerForEvents($event, $dispatcher, $comp) 
 	{
-		$this->addEventListenerTo($comp, 'event_logged', 'logMessage');
+		$this->addEventListenerTo($comp, 'EventLogged', 'logMessage');
 	}
 	
 	public function install() 

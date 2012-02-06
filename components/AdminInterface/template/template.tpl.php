@@ -103,5 +103,11 @@
 		</div>
 	</div>
 	<!-- /container -->
+	<div class='debugOutput'>
+		<h1>Debug Output</h1>
+		<div class='debugOutputContent' style=''>
+			<!-- $debugOutput -->
+		</div>
+	</div>
 </body>
 </html>

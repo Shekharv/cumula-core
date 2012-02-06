@@ -49,7 +49,7 @@ class Test_EventDispatcher extends Test_BaseTest {
 
         // Make sure the EVENTDISPATCHER_EVENT_DISPATCHED event was registered
         // in the constructor
-        $dispatcher->addEventListener('eventdispatcher_event_dispatched', array($this, 'eventDispatched'));
+        $dispatcher->addEventListener('EventDispatcherEventDispatched', array($this, 'eventDispatched'));
     } // end function testConstructor
 
     /**

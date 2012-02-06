@@ -137,13 +137,13 @@ class Test_Response extends Test_BaseTest {
         $content = uniqid('content_');
         $this->repsonse->response['content'] = $content;
 
-        global $response_prepare, $response_send;
-        $this->response->addEventListener('response_prepare', function() { global $response_prepare; $response_prepare = TRUE; });
+        global $ResponsePrepare, $response_send;
+        $this->response->addEventListener('ResponsePrepare', function() { global $ResponsePrepare; $ResponsePrepare = TRUE; });
         $this->response->addEventListener('response_send', function() { global $response_send; $response_send = TRUE; });
 
         $this->response->send();
 
-        $this->assertTrue($response_prepare && $response_send);
+        $this->assertTrue($ResponsePrepare && $response_send);
     } // end function testSend
 
     /**

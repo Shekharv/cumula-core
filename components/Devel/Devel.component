@@ -28,6 +28,12 @@ use Cumula\ComponentManager as ComponentManager;
 class Devel extends BaseComponent {
 	protected $_benchmarks;
 	protected $_logEventStack;
+	protected $_logInstances;
+	protected $_eventedInstances;
+	protected $_logInstancesBefore;
+	protected $_eventedInstancesBefore;
+	public $_afterStartup;
+	protected $_eventCount;
 	
 	/**
 	 * Constructor.
@@ -41,8 +47,13 @@ class Devel extends BaseComponent {
 		$this->_benchmarks = array();
 		
 		//Add  listener to app BOOT_INIT event
-		$this->addEventListenerTo('Application', 'boot_init', 'startAppTimer');
+		$this->addEventListenerTo('Application', 'BootInit', 'startAppTimer');
 		$this->_logEventStack = '';
+		$this->_logInstances = array();
+		$this->_eventedInstances = array();
+		$this->_eventedInstancesBefore = array();
+		$this->_afterStartup = false;
+		$this->_eventCount = 0;
 	}
 	
 	
@@ -55,11 +66,12 @@ class Devel extends BaseComponent {
 	 * @return unknown_type
 	 */
 	public function startAppTimer($event, $dispatcher, $request, $response) {
-		$this->addEventListenerTo('Application', 'eventdispatcher_event_dispatched', 'logEventDispatch');
-		$this->addEventListenerTo('Response', 'eventdispatcher_event_dispatched', 'logEventDispatch');
+		$this->addEventListenerTo('Cumula\\Application', 'InstanceAccessed', 'logInstanceAccessed');
+		$this->addEventListenerTo('Application', 'EventDispatcherEventDispatched', 'logEventDispatch');
+		$this->addEventListenerTo('Response', 'EventDispatcherEventDispatched', 'logEventDispatch');
 		
 		$this->addBenchmark('app_boot');
-		$this->addEventListenerTo('Response', 'response_prepare', 'stopAppTimer');
+		$this->addEventListenerTo('Response', 'ResponsePrepare', 'stopAppTimer');
 	}
 	
 	/**
@@ -70,15 +82,20 @@ class Devel extends BaseComponent {
 	 * @return unknown_type
 	 */
 	public function stopAppTimer($event, $response) {
+		//var_dump($this->_eventedInstancesBefore);
+		//die;
 		$this->addBenchmark('app_shutdown');
 		$time = $this->compareBenchmarks('app_boot', 'app_shutdown');
 		if($this->config->getConfigValue('show_render', true)) {
-			$response->response['content'] .= '<div>Rendering the page took '.(number_format($time, 4)*1000).' ms</div>';
-			$response->response['content'] .= '<div>Rendering the page used '.(memory_get_usage()/1000).' KB of memory</div>'; 
-			$response->response['content'] .= '<div>Rendering the page used a maximum '.(memory_get_peak_usage()/1000).' KB of memory</div>';
+			$content = '<div>Rendering the page took '.(number_format($time, 4)*1000).' ms</div>';
+			$content .= '<div>Rendering the page used '.(memory_get_usage()/1000).' KB of memory</div>'; 
+			$content .= '<div>Rendering the page used a maximum '.(memory_get_peak_usage()/1000).' KB of memory</div>';
 			$comps = ComponentManager::instance()->getEnabledComponents();
-			$response->response['content'] .= '<div>Rendering the page used '.count($comps).' components</div>';
-			$response->response['content'] .= '<div>Call Stack</div><pre>'.$this->_logEventStack.'</pre>';
+			$content .= '<div>Rendering the page used '.count($comps).' components</div>';
+			$content .= '<div>Rendering the page triggered '.$this->_eventCount.' events</div>';
+			
+		    $content .= '<div>Call Stack</div><pre>'.$this->_logEventStack.'</pre>';
+			$response->response['content'] = str_replace('<!-- $debugOutput -->', $content, $response->response['content']);
 		}
 	}
 	
@@ -86,8 +103,7 @@ class Devel extends BaseComponent {
 	 * @see core/abstracts/BaseComponent#install()
 	 */
 	public function install() {
-		$cm = ComponentManager::instance();
-		$cm->registerStartupComponent($this);
+		\I('ComponentManager')->registerStartupComponent($this);
 	}
 	
 	/* (non-PHPdoc)
@@ -95,17 +111,26 @@ class Devel extends BaseComponent {
 	 */
 	public function startup() 
 	{
-		$this->addEventListenerTo('Cumula\\EventDispatcher', 'event_registered', 'registerPreAndPost');
+		
 		$components = ComponentManager::instance()->getEnabledComponents();
 		foreach($components as $component) 
 		{
 			if($component != get_class($this))
 			{
-				$this->addEventListenerTo($component, 'eventdispatcher_event_dispatched', 'logEventDispatch');
+				$this->addEventListenerTo($component, 'EventDispatcherEventDispatched', 'logEventDispatch');
+				$this->addEventListenerTo($component, 'EventListenerRegistered', 'registerPreAndPost');
 			}
 		}
-		$this->addEventListenerTo('Cumula\\ComponentManager', 'eventdispatcher_event_dispatched', 'logEventDispatch'); 
-		$this->addEventListenerTo('Cumula\\SystemConfig', 'eventdispatcher_event_dispatched', 'logEventDispatch');
+		
+		$that = &$this;
+		$this->addEventListenerTo('Cumula\\Application', 'AfterBootPreprocess', function() use (&$that) {
+			$that->_afterStartup = true;
+		}); 
+		
+		$this->addEventListenerTo('Cumula\\ComponentManager', 'EventDispatcherEventDispatched', 'logEventDispatch'); 
+		$this->addEventListenerTo('Cumula\\Application', 'EventDispatcherEventDispatched', 'logEventDispatch'); 
+		$this->addEventListenerTo('Cumula\\SystemConfig', 'EventDispatcherEventDispatched', 'logEventDispatch');
+		$this->addEventListenerTo('Cumula\\Router', 'EventDispatcherEventDispatched', 'logEventDispatch');
 	}
 	
 	/**
@@ -117,18 +142,27 @@ class Devel extends BaseComponent {
 	 * @param $handler
 	 * @return unknown_type
 	 */
-	public function logEventDispatch($event, $caller, $event_dispatched, $instance, $handler = FALSE) 
+	public function logEventDispatch($event, $caller, $event_dispatched, $instance, $handler = FALSE, $level = 0, $data = false) 
 	{
+		if(in_array($event_dispatched, array('EventDispatcherEventDispatched', 'EventListenerRegistered', 'EventDispatcherCreated', 'InstanceAccessed')))
+			return;
 		global $level;
 		$classInstance = get_class($instance);
 		$handlerClass = FALSE;
-
-		if(is_array($handler) && isset($handler[1]) && $handler[1] == 'logEventDispatch') {
-			return false;
+		$data_contents = 'None';
+		if($data) {
+			ob_start();
+			var_dump($data);
+			//$data_contents = ob_get_contents();
+			ob_end_clean();
 		}
 
+		if(is_array($handler) && isset($handler[1]) && ($handler[1] == 'logEventDispatch' || $handler[1] == 'logInstanceAccessed')) {
+			return false;
+		}
+		$this->_eventCount++;
 		// Default Message
-		$string = sprintf('%s dispatched by %s', $event_dispatched, $classInstance);
+		$string = sprintf('%s dispatched by %s with args: %s', $event_dispatched, $classInstance, $data_contents);
 
 		// Get the class of the handler if available
 		if (is_object($handler))
@@ -145,14 +179,30 @@ class Devel extends BaseComponent {
 		{
 			if(is_array($handler))
 			{
-				$handlerClass .= '::'. $handler[1];
+				$handlerOutput = $handlerClass.'::'. $handler[1];
+			} else {
+				$handlerOutput = $handlerClass;
 			}
-			$string = sprintf('%s dispatched by %s to %s', $event_dispatched, $classInstance, $handlerClass);
+			$string = sprintf('%s dispatched by %s to %s with args: %s', $event_dispatched, $classInstance, $handlerOutput, $data_contents);
+			if($this->_afterStartup) {
+				if(!isset($this->_eventedInstances[$classInstance]))
+					$this->_eventedInstances[$classInstance] = 0;
+				$this->_eventedInstances[$classInstance] = $this->_eventedInstances[$classInstance]+1;
+			} 
+				
 		}
 
 		$this->_logInfo("Level $level: ".$string);	
 		$spacing = str_repeat('&nbsp;&nbsp;&nbsp;', $level - 1);
 		$this->_logEventStack .= $spacing.$string."\n";
+	}
+	
+	public function logInstanceAccessed($event, $dispatcher, $instance) {
+		if($this->_afterStartup) {
+			if(!isset($this->_logInstances[$instance]))
+				$this->_logInstances[$instance] = 0;
+			$this->_logInstances[$instance] = $this->_logInstances[$instance] + 1;
+		}
 	}
 
 	/**
@@ -164,10 +214,12 @@ class Devel extends BaseComponent {
 	{
 		$notAllowed = array(
 			$event,
-			'eventdispatcher_event_dispatched',
-			'before_',
-			'after_',
+			'EventDispatcherEventDispatched',
+			'EventListenerRegistered',
+			'Before',
+			'After',
 		);
+		
 		$allowRegistration = TRUE;
 		foreach ($notAllowed as $string) {
 			if (stripos($registeredEvent, $string) !== FALSE)
@@ -175,13 +227,13 @@ class Devel extends BaseComponent {
 				$allowRegistration = FALSE;
 			}
 		}
-		// Don't register a before and after listener for event_registered or event_dispatcher_event_dispatched
+		// Don't register a before and after listener for EventListenerRegistered or event_dispatcher_event_dispatched
 		if ($allowRegistration && $registeredClass !== __CLASS__)
 		{
-			$beforeEvent = sprintf('before_%s', $registeredEvent);
-			$afterEvent = sprintf('after_%s', $registeredEvent);
-			$this->addEventListenerTo($registeredClass, $beforeEvent, 'logEventDispatch');
-			$this->addEventListenerTo($registeredClass, $afterEvent, 'logEventDispatch');
+			$beforeEvent = sprintf('Before%s', $registeredEvent);
+			$afterEvent = sprintf('After%s', $registeredEvent);
+			//$this->addEventListenerTo($registeredClass, $beforeEvent, 'logEventDispatch');
+			//$this->addEventListenerTo($registeredClass, $afterEvent, 'logEventDispatch');
 		}
 	} // end function registerPreAndPost
 	
