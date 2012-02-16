@@ -17,7 +17,7 @@ class Test_Cache extends Test_BaseTest
 	public function setUp() 
 	{
 		parent::setUp();
-		\Cache\Cache::instance()->startup();
+		\I('Cache')->startup();
 	} // end function setUp
 
 	/**

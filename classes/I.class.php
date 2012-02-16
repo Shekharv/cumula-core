@@ -17,7 +17,9 @@ class DummyComponent {
 function I($component) {
 	$loader = \Cumula\Autoloader::instance();
 	if($abs = $loader->absoluteClassName($component)) {
-		\Cumula\Application::instance()->dispatch('InstanceAccessed', array($abs));
+		$app = \Cumula\Application::instance();
+		if($app)
+			$app->dispatch('InstanceAccessed', array($abs));
 		return $abs::instance();
 	} else {
 		return new DummyComponent();

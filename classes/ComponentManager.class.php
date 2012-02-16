@@ -337,6 +337,10 @@ final class ComponentManager extends BaseComponent {
 			return FALSE;
 		}
 	}
+	
+	public function componentEnabled($component) {
+		return in_array(Autoloader::absoluteClassName($component), $this->_enabledClasses);
+	}
 
 	/**
    * Get the Files that should contain components

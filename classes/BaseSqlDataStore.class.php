@@ -99,7 +99,7 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 		{
 			if (property_exists($obj, $field)) 
 			{
-				$fields[] = " $field=" . (is_numeric($obj->$field) ? $obj->$field : $this->escapeString($obj->$field));
+				$fields[] = " `$field`=" . (is_numeric($obj->$field) ? $obj->$field : $this->escapeString($obj->$field));
 			}
 		}
 		$sql .= implode(", ", $fields);
