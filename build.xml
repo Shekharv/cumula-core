@@ -33,34 +33,16 @@
 					<equals arg1="${test.buildreport}" arg2="y" casesensitive="false" />
 				</and>
 				<then>
-					<property name="test.coverage" value="true" />
+					<property name="test.coverage" value="false" />
 				</then>
 				<else>
-					<property name="test.coverage" value="false" />
+					<property name="test.coverage" value="true" />
 				</else>
 			</if>
 
-			<if>
-				<equals arg1="${test.buildreport}" arg2="y" casesensitive="false" />
-				<then>
-					<!-- Prepare the coverage report -->
-					<coverage-setup database="${coverage.db}">
-							<fileset dir="${project.basedir}">
-									<include name="**/*.php" />
-									<include name="**/*.inc" />
-									<include name="**/*.component" />
-									<exclude name="interfaces/*" />
-									<exclude name="**/templates/*" />
-									<exclude name="test/**/*" />
-									<exclude name="**/views/**/*.php" />
-									<exclude name="**/template/*" />
-									<exclude name="**/components/**/libraries/**" />
-							</fileset>
-					</coverage-setup>
-				</then>
-			</if>
+
 			<!-- Run the automated tests -->
-			<phpunit haltonerror="false" haltonfailure="false" codecoverage="${test.coverage}"
+			<phpunit haltonerror="false" haltonfailure="false" codecoverage="false"
 					haltonskipped="false" bootstrap="${project.basedir}/test/bootstrap.php">
 					<formatter type="xml" usefile="true" todir="${tests.reportdir}" />
 					<formatter type="plain" usefile="false" />
@@ -73,16 +55,7 @@
 					</batchtest>
 			</phpunit>
 
-			<if>
-				<equals arg1="${test.buildreport}" arg2="y" casesensitive="false" />
-				<then>
-					<!-- Build the report -->
-					<phpunitreport infile="${tests.reportdir}/testsuites.xml" todir="${tests.reportdir}" />
-					<coverage-report outfile="${coverage.reportdir}/coverage.xml">
-							<report todir="${coverage.reportdir}" />
-					</coverage-report>
-				</then>
-			</if>
+
 		</target>
 
     <!-- Perform Automated Tests -->

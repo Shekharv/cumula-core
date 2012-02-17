@@ -11,6 +11,8 @@ if (!defined('BASE_DIR'))
 	}
 }
 
+xdebug_disable();
+
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
     BASE_DIR,
