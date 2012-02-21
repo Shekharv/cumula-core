@@ -60,9 +60,14 @@
 
     <!-- Perform Automated Tests -->
     <target name="test" depends="test.prepare" description="Run the Automated Tests and generate reports">
+      <if>
+        <not><isset property="test.class"/></not>
+        <then>
+          <property name="test.class" value="*" />
+        </then>
+      </if>
 				<phingCall target="test.execute">
 					<property name="test.coverage" value="true" />
-					<property name="test.class" value="*" />
 					<property name="test.buildreport" value="y" />
 				</phingCall>
     </target>
