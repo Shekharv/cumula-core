@@ -41,7 +41,6 @@ class Test_BaseTest extends PHPUnit_Framework_TestCase {
 		self::assertTrue(get_class($instance) == $class, 'Instance not equal to class: '.get_class($instance));
 	}
 	
-	// end function setupVfs
 	/**
      * tearDown
      * @param void
