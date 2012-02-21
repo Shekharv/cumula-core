@@ -48,7 +48,7 @@ abstract class BaseComponent extends EventDispatcher {
 	public function __construct() {
 		parent::__construct();
 		$this->_output = array();
-		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, get_class($this).'.yaml');
+		$this->config = $this->constructConfig();
 		
 		$this->addEventListenerTo('ComponentManager', 'ComponentStartupComplete', 'startup');
 		$this->addEventListenerTo('Application', 'BootShutdown', 'shutdown');
@@ -125,6 +125,13 @@ abstract class BaseComponent extends EventDispatcher {
 	/**********************************************
 	* Miscellaneous Installation Functions
 	***********************************************/
+
+	/**
+	 * Load a config based on this class
+	 **/
+	public function constructConfig() {
+		return new \StandardConfig\StandardConfig(CONFIGROOT, get_class($this).'.yaml');
+	}
 	/**
 	 * Install the assets for the module in the public directory
 	 * @param void

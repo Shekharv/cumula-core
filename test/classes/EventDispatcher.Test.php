@@ -30,7 +30,10 @@ class Test_EventDispatcher extends Test_BaseTest {
      * @return void
      **/
     public function setUp() {
-        $this->app = new \Cumula\Application();
+		$this->app = \Cumula\Application::instance();
+		if (!$this->app) {
+			$this->app = new \Cumula\Application();
+		}
     }
 
 	public function tearDown() {
