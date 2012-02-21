@@ -23,22 +23,26 @@ require_once BASE_DIR.'/classes/Application.class.php';
  * @subpackage Core
  **/
 class Test_EventDispatcher extends Test_BaseTest {
-
+	public $app;
     /**
      * setUp
      * @param void
      * @return void
      **/
     public function setUp() {
-        
+        $this->app = new \Cumula\Application();
     }
+
+	public function tearDown() {
+		$this->app->removeEventListeners('EventDispatcherCreated');
+	}
 
 	public function createInstance() {
 		return new \Cumula\EventDispatcher();
 	}
 
 	public function testConstructor() {
-		$app = new \Cumula\Application();
+		$app = $this->app;
 		
 		$this->assertInstance(\Cumula\Application::instance(), 'Cumula\\Application');
 		
@@ -58,5 +62,8 @@ class Test_EventDispatcher extends Test_BaseTest {
 		$this->assertTrue($eventDispatcher->eventIsRegistered('EventDispatcherEventDispatched'));
 		$this->assertTrue($eventDispatcher->eventIsRegistered('EventListenerRegistered'));
 		$this->assertTrue($eventDispatcher->eventIsRegistered('EventLogged'));
+
+
+		
 	}
 }
