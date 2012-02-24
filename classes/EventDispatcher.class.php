@@ -134,21 +134,17 @@ class EventDispatcher {
 	 * @param	string	The event to bind to
 	 * @param	function|string	A string or closure.  If a string, must be a publicly accessible function in the EventDispatcher instance.
 	 */
-	public function addEventListenerTo($class, $event, $function) 
+	public function addEventListenerTo($class, $event, $handler) 
 	{
-		if (is_string($function)) 
+		if (is_string($handler)) 
 		{
-			$callback = array($this, $function);
+			$handler = array($this, $handler);
 		}
-		else if (is_callable($function) || is_array($function)) 
-		{
-			$callback = $function;
-		} 
 
 		$myClass = get_class($this);
 		$absClass = Autoloader::absoluteClassName($class);
-		static::addClassListenerHash($absClass, $event, $callback);
-		$myClass::instance()->dispatch('EventListenerRegistered', array($absClass, $event, $callback, $myClass));
+		static::addClassListenerHash($absClass, $event, $handler);
+		$myClass::instance()->dispatch('EventListenerRegistered', array($absClass, $event, $handler, $myClass));
 	}
 	
 	/**
@@ -196,6 +192,11 @@ class EventDispatcher {
 	 */
 	public function removeEventListener($event, $handler) 
 	{
+		if (is_string($handler)) 
+		{
+			$handler = array($this, $handler);
+		}
+	
 		$calledClass = get_called_class();
 		$eventHash = static::getEventHash();
 		if (isset($eventHash[$calledClass][$event]))

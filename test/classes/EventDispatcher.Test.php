@@ -65,8 +65,60 @@ class Test_EventDispatcher extends Test_BaseTest {
 		$this->assertTrue($eventDispatcher->eventIsRegistered('EventDispatcherEventDispatched'));
 		$this->assertTrue($eventDispatcher->eventIsRegistered('EventListenerRegistered'));
 		$this->assertTrue($eventDispatcher->eventIsRegistered('EventLogged'));
+	}
 
+	public function testAddRemoveEvent() {
+		$event = uniqid("event_");
+		$eventDispatcher = $this->createInstance();
+		$eventDispatcher->addEvent($event);
+		$this->assertContains($event, array_keys($eventDispatcher->getEvents()));
+		$this->assertTrue($eventDispatcher->eventIsRegistered($event));
 
-		
+		$eventDispatcher->removeEvent($event);
+		$this->assertNotContains($event, array_keys($eventDispatcher->getEvents()));
+		$this->assertFalse($eventDispatcher->eventIsRegistered($event));
+	}
+
+	public function testAddRemoveEventListener() {
+		$event = uniqid("event_");
+		$eventDispatcher = $this->createInstance();
+		$eventDispatcher->addEvent($event);
+
+		$handler =  function () {};
+		$eventDispatcher->addEventListener($event, $handler);
+		$this->assertContains($handler, $eventDispatcher->getEventListeners($event));
+
+		$eventDispatcher->removeEventListener($event, $handler);
+		$this->assertNotContains($handler, $eventDispatcher->getEventListeners($event));
+	}
+
+	public function testAddEventListenerOnlyOnce() {
+		$event = uniqid("event_");
+		$eventDispatcher = $this->createInstance();
+		$eventDispatcher->addEvent($event);
+
+		$handler =  function () {};
+		$eventDispatcher->addEventListener($event, $handler);
+		$eventDispatcher->addEventListener($event, $handler);
+		$this->assertContains($handler, $eventDispatcher->getEventListeners($event));
+		$this->assertEquals(count($eventDispatcher->getEventListeners($event)),
+							1);
+		$eventDispatcher->removeEventListener($event, $handler);
+		$this->assertNotContains($handler, $eventDispatcher->getEventListeners($event));
+	}
+
+	public function testAddEventListenerByName() {
+		$event = uniqid("event_");
+		$eventDispatcher = $this->createInstance();
+		$eventDispatcher->addEvent($event);
+
+		$eventDispatcher->addEventListener($event, "handle_method");
+		$ref = array($eventDispatcher, "handle_method");
+		$this->assertContains($ref,
+							  $eventDispatcher->getEventListeners($event));
+		$eventDispatcher->removeEventListener($event, "handle_method");
+		$this->assertNotContains($ref,
+								 $eventDispatcher->getEventListeners($event),
+								 var_export($eventDispatcher->getEventListeners($event), true));
 	}
 }
