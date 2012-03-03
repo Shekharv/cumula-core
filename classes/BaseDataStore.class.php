@@ -79,6 +79,8 @@ abstract class BaseDataStore extends EventDispatcher {
 	
 	abstract public function lastRowId();
 	
+	abstract public function setup($fields, $primaryField, $domain);
+	
 	public function newObj() {
 		return $this->getSchema()->getObjInstance();
 	}
