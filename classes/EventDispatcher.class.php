@@ -118,6 +118,10 @@ class EventDispatcher {
 		}
 	}
 	
+	public function bind($event, $handler) {
+		$this->addEventListner($event, $handler);
+	}
+	
 	/**
 	 * Adds a handler to be called when a specific event is dispatched.  This function accepts two parameters.
 	 * 
@@ -134,19 +138,10 @@ class EventDispatcher {
 	 * 
 	 * @param	string	The class to bind to
 	 * @param	string	The event to bind to
-	 * @param	function|string	A string or closure.  If a string, must be a publicly accessible function in the EventDispatcher instance.
+	 * @param	function	A closure or value to be passed to the dispatching callback.
 	 */
 	public function addEventListenerTo($class, $event, $function) 
-	{
-		if (is_string($function)) 
-		{
-			$callback = array($this, $function);
-		}
-		else if (is_callable($function) || is_array($function)) 
-		{
-			$callback = $function;
-		} 
-
+	{		
 		$myClass = get_class($this);
 		$absClass = Autoloader::absoluteClassName($class);
 		$myClass::addClassListenerHash($absClass, $event, $callback);
@@ -271,7 +266,11 @@ class EventDispatcher {
 					$this->dispatch('eventdispatcher_event_dispatched', array($event, $this, $event_handler, $level), $callback);
 				}
 
-				$result = call_user_func_array($event_handler, $data);
+				//If event handler is a callback, save the result of the callback
+				if(is_callable($event_handler))
+					$result = call_user_func_array($event_handler, $data);
+				else //otherwise, the callback is a value, and just use that
+					$result = $event_handler;
 				
 				if($callback)
 				{
