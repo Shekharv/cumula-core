@@ -54,6 +54,14 @@ abstract class BaseComponent extends EventDispatcher {
 		$this->addEventListenerTo('Application', 'boot_shutdown', 'shutdown');
 	}
 	
+	public function getConfigValue($name, $default) {
+		return $this->config->getConfigValue($name, $default);
+	}
+	
+	public function setConfigValue($name, $value) {
+		$this->config->setConfigValue($name, $value);
+	}
+	
 
 	/**********************************************
 	* Component Callback Functions

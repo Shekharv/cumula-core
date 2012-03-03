@@ -118,8 +118,11 @@ class EventDispatcher {
 		}
 	}
 	
-	public function bind($event, $handler) {
-		$this->addEventListner($event, $handler);
+	public function bind($event, $callback) {
+		$myClass = get_class($this);
+		$absClass = Autoloader::absoluteClassName($class);
+		$myClass::addClassListenerHash($absClass, $event, $callback);
+		$myClass::instance()->dispatch('event_registered', array($absClass, $event));
 	}
 	
 	/**
@@ -141,7 +144,15 @@ class EventDispatcher {
 	 * @param	function	A closure or value to be passed to the dispatching callback.
 	 */
 	public function addEventListenerTo($class, $event, $function) 
-	{		
+	{
+		if (is_string($function)) 
+		{
+			$callback = array($this, $function);
+		}
+		else if (is_callable($function) || is_array($function)) 
+		{
+			$callback = $function;
+		} 
 		$myClass = get_class($this);
 		$absClass = Autoloader::absoluteClassName($class);
 		$myClass::addClassListenerHash($absClass, $event, $callback);

@@ -55,6 +55,10 @@ class YAMLDataStore extends \Cumula\BaseDataStore {
 		$this->_load();
 	}
 	
+	public function setup($fields, $id, $domain) {
+		
+	}
+	
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#disconnect()
 	 */

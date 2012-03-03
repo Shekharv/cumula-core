@@ -42,6 +42,10 @@ class SqliteDataStore extends \Cumula\BaseSqlDataStore {
 		$this->_log('SQL Queried', $sql);
 		return $this->_db->query($sql);
 	}
+	
+	public function setup($fields, $id, $domain) {
+		
+	}
 
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#connect()
