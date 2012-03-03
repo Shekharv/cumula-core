@@ -39,6 +39,7 @@ final class ComponentManager extends BaseComponent {
 	private $_availableClasses = array();
 	private $_startupClasses = array();
 	private $componentFiles = array();
+	private $_dependencies = array();
 	
 	private $_installList = array("Install\\Install", 
 		'FormHelper\\FormHelper', 
@@ -47,7 +48,8 @@ final class ComponentManager extends BaseComponent {
 		'Logger\\Logger', 
 		'MenuManager\\MenuManager', 
 		'Authentication\\Authentication',
-		'AdminInterface\\AdminInterface'
+		'AdminInterface\\AdminInterface',
+		'CumulaTemplate\\CumulaTemplate'
 	);
 
 	/**
@@ -59,16 +61,16 @@ final class ComponentManager extends BaseComponent {
 		parent::__construct();
 
 		// Create new events for component management
-		$this->addEvent('component_init_complete');
-		$this->addEvent('component_startup_complete');
+		$this->addEvent('ComponentInitComplete');
+		$this->addEvent('ComponentStartupComplete');
 
 		// Set listeners for events
-		$this->addEventListener('component_startup_complete', array(&$this, 'startup'));
+		$this->addEventListenerTo('ComponentManager', 'ComponentStartupComplete', 'startup');
 
-		$this->addEventListenerTo('Application', 'boot_init', 'loadComponents');
-		$this->addEventListenerTo('Application', 'boot_startup', 'startupComponents');
-		$this->addEventListenerTo('Application', 'boot_shutdown', 'shutdown');
-		$this->addEventListenerTo('Cumula\\Autoloader', 'event_autoload', 'getComponentFiles');
+		$this->addEventListenerTo('Application', 'BootInit', 'loadComponents');
+		$this->addEventListenerTo('Application', 'BootStartup', 'startupComponents');
+		$this->addEventListenerTo('Application', 'BootShutdown', 'shutdown');
+		$this->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', 'getComponentFiles');
 
 		// Initialize config and settings
 		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, 'components.yaml');
@@ -89,9 +91,21 @@ final class ComponentManager extends BaseComponent {
 			'name' => 'Component Manager',
 			'description' => 'Component to manage other components',
 			'version' => '0.1.0',
+			'group' => 'Core',
 			'dependencies' => array(),
 		);
 	} // end function getInfo
+	
+	public function getComponentDependencies($component) {
+		if(isset($this->_dependencies[Autoloader::absoluteClassName($component)]))
+			return $this->_dependencies[Autoloader::absoluteClassName($component)];
+		else
+			return array();
+	}
+	
+	public function getAllComponentDependencies() {
+		return $this->_dependencies;
+	}
 	
 	/**
 	 * Implementation of the basecomponent startup function.
@@ -99,7 +113,7 @@ final class ComponentManager extends BaseComponent {
 	 */
 	public function startup()
 	{
-		$this->addEventListenerTo('AdminInterface', 'admin_collect_settings_pages', 'setupAdminPages');
+		$this->addEventListenerTo('AdminInterface', 'AdminCollectSettingsPages', 'setupAdminPages');
 	}
 
 	/**
@@ -114,12 +128,21 @@ final class ComponentManager extends BaseComponent {
 		$page->route = '/admin/installed_components';
 		$page->component = &$this;
 		$page->callback = 'loadSettings';
+		$labels = array();
+		foreach($this->_installedClasses as $class) {
+			if(method_exists($class, 'getInfo')) {
+				$info = $class::getInfo();
+				$labels[] = $info['name'];
+			} else {
+				$labels[] = $class;
+			}
+		}
 		$page->fields = array(array('name' => 'enabled_components', 
 			'title' => 'Enabled Components',
 			'type' => 'checkboxes',
 			'values' => $this->_installedClasses,
 			'selected' => $this->_enabledClasses,
-			'labels' => $this->_installedClasses),
+			'labels' => $labels),
 		);
 		$dispatcher->addAdminPage($page);
 		
@@ -143,11 +166,20 @@ final class ComponentManager extends BaseComponent {
 
 		if (count($uninstalled) > 0)
 		{
+			$labels = array();
+			foreach($uninstalled as $class) {
+				if(method_exists($class, 'getInfo')) {
+					$info = $class::getInfo();
+					$labels[] = $info['name'];
+				} else {
+					$labels[] = $class;
+				}
+			}
 			$page->fields = array(array('name' => 'installed_components',
 				'title' => 'Uninstalled Components',
 				'type' => 'checkboxes',
 				'values' => array_merge($uninstalled),
-				'labels' => array_merge($uninstalled)
+				'labels' => array_merge($labels)
 				));
 		} 
 		else 
@@ -162,6 +194,10 @@ final class ComponentManager extends BaseComponent {
 	 */
 	public function shutdown() 
 	{
+		$this->_writeConfig();
+	}
+	
+	protected function _writeConfig() {
 		$this->config->setConfigValue('installed_components', $this->_installedClasses);
 		$this->config->setConfigValue('enabled_components', $this->_enabledClasses);
 		$this->config->setConfigValue('startup_components', $this->_startupClasses);
@@ -174,9 +210,9 @@ final class ComponentManager extends BaseComponent {
 	public function loadSettings() 
 	{
 		$this->_availableClasses = $this->_getAvailableComponents();
-		$this->_installedClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('installed_components', array()));
-		$this->_enabledClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('enabled_components', array()));
-		$this->_startupClasses = array_intersect($this->_availableClasses, $this->config->getConfigValue('startup_components', array()));
+		$this->_installedClasses = array_values(array_intersect($this->_availableClasses, $this->config->getConfigValue('installed_components', array())));
+		$this->_enabledClasses = array_values(array_intersect($this->_availableClasses, $this->config->getConfigValue('enabled_components', array())));
+		$this->_startupClasses = array_values(array_intersect($this->_availableClasses, $this->config->getConfigValue('startup_components', array())));
 	}
 
 	/**
@@ -227,7 +263,7 @@ final class ComponentManager extends BaseComponent {
 			$this->installComponents($this->_getAvailableComponents());
 		}
 
-		$this->dispatch('component_init_complete');
+		$this->dispatch('ComponentInitComplete');
 	}
 
 	/**
@@ -245,12 +281,11 @@ final class ComponentManager extends BaseComponent {
 			$this->enableComponents($this->_installedClasses);
 		}
 		$list = $this->_enabledClasses;
-
 		foreach ($list as $class_name) 
 		{
 			$this->startupComponent($class_name);
 		}
-		$this->dispatch('component_startup_complete');
+		$this->dispatch('ComponentStartupComplete');
 	}
 
 	/**
@@ -267,7 +302,12 @@ final class ComponentManager extends BaseComponent {
 			{
 				$instance = new $component_class();
 				$this->_components[$component_class] = $instance;
-				$instance->installAssets();
+				if(method_exists($component_class,'getInfo') && ($info = $component_class::getInfo()) && isset($info['dependencies'])) {
+					$vals = $info['dependencies'];
+					array_walk($vals, function(&$a) {$a = \Cumula\Autoloader::absoluteClassName($a);});
+					$this->_dependencies[$component_class] = $vals;
+				}
+				
 			}
 			else
 			{
@@ -297,6 +337,10 @@ final class ComponentManager extends BaseComponent {
 			return FALSE;
 		}
 	}
+	
+	public function componentEnabled($component) {
+		return in_array(Autoloader::absoluteClassName($component), $this->_enabledClasses);
+	}
 
 	/**
    * Get the Files that should contain components
@@ -307,14 +351,30 @@ final class ComponentManager extends BaseComponent {
 	{
 		if (is_null($this->componentFiles) || count($this->componentFiles) == 0)
 		{
-			foreach(glob(sprintf('{%s*/*.component,%s*/*.component}', COMPROOT, CONTRIBCOMPROOT), GLOB_BRACE) as $file)
+			foreach(glob(sprintf('{%s*/*.component}', COMPROOT), GLOB_BRACE) as $file)
 			{
 				$basename = basename($file, '.component');
 				$this->componentFiles[sprintf('%s\\%s', $basename, $basename)] = $file;
 			}
+			$files = $this->recurseCompDirectory(APPROOT);
+			$this->componentFiles = array_merge($this->componentFiles, $files);
 		}
 		return $this->componentFiles;
 	} // end function getComponentFiles
+	
+	protected function recurseCompDirectory($source) {
+		$ret = array();
+		foreach(glob(sprintf('{%s*/*,%s*/*.component}', $source, $source), GLOB_BRACE) as $file)
+		{
+			if(is_dir($file)) {
+				$ret = array_merge($ret, $this->recurseCompDirectory($file));
+			} else if(str_replace(basename($file, '.component'), '', basename($file)) == '.component') {
+				$basename = basename($file, '.component');
+				$ret[sprintf('%s\\%s', $basename, $basename)] = $file;
+			}
+		}
+		return $ret;
+	}
 
 	/*
 	 * *************************************************************************
@@ -340,6 +400,7 @@ final class ComponentManager extends BaseComponent {
 		}
 
 		$this->_installedClasses[] = $component;
+		$this->_writeConfig();
 		$this->startupComponent($component, TRUE);
 		$instance = $this->getComponentInstance($component);
 
@@ -428,12 +489,17 @@ final class ComponentManager extends BaseComponent {
 	 * Takes an array of components and enables components not currently enabled while disabling enabled components
 	 * not in the input list
 	 */
-	public function setEnabledComponents($components) 
+	public function setEnabledComponents($components, $process = true) 
 	{
-		$disable_list = array_diff($this->_enabledClasses, $components);
-		$enable_list = array_diff($components, $this->_enabledClasses);
-		$this->disableComponents($disable_list);
-		$this->enableComponents($enable_list);
+		if($process) {
+			$disable_list = array_diff($this->_enabledClasses, $components);
+			$enable_list = array_diff($components, $this->_enabledClasses);
+			$this->disableComponents($disable_list);
+			$this->enableComponents($enable_list);
+		} else {
+			$this->_enabledClasses = $components;
+		}
+
 	}
 
 	public function disableComponent($component) {

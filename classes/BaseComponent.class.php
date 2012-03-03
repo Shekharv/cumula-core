@@ -50,8 +50,10 @@ abstract class BaseComponent extends EventDispatcher {
 		$this->_output = array();
 		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, get_class($this).'.yaml');
 		
-		$this->addEventListenerTo('ComponentManager', 'component_startup_complete', 'startup');
-		$this->addEventListenerTo('Application', 'boot_shutdown', 'shutdown');
+		$this->addEventListenerTo('ComponentManager', 'ComponentStartupComplete', 'startup');
+		$this->addEventListenerTo('Application', 'BootShutdown', 'shutdown');
+		$this->addEvent('RenderFile');
+		$this->installAssets();
 	}
 	
 	public function getConfigValue($name, $default) {
@@ -127,18 +129,6 @@ abstract class BaseComponent extends EventDispatcher {
 	public function shutdown() {
 		
 	}
-	
-
-	/**
-	 * Static method to provide information to the system aobut themselves
-	 * @param void
-	 * @return array
-	 **/
-	public static function getInfo() 
-	{
-		$class = get_class($this);
-		throw new \Exception(sprintf('%s needs  to implement getInfo itself', $class));
-	} // end function getInfo
 
 	/**********************************************
 	* Miscellaneous Installation Functions
@@ -156,7 +146,7 @@ abstract class BaseComponent extends EventDispatcher {
 			$class = $classExploded[1];
 		}
 
-		$files = glob(sprintf('{%s/%s/assets,%s/%s/assets}', COMPROOT, $class, CONTRIBCOMPROOT, $class), GLOB_BRACE | GLOB_NOSORT);
+		$files = glob(sprintf('{%s/assets,%s/assets}', $this->rootDirectory(), $this->rootDirectory()), GLOB_BRACE | GLOB_NOSORT);
 		if (is_array($files) && count($files) > 0)
 		{
 			$assetDir = implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', 'assets'));
@@ -174,7 +164,7 @@ abstract class BaseComponent extends EventDispatcher {
 				mkdir($componentPublicAssetDir);
 			}
 			foreach ($files as $componentAssetDir) {
-				$this->copyAssetFiles($componentAssetDir, $componentPublicAssetDir);
+				$this->copyFiles($componentAssetDir, $componentPublicAssetDir);
 			}
 		}
 	} // end function installAssets
@@ -187,14 +177,21 @@ abstract class BaseComponent extends EventDispatcher {
 	 * rendered content is sent to the templater as a block using the $var_name param.
 	 * 
 	 */
-	public function render($file_name = null, $var_name = 'content') {
-		if($file_name == null) {
-			$bt = debug_backtrace(false); //TODO: See if there's a better way to do this than debug backtrace.
-			$caller = $bt[1]['function'];
-			$file_name = dirname($this->_getThisFile()).'/views/'.$caller.'.tpl.php';
+	public function render($args = array()) {
+		$bt = debug_backtrace(false); //TODO: See if there's a better way to do this than debug backtrace.
+		$caller = $bt[1]['function'];
+		$file_name = dirname($this->_getThisFile()).'/views/'.$caller.'.tpl.php';
+		$contents = $this->renderPartial($file_name, $args);
+		$this->renderContent($contents, 'content');
+	}
+	
+	protected function renderPlain($output, $useTemplate = false, $contentType = 'text/plain') {
+		if(($response = \I('Response')) && ($app = \I('Application'))) {
+			$response->response['content'] = $output;
+			$response->response['headers']['Content-Type'] = $contentType;
+			if(!$useTemplate) 
+				$app->removeEventListener('BootPostprocess', array(\I('Templater'), 'postProcessRender'));
 		}
-		$contents = $this->renderPartial($file_name);
-		$this->renderContent($contents, $var_name);
 	}
 	
 	/**
@@ -208,12 +205,23 @@ abstract class BaseComponent extends EventDispatcher {
 		if(pathinfo($file_name, PATHINFO_EXTENSION) == '' && !strpos($file_name, $ext)) {
 			$file_name = dirname($this->_getThisFile()).'/views/'.$file_name.$ext;
 		}
+		$this->dispatch('RenderFile', array($file_name), function($new_filename) use (&$file_name) {
+			if($new_filename && $new_filename != '')
+				$file_name = $new_filename;
+		});
 		extract($args, EXTR_OVERWRITE);
 		ob_start();
 		include $file_name;
 		$contents = ob_get_contents();
 		ob_end_clean();
 		return $contents;
+	}
+	
+	public function renderNothing() {
+		if($app = Application::instance()) {
+			$response->response['content'] = '';
+			$app->removeEventListener('BootPostprocess', array(Templater::instance(), 'postProcessRender'));
+		}
 	}
 	
 	/**
@@ -225,6 +233,15 @@ abstract class BaseComponent extends EventDispatcher {
 		$block->content = $content;
 		$block->data['variable_name'] = $var_name;
 		$this->addOutputBlock($block);
+	}
+	
+	protected function renderString($markup, $args = array()) {
+		extract($args, EXTR_OVERWRITE);
+		ob_start();
+		eval("?>$markup<?");
+		$contents = ob_get_contents();
+		ob_end_clean();
+		return $contents;
 	}
 	
 	/**
@@ -335,7 +352,7 @@ abstract class BaseComponent extends EventDispatcher {
 	 * @param string $destination
 	 * @return void
 	 **/
-	private function copyAssetFiles($source, $destination) {
+	protected function copyFiles($source, $destination) {
 		if (is_dir($source)) {
 			// Find all of the files in the directory and create directories
 			// for the subdirectories
@@ -345,12 +362,13 @@ abstract class BaseComponent extends EventDispatcher {
 				if (is_dir($file) && is_dir($newDestination) === FALSE) {
 					mkdir($newDestination, 0777, TRUE);
 				}
-				$this->copyAssetFiles($file, $newDestination);
+				$this->copyFiles($file, $newDestination);
 			}
 		}
 		else {
 			// Copy the file to the public assets directory
-			copy($source, $destination);
+			if(!file_exists($destination) || md5_file($source) != md5_file($destination))
+				copy($source, $destination);
 		}
-	} // end function copyAssetFiles
+	} // end function copyFiles
 }

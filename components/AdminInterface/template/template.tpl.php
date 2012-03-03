@@ -11,6 +11,9 @@
 	<meta name="description" content="Cumula Welcome Screen">
 	<meta name="author" content="Jay Contonio">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<?php if (isset($js)) echo $js ?>
+<?php if (isset($css)) echo $css ?>
+
 
 	<style type="text/css">
 		body { 
@@ -100,5 +103,11 @@
 		</div>
 	</div>
 	<!-- /container -->
+	<div class='debugOutput'>
+		<h1>Debug Output</h1>
+		<div class='debugOutputContent' style=''>
+			<!-- $debugOutput -->
+		</div>
+	</div>
 </body>
 </html>

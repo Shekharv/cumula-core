@@ -21,8 +21,8 @@ class UserManager extends BaseComponent {
 	}
 	
 	public function startup() {
-		$this->addEventListenerTo('Application', 'boot_preprocess', 'checkRoutes');
-		$this->addEventListenerTo('Router', 'router_collect_routes', 'sendRoutes');
+		$this->addEventListenerTo('Application', 'BootPreprocess', 'checkRoutes');
+		$this->addEventListenerTo('Router', 'RouterCollectRoutes', 'sendRoutes');
 		$this->_userStore->connect();
 	}
 	
@@ -51,8 +51,8 @@ class UserManager extends BaseComponent {
 			$this->_logInfo('setting domain to '.$domain);
 			if($app = \Cumula\Application::instance()) {
 				$router = \Cumula\Router::instance();
-				$app->removeEventListener('boot_process', array($router, 'processRoute'));
-				$this->addEventListenerTo('Application', 'boot_process', 'process'.$domain);
+				$app->removeEventListener('BootProcess', array($router, 'processRoute'));
+				$this->addEventListenerTo('Application', 'BootProcess', 'process'.$domain);
 				\I('Session')->domain = $domain;
 				\I('Session')->returnUrl = $request->path;
 			}

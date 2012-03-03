@@ -29,7 +29,7 @@ class Stash extends \Cumula\BaseComponent
 	 **/
 	public function startup() 
 	{
-		$this->addEventListenerTo('Router', 'router_collect_routes', 'provideRoutes');
+		$this->addEventListenerTo('Router', 'RouterCollectRoutes', 'provideRoutes');
 		$this->addEventListenerTo('Stash', 'stash_get_map', function($event, $dispatcher) { $dispatcher->addStash('mystash', 'http://www.fcc.gov/api/content.jsonp?callback=jsonCallback_c4bd2a7021615615285e77df2d0edbb7&type=edoc&terms%5B%5D=12&limit=5&fields=all');});
 	} // end function startup
 
@@ -247,7 +247,7 @@ class Stash extends \Cumula\BaseComponent
 		if ($appClass !== FALSE && $templaterClass !== FALSE && $responseClass !== FALSE) 
 		{
 			$responseClass::instance()->sendRawResponse($headers, $output, $code);
-			$appClass::instance()->removeEventListener('boot_postprocess', array($templaterClass::instance(), 'postProcessRender'));
+			$appClass::instance()->removeEventListener('BootPostprocess', array($templaterClass::instance(), 'postProcessRender'));
 		}
 	} // end function sendResponse
 

@@ -65,9 +65,9 @@ class EventDispatcher {
 		{
 			$level = 0;
 		}
-		$this->addEvent('eventdispatcher_event_dispatched');
-		$this->addEvent('event_registered');
-		$this->addEvent('event_logged');
+		$this->addEvent('EventDispatcherEventDispatched');
+		$this->addEvent('EventListenerRegistered');
+		$this->addEvent('EventLogged');
 		$disallow = array("Cumula\\EventDispatcher",
 							"Cumula\\Autoloader",
 							"Cumula\\Application");
@@ -76,7 +76,7 @@ class EventDispatcher {
 			$app = \Cumula\Application::instance();
 			if($app)
 			{
-				$app->dispatch('event_dispatcher_created', array(get_called_class()));
+				$app->dispatch('EventDispatcherCreated', array(get_called_class()));
 			}
 		}
 	}
@@ -89,15 +89,14 @@ class EventDispatcher {
 	 */
 	public function addEvent($event) 
 	{
-		$class = __CLASS__;
 		$calledClass = get_called_class();
-		$eventHash = $class::getEventHash();
+		$eventHash = static::getEventHash();
 
 		// See if the event exists.  If not, set it up in the eventHash
 		if (!isset($eventHash[$calledClass][$event]))
 		{
 			$eventHash[$calledClass][$event] = array();
-			$class::setEventHash($eventHash);
+			static::setEventHash($eventHash);
 		}
 	}
 
@@ -108,13 +107,12 @@ class EventDispatcher {
 	 */
 	public function removeEvent($event) 
 	{
-		$class = __CLASS__;
 		$calledClass = get_called_class();
-		$eventHash = $class::getEventHash();
+		$eventHash = static::getEventHash();
 		if (isset($eventHash[$calledClass][$event])) 
 		{
 			unset($eventHash[$calledClass][$event]);
-			$class::setEventHash($eventHash);
+			static::setEventHash($eventHash);
 		}
 	}
 	
@@ -155,8 +153,8 @@ class EventDispatcher {
 		} 
 		$myClass = get_class($this);
 		$absClass = Autoloader::absoluteClassName($class);
-		$myClass::addClassListenerHash($absClass, $event, $callback);
-		$myClass::instance()->dispatch('event_registered', array($absClass, $event));
+		static::addClassListenerHash($absClass, $event, $callback);
+		$myClass::instance()->dispatch('EventListenerRegistered', array($absClass, $event, $callback, $myClass));
 	}
 	
 	/**
@@ -204,9 +202,8 @@ class EventDispatcher {
 	 */
 	public function removeEventListener($event, $handler) 
 	{
-		$class = __CLASS__;
 		$calledClass = get_called_class();
-		$eventHash = $class::getEventHash();
+		$eventHash = static::getEventHash();
 		if (isset($eventHash[$calledClass][$event]))
 		{
 			foreach ($eventHash[$calledClass][$event] as $key => $listener)
@@ -214,7 +211,7 @@ class EventDispatcher {
 				if ($listener === $handler)
 				{
 						unset($eventHash[$calledClass][$event][$key]);
-						$class::setEventHash($eventHash);
+						static::setEventHash($eventHash);
 						return;
 				}
 			}
@@ -223,13 +220,13 @@ class EventDispatcher {
 	
 	public function removeEventListeners($event) 
 	{
-		$class = __CLASS__;
 		$calledClass = get_called_class();
-		$eventHash = $class::getEventHash();
+		$eventHash = static::getEventHash();
 		if (isset($eventHash[$calledClass][$event])) 
 		{
 			$eventHash[$calledClass][$event] = array();
 		}
+		static::setEventHash($eventHash);
 	}
 	
 	/**
@@ -241,7 +238,12 @@ class EventDispatcher {
 	 */
 	public function dispatch($event, $data = array(), $callback = false) 
 	{
-		if (($listeners = self::eventHashExists($event)) !== FALSE)
+		$class = get_called_class();
+		$fireBeforeAndAfter = (stripos($event, 'Before') === FALSE) && (stripos($event, 'After') === FALSE);
+		$beforeEvent = sprintf('Before%s', $event);
+		$afterEvent = sprintf('After%s', $event);
+		$hash = static::getEventHash();
+		if(true)// (isset($hash[$class][$event]) && count($hash[$class][$event]) > 0)
 		{
 			//if $callback is a string, wrap it as a callable array with $this
 			if (is_string($callback))
@@ -254,28 +256,29 @@ class EventDispatcher {
 			global $level;
 			
 			// Flag to determine whether to dispatch the before and after events
-			$fireBeforeAndAfter = (stripos($event, 'before_') === FALSE) && (stripos($event, 'after_') === FALSE);
-						
-			if ($event != 'eventdispatcher_event_dispatched' && $fireBeforeAndAfter)
+
+			if ($event != 'EventDispatcherEventDispatched' && $fireBeforeAndAfter)
 			{
 				$level++;
 			}
 			
-			$beforeEvent = sprintf('before_%s', $event);
-			
 			if ($fireBeforeAndAfter && $this->getEventListeners($beforeEvent))
 			{
-				$this->dispatch($beforeEvent, $data);
+				$new_data = array_slice($data, 2);
+				$this->dispatch($beforeEvent, $new_data, $callback);
 			}
-			
-			//For each listener call the handler function	
-			foreach ($listeners as $event_handler) 
-			{
-				//Fire of an EVENT_DISPATCHED event if there are active listeners
-				if ($event != 'eventdispatcher_event_dispatched') 
-				{	
-					$this->dispatch('eventdispatcher_event_dispatched', array($event, $this, $event_handler, $level), $callback);
-				}
+			$hash = static::getEventHash();
+			if(isset($hash[$class][$event]) && count($hash[$class][$event]) > 0) {
+				$listeners = $hash[$class][$event];
+				//For each listener call the handler function	
+				foreach ($listeners as $event_handler) 
+				{
+					//Fire of an EVENT_DISPATCHED event if there are active listeners
+					if ($event != 'EventDispatcherEventDispatched') 
+					{	
+						$new_data = array_slice($data, 2);
+						$this->dispatch('EventDispatcherEventDispatched', array($event, $this, $event_handler, $level, $new_data));
+					}
 
 				//If event handler is a callback, save the result of the callback
 				if(is_callable($event_handler))
@@ -283,20 +286,19 @@ class EventDispatcher {
 				else //otherwise, the callback is a value, and just use that
 					$result = $event_handler;
 				
-				if($callback)
-				{
-					call_user_func($callback, $result);
+					if($callback)
+					{
+						call_user_func($callback, $result);
+					}
 				}
 			}
-
-			$afterEvent = sprintf('after_%s', $event);
-
 			if ($fireBeforeAndAfter && $this->getEventListeners($afterEvent))
 			{
-				$this->dispatch($afterEvent, $data);
+				$data = array_slice($data, 2);
+				$this->dispatch($afterEvent, $data, $callback);
 			}
 
-			if ($event != 'eventdispatcher_event_dispatched' && $fireBeforeAndAfter)
+			if ($event != 'EventDispatcherEventDispatched' && $fireBeforeAndAfter)
 			{
 				$level--;
 			}
@@ -350,7 +352,8 @@ class EventDispatcher {
 		$class = get_called_class();
 		if (!isset(self::$_instances[$class]) || is_null(self::$_instances[$class]))
 		{
-			self::$_instances[$class] = new $class();
+			//self::$_instances[$class] = new $class();
+			return false;
 		}
 		return self::$_instances[$class];
 	}
@@ -373,8 +376,7 @@ class EventDispatcher {
 	 **/
 	private static function getEventHash() 
 	{
-		$class = __CLASS__;
-		return $class::$eventHash;
+		return static::$eventHash;
 	} // end function getEventHash()
 	
 	/**
@@ -453,7 +455,7 @@ class EventDispatcher {
 		$timestamp = date("r");
 		$message = "$timestamp $className: $message";
 		$args = array($logLevel, $message, $other_args);
-		$this->dispatch('event_logged', $args);
+		$this->dispatch('EventLogged', $args);
 	}
 	
 	protected function _log($message, $other_args = null) 

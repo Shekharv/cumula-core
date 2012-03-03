@@ -19,6 +19,8 @@ class Autoloader extends EventDispatcher
 	 **/
 	private static $instance;
 	
+	private static $className_cache;
+	
 	/**
 	 * Cached Class map
 	 * @var array
@@ -34,9 +36,10 @@ class Autoloader extends EventDispatcher
 	{
 		spl_autoload_register(array('Cumula\\Autoloader', 'load'));
 		$instance = new self();
-		$instance->addEvent('event_autoload');
-		$instance->addEventListenerTo('Cumula\\Autoloader', 'event_autoload', array($instance, 'defaultAutoloader'));
-		$instance->addEventListenerTo('Cumula\\Autoloader', 'event_autoload', array($instance, 'libraryAutoloader'));
+		$instance->addEvent('EventAutoload');
+		$instance->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', array($instance, 'defaultAutoloader'));
+		$instance->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', array($instance, 'libraryAutoloader'));
+		static::$className_cache = array();
 	} // end function setup
 
 	/**
@@ -50,7 +53,7 @@ class Autoloader extends EventDispatcher
 		// If we don't already know about the class, dispatch the event to find it.
 		if (($classFile = $instance->classExists($className)) === FALSE)
 		{
-			$instance->dispatch('event_autoload', array($className), 'registerClasses');
+			$instance->dispatch('EventAutoload', array($className), 'registerClasses');
 			if (($classFile = $instance->classExists($className)) === FALSE)
 			{
 				return FALSE;
@@ -103,6 +106,7 @@ class Autoloader extends EventDispatcher
 			'Cumula\\BaseSchema' => $dir .'/BaseSchema.class.php',
 			'Cumula\\Renderer' => $dir .'/Renderer.class.php',
 			'Cumula\\Error' => $dir .'/Error.class.php',
+			'Cumula\\BaseTemplate' => $dir .'/BaseTemplate.class.php',
 			'I' => $dir .'/I.class.php',
 
 			// Exceptions
@@ -174,50 +178,53 @@ class Autoloader extends EventDispatcher
 		$this->setCache(array_merge($cache, $classArray));
 	} // end function registerClasses
 
-		/**
-		 * Get the Absolute Class name rather than a realative class name
-		 * @param string $className Relative Class Name (without namespace)
-		 * @return string Absolute ClassName (with namespace);
-		 **/
-		public static function absoluteClassName($className, $secondCall = FALSE) 
+	/**
+	 * Get the Absolute Class name rather than a realative class name
+	 * @param string $className Relative Class Name (without namespace)
+	 * @return string Absolute ClassName (with namespace);
+	 **/
+	public static function absoluteClassName($className, $secondCall = FALSE) 
+	{
+		if(isset(static::$className_cache[$className]))
+			return static::$className_cache[$className];
+		$instance = self::instance();
+		$cache = $instance->getCache();
+		if (isset($cache[$className]) || $className == __CLASS__)
 		{
-			$instance = self::instance();
-			$cache = $instance->getCache();
-			if (isset($cache[$className]) || $className == __CLASS__)
+			return $className;
+		}
+		$classes = array();
+		foreach ($cache as $class => $file)
+		{
+			$classArr = explode('\\', $class);
+			if ($classArr[count($classArr) - 1] == $className)
 			{
-				return $className;
+				$classes[$classArr[0]] = $class;
 			}
-			$classes = array();
-			foreach ($cache as $class => $file)
-			{
-				$classArr = explode('\\', $class);
-				if ($classArr[count($classArr) - 1] == $className)
-				{
-					$classes[$classArr[0]] = $class;
-				}
-			}
+		}
 
-			if (count($classes) === 0)
+		if (count($classes) === 0)
+		{
+			if ($secondCall)
 			{
-				if ($secondCall)
-				{
-					return FALSE;
-				}
-				else 
-				{
-					$instance->dispatch('event_autoload', array($className), 'registerClasses');
-					$class = __CLASS__;
-					return $class::absoluteClassName($className, TRUE);
-				}
+				return FALSE;
 			}
-			elseif (count($classes) > 1)
+			else 
 			{
-				unset($classes['Cumula']);
-				ksort($classes);
+				$instance->dispatch('EventAutoload', array($className), 'registerClasses');
+				$class = __CLASS__;
+				return $class::absoluteClassName($className, TRUE);
 			}
-
-			return array_shift($classes);
-		} // end function absoluteClassName
+		}
+		elseif (count($classes) > 1)
+		{
+			unset($classes['Cumula']);
+			ksort($classes);
+		}
+		$return = array_shift($classes);
+		static::$className_cache[$className] = $return;
+		return $return;
+	} // end function absoluteClassName
 	/**
 	 * Getters and Setters
 	 */

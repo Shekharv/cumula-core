@@ -46,8 +46,7 @@ class WriteOnlyTextDataStore extends BaseDataStore {
 	}
 
 	public function create($obj) {
-		@file_put_contents($this->_logFile, $this->_arrayToString($this->_objToArray($obj)), FILE_APPEND);
-		@file_put_contents($this->_logFile, "\n", FILE_APPEND);
+		@file_put_contents($this->_logFile, $this->_arrayToString($this->_objToArray($obj))."\n", FILE_APPEND);
 	}
 
 	public function update($obj) {

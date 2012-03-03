@@ -35,20 +35,20 @@ class Router extends BaseComponent
 		parent::__construct();
 
 		$this->_routes = array();
-		$this->addEvent('router_collect_routes');
-		$this->addEvent('router_file_not_found');
-		$this->addEvent('router_add_route');
+		$this->addEvent('RouterCollectRoutes');
+		$this->addEvent('RouterFileNotFound');
+		$this->addEvent('RouterAddRoute');
 
-		$this->addEventListenerTo('Application', 'boot_preprocess', array(&$this, 'collectRoutes'));
-		$this->addEventListenerTo('Application', 'boot_process', array(&$this, 'processRoute'));
-		$this->addEventListener('router_file_not_found', array(&$this, 'filenotfound'));
+		$this->addEventListenerTo('Application', 'BootPreprocess', array(&$this, 'collectRoutes'));
+		$this->addEventListenerTo('Application', 'BootProcess', array(&$this, 'processRoute'));
+		$this->addEventListener('RouterFileNotFound', array(&$this, 'filenotfound'));
 	}
 
 	public function filenotfound($event, $dispatcher, $request, $response) 
 	{
 		//TODO: do something more smart here
 		$fileName = Templater::instance()->config->getConfigValue('template_directory', TEMPLATEROOT).'404.tpl.php';
-		$this->render($fileName);
+		$this->renderContent($this->renderPartial($fileName), 'content');
 		$response->response['content'] = $this->renderPartial(implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', '404.html')));
 		$response->send404();
 	}
@@ -73,7 +73,7 @@ class Router extends BaseComponent
 
 	public function collectRoutes($event) 
 	{
-		$this->dispatch('router_collect_routes', array(), 'addRoutes');
+		$this->dispatch('RouterCollectRoutes', array(), 'addRoutes');
 		$routes = $this->_collectedRoutes;
 
 		if (!$routes)
@@ -93,17 +93,17 @@ class Router extends BaseComponent
 				$handler = $return;
 				$args = array();
 			}
-			$this->dispatch('router_add_route', array($route, $handler, $args));
+			$this->dispatch('RouterAddRoute', array($route, $handler, $args));
 			$this->_addRoute($route, $handler);
 		}
 	}
 
 	public function processRoute($event, $dispatcher, $request, $response) 
 	{
-		$routes = $this->_parseRoute($request);
+		$routes = $this->parseRoute($request->path);
 		if (!count($routes)) 
 		{
-			$this->dispatch('router_file_not_found', array($request, $response));
+			$this->dispatch('RouterFileNotFound', array($request, $response));
 		}
 
 		foreach ($routes as $route => $args) 
@@ -113,13 +113,13 @@ class Router extends BaseComponent
 		}
 	}
 
-	protected function _parseRoute($request) 
+	public function parseRoute($path) 
 	{
 		//The return array of matching handlers
 		$return_handlers = array();
 
 		//Trim off forward slash
-		$path = substr($request->path, 1, strlen($request->path));
+		$path = substr($path, 1, strlen($path));
 
 		//Trim off trailing slash
 		if(substr($path, strlen($path)-1, strlen($path)) == '/')

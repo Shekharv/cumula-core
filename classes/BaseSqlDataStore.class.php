@@ -52,7 +52,7 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 		foreach($this->getSchema()->getFields() as $field => $args) {
 			if(!isset($obj->$field))
 				continue;
-			$keys[] = $field;
+			$keys[] = "`$field`";
 			$values[] = is_numeric($obj->$field) ? $obj->$field : $this->escapeString($obj->$field);
 		}
 		$sql .= "(".implode(',', $keys).")";
@@ -64,7 +64,7 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 		$sql_output = "CREATE TABLE IF NOT EXISTS {$this->getSchema()->getName()}(";
 		$fields = array();
 		foreach(static::translateFields($this->getSchema()->getFields()) as $field => $attrs) {
-			$field = "$field {$attrs['type']}";
+			$field = "`$field` {$attrs['type']}";
 			if(array_key_exists('size', $attrs))
 				$field .= $attrs['size'];
 			if(array_key_exists('default', $attrs))
@@ -99,7 +99,7 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 		{
 			if (property_exists($obj, $field)) 
 			{
-				$fields[] = " $field=" . (is_numeric($obj->$field) ? $obj->$field : $this->escapeString($obj->$field));
+				$fields[] = " `$field`=" . (is_numeric($obj->$field) ? $obj->$field : $this->escapeString($obj->$field));
 			}
 		}
 		$sql .= implode(", ", $fields);

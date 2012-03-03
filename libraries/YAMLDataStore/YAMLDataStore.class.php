@@ -32,6 +32,8 @@ class YAMLDataStore extends \Cumula\BaseDataStore {
 	private $_sourceDirectory;
 	private $_filename;
 	
+	private $_cache;
+	
 	/**
 	 * Accepts an array of config values as name => value pairs.  Two possible config values are:
 	 *   -source_directory: the absolute file path to save the config file to
@@ -156,9 +158,13 @@ class YAMLDataStore extends \Cumula\BaseDataStore {
 	 * @return unknown_type
 	 */
 	protected function _save() {
-		if(!empty($this->_storage)) {
-			$dumper = new \sfYamlDumper();
-			$yaml = $dumper->dump($this->_storage, 2);
+		if(!empty($this->_storage) && $this->_storage != $this->_cache) {
+			if (extension_loaded('yaml')) {
+				$yaml = yaml_emit($this->_storage);
+			} else {
+				$dumper = new \sfYamlDumper();
+				$yaml = $dumper->dump($this->_storage, 2);
+			}
 			return file_put_contents($this->_dataStoreFile(), $yaml);
 		}
 	}
@@ -190,8 +196,13 @@ class YAMLDataStore extends \Cumula\BaseDataStore {
 	 */
 	protected function _load() {
 		if (file_exists($this->_dataStoreFile())) {
-			$yaml = new \sfYamlParser();
-			$this->_storage = $yaml->parse(file_get_contents($this->_dataStoreFile()));
+			if (extension_loaded('yaml')) {
+				$this->_storage = yaml_parse(file_get_contents($this->_dataStoreFile()));
+			} else {
+				$yaml = new \sfYamlParser();
+				$this->_storage = $yaml->parse(file_get_contents($this->_dataStoreFile()));
+			}
+			$this->_cache = $this->_storage;
 			return true;
 		} else {
 			return false;

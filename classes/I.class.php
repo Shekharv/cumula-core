@@ -10,13 +10,16 @@ class DummyComponent {
 	}
 	
 	private function _triggerError() {
-		trigger_error('You called an instance which doesnt exist');
+		trigger_error('You called an instance which doesn\'t exist');
 	}
 }
 
 function I($component) {
 	$loader = \Cumula\Autoloader::instance();
 	if($abs = $loader->absoluteClassName($component)) {
+		$app = \Cumula\Application::instance();
+		if($app)
+			$app->dispatch('InstanceAccessed', array($abs));
 		return $abs::instance();
 	} else {
 		return new DummyComponent();

@@ -8,7 +8,7 @@ class Install extends BaseComponent {
 	}
 	
 	public function startup() {
-		$this->addEventListenerTo('Router', 'router_collect_routes', 'handleRoutes');
+		$this->addEventListenerTo('Router', 'RouterCollectRoutes', 'handleRoutes');
 	}
 	
 	public function handleRoutes($route, $router) {

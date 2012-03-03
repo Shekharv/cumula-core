@@ -46,7 +46,7 @@ abstract class BaseMVCComponent extends BaseComponent
 		$this->_loadFiles($this->config->getConfigValue('controller_dir', '/controllers'));
 		$this->_loadFiles($this->config->getConfigValue('model_dir', '/models'));
 		
-		$this->addEventListenerTo('Router', 'router_collect_routes', array(&$this, 'routes'));
+		$this->addEventListenerTo('Router', 'RouterCollectRoutes', array(&$this, 'routes'));
 	}
 	
 	/**

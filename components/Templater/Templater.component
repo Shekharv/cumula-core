@@ -38,8 +38,8 @@ class Templater extends BaseComponent implements CumulaTemplater {
 	public function __construct() {
 		parent::__construct();
 	
-		$this->addEventListenerTo('Application', 'boot_postprocess', array(&$this, 'postProcessRender'));
-		$this->addEventListener('templater_render', array(&$this, 'renderTemplate'));
+		$this->addEventListenerTo('Application', 'BootPostprocess', array(&$this, 'postProcessRender'));
+		$this->addEventListener('TemplaterRender', array(&$this, 'renderTemplate'));
 
 		$this->_template_dir = $this->config->getConfigValue('template_directory', ROOT.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'templates');
 		$this->_output = '';
@@ -85,11 +85,11 @@ class Templater extends BaseComponent implements CumulaTemplater {
 		
 		$this->dispatch('templater_prepare', array($args));
 		$args = $response->response['data'];
-		$this->dispatch('templater_render', array($args, $request, $response));
+		$this->dispatch('TemplaterRender', array($args, $request, $response));
 		
 		$response->response['content'] = $this->_output;
 		
-		$this->dispatch('templater_cleanup', array($args));
+		$this->dispatch('TemplaterCleanup', array($args));
 	}
 	
 	protected function _processStylesheets($stylesheets = array()) {

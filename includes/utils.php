@@ -30,3 +30,7 @@ function fromCamelCase($str)
 	$func = create_function('$c', 'return "_" . strtolower($c[1]);');
 	return preg_replace_callback('/([A-Z])/', $func, $str);
 }
+
+function object_merge($object1, $object2) {
+	return (object)array_merge((array)$object1, (array)$object2);
+}

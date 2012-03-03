@@ -27,8 +27,8 @@ class SystemConfig extends BaseComponent {
 		parent::__construct();
 		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, 'system.yaml');
 		
-		$this->addEvent('systemconfig_set_value');
-		$this->addEvent('systemconfig_get_value');
+		$this->addEvent('SystemConfigSetValue');
+		$this->addEvent('SystemConfigGetValue');
 		
 		$this->setupDefaults();
 		
@@ -36,7 +36,7 @@ class SystemConfig extends BaseComponent {
 	}
 	
 	public function setupListeners() {
-		$this->addEventListenerTo('Cumula\\ComponentManager', 'component_startup_complete', 'startup');
+		$this->addEventListenerTo('Cumula\\ComponentManager', 'ComponentStartupComplete', 'startup');
 	}
 	
 	
@@ -77,7 +77,7 @@ class SystemConfig extends BaseComponent {
 	 */
 
 	public function startup() {
-		$this->addEventListenerTo('AdminInterface\\AdminInterface', 'admin_collect_settings_pages', 'setupAdminPages');
+		$this->addEventListenerTo('AdminInterface\\AdminInterface', 'AdminCollectSettingsPages', 'setupAdminPages');
 	}
 	
 	/**
@@ -148,7 +148,7 @@ class SystemConfig extends BaseComponent {
 	 * @return unknown_type
 	 */
 	public function setValue($config, $value) {
-		$this->dispatch('systemconfig_set_value', array($config, $value));
+		$this->dispatch('SystemConfigSetValue', array($config, $value));
 		$this->config->setConfigValue($config, $value);
 	}
 	
@@ -161,7 +161,7 @@ class SystemConfig extends BaseComponent {
 	 */
 	public function getValue($config, $default = null) {
 		$value = $this->config->getConfigValue($config, $default);
-		$this->dispatch('systemconfig_get_value', array($config, $value));
+		$this->dispatch('SystemConfigGetValue', array($config, $value));
 		return $value;
 	}
     /**
