@@ -11,6 +11,10 @@ if (!defined('BASE_DIR'))
 	}
 }
 
+if (function_exists("xdebug_disable")) {
+	xdebug_disable();
+}
+
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
     BASE_DIR,

@@ -13,7 +13,6 @@
  */
 
 require_once 'vfsStream/vfsStream.php';
-require_once 'classes/EventDispatcher.class.php';
 
 /**
  * BaseTest Class
@@ -31,7 +30,12 @@ class Test_BaseTest extends PHPUnit_Framework_TestCase {
      */
     protected $files = array();
 
-    /**
+	public function assertInstance($instance, $class) {
+		self::assertTrue(isset($instance), 'Class not set');
+		self::assertTrue(get_class($instance) == $class, 'Instance not equal to class: '.get_class($instance));
+	}
+	
+	/**
      * setUp
      * @param void
      * @return void
@@ -65,27 +69,4 @@ class Test_BaseTest extends PHPUnit_Framework_TestCase {
 				define('CONFIGROOT', vfsStream::url('app/config'));
 		} // end function setupVfs
 
-    /**
-     * tearDown
-     * @param void
-     * @return void
-     **/
-    public function tearDown() {
-        if (is_array($this->files) && count($this->files) > 0) {
-            foreach ($this->files as $key => $file) {
-                $file = realpath($file);
-                if ($file !== FALSE && file_exists($file)) {
-                    if (is_dir($file)) {
-                        exec('rm -rf '. escapeshellarg($file));
-                    }
-                    else {
-                        unlink($file);
-                    }
-                    if (file_exists($file)) {
-                        printf("Houston, We have a problem.  %s wasn\'t deleted\n", $file);
-                    }
-                }
-            }
-        }
-    } // end function tearDown
 }

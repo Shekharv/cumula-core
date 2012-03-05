@@ -14,7 +14,8 @@
  */
 
 require_once 'base/Test.php';
-require_once 'classes/EventDispatcher.class.php';
+require_once BASE_DIR.'/classes/EventDispatcher.class.php';
+require_once BASE_DIR.'/classes/Application.class.php';
 
 /**
  * EventDispatcher Test Class
@@ -22,205 +23,102 @@ require_once 'classes/EventDispatcher.class.php';
  * @subpackage Core
  **/
 class Test_EventDispatcher extends Test_BaseTest {
-    /**
-     * Store the number of calls to a method
-     * @var integer
-     */
-    private $calls = 0;
-
+	public $app;
     /**
      * setUp
      * @param void
      * @return void
      **/
     public function setUp() {
-        $this->eventDispatcher = new EventDispatcherClass();
-    } // end function setUp
-
-    /**
-     * Test the class Constructor
-     * @param void
-     * @return void
-     * @group all
-     * @covers Cumula\EventDispatcher::__construct
-     **/
-    public function testConstructor() {
-        $dispatcher  = new EventDispatcherClass();
-
-        // Make sure the EVENTDISPATCHER_EVENT_DISPATCHED event was registered
-        // in the constructor
-        $dispatcher->addEventListener('EventDispatcherEventDispatched', array($this, 'eventDispatched'));
-    } // end function testConstructor
-
-    /**
-     * Test the addEvent and removeEvent methods
-     * @param void
-     * @return void
-     * @group all
-     * @covers Cumula\EventDispatcher::addEvent
-     * @covers Cumula\EventDispatcher::removeEvent
-     * @covers Cumula\EventDispatcher::eventHashExists
-     **/
-    public function testEventCreationAndRemoval() {
-        $eventId = uniqid('event_');
-
-        $this->eventDispatcher->addEvent($eventId);
-				$class = get_class($this->eventDispatcher);
-        $this->assertTrue($class::eventHashExists($eventId) !== FALSE);
-
-        $this->eventDispatcher->removeEvent($eventId);
-        $this->assertFalse($class::eventHashExists($eventId));
-    } // end function testEventCreationAndRemoval
-
-    /**
-     * Test the static getInstance method
-     * @param void
-     * @return void
-     * @group all
-     * @covers Cumula\EventDispatcher::instance
-     * @covers Cumula\EventDispatcher::setInstance
-     **/
-    public function testStaticGetInstance() {
-        $eventId = uniqid('event_');
-        $this->eventDispatcher->addEvent($eventId);
-        $this->eventDispatcher->addEventListener($eventId, array($this, 'eventDispatched'));
-
-        $instance = EventDispatcherClass::instance();
-        $this->assertEquals($this->eventDispatcher, $instance);
-    } // end function testStaticGetInstance
-
-		/**
-		 * Test the instance() method
-		 * @param void
-		 * @return void
-		 * @group all
-		 * @TODO Mock or overload the Router class and make sure the instance() method will return an 
-		 * 	instance of the proper class
-		 **/
-		public function testInstanceMethod() 
-		{
-			$instance = $this->eventDispatcher->myInstance('Router');
-			$this->assertInstanceOf('Cumula\\Router', $instance);
-
-			// Add the class to the autoloader so it can be found
-			Cumula\Autoloader::instance()->registerClass('EventDispatcherClass', __FILE__);
-
-			$instance = $this->eventDispatcher->myInstance('EventDispatcherClass');
-			$this->assertInstanceOf('EventDispatcherClass', $instance);
-			$this->assertEquals($instance, $this->eventDispatcher);
-		} // end function testInstanceMethod
-
-    /**
-     * test the addEventListener and dispatch methods
-     * @param void
-     * @return void
-     * @group all
-     * @covers Cumula\EventDispatcher::addEventListener
-     * @covers Cumula\EventDispatcher::dispatch
-     **/
-    public function testEventListenerAndDispatch() {
-        $eventId = uniqid('event_');
-
-        $this->eventDispatcher->addEvent($eventId);
-        $this->eventDispatcher->addEventListener($eventId, array($this, 'eventDispatched'));    
-
-        $this->assertTrue($this->eventDispatcher->dispatch($eventId));
-        $this->assertFalse($this->eventDispatcher->dispatch(uniqid('event2_')));
-
-        // Make sure the callback was called
-        $this->assertEquals(1, $this->calls);
-    } // end function testEventListenerAndDispatch
-
-    /**
-     * Test the removeEventListener method
-     * @param void
-     * @return void
-     * @group all
-     * @covers Cumula\EventDispatcher::removeEventListener
-     **/
-    public function testRemoveEventListener() {
-        $eventId = uniqid('event_');
-        $callback = array($this, 'eventDispatched');
-
-        $this->eventDispatcher->addEvent($eventId);
-        $this->eventDispatcher->addEventListener($eventId, $callback);
-
-        // Dispatch the event and make sure it fired correctly
-        $this->eventDispatcher->dispatch($eventId);
-        $this->assertEquals(1, $this->calls);
-
-        // Remove the event and dispatch the event again
-        $this->eventDispatcher->removeEventListener($eventId, $callback);
-        $this->eventDispatcher->dispatch($eventId);
-        $this->assertEquals(1, $this->calls);
-    } // end function testRemoveEventListener
-
-    /**
-     * Test the addEventListenerTo method
-     * @param void
-     * @return void
-     * @group all
-     * @covers Cumula\EventDispatcher::addEventListenerTo
-     **/
-    public function testAddEventListenerTo() {
-        $eventId = uniqid('event_');
-
-        $this->eventDispatcher->addEvent($eventId);
-
-        $dispatcher = new EventDispatcherClass2();
-        $dispatcher->addEventListenerTo('EventDispatcherClass', $eventId, array($this, 'eventDispatched'));
-
-        $this->eventDispatcher->dispatch($eventId);
-        $this->assertEquals(1, $this->calls);
+		$this->app = \Cumula\Application::instance();
+		if (!$this->app) {
+			$this->app = new \Cumula\Application();
+		}
     }
 
-		/**
-		 * Test the getEvents method
-		 * @param void
-		 * @return void
-		 * @group all
-		 * @covers Cumula\EventDispatcher::getEvents
-		 **/
-		public function testGetEvents() 
-		{
-			$eventsBefore = count($this->eventDispatcher->getEvents());
+	public function tearDown() {
+		$this->app->removeEventListeners('EventDispatcherCreated');
+	}
 
-			$this->eventDispatcher->addEventListenerTo(get_class($this->eventDispatcher), 'testGetEvents', function() {});
-			
-			$eventsAfter = count($this->eventDispatcher->getEvents());
-			$this->assertGreaterThan($eventsBefore, $eventsAfter);
-		} // end function testGetEvents
+	public function createInstance() {
+		return new \Cumula\EventDispatcher();
+	}
 
-    /**
-     * HELPER METHODS |helpers
-     */
-    /**
-     * Callback to test the EVENT_DISPATCHER_EVENT_DISPATCHED event
-     * @param void
-     * @return void
-     * @author Craig Gardner <craig@seabourneconsulting.com>
-     **/
-    public function eventDispatched() {
-			$this->calls++;
-    } // end function eventDispatched
-} // end class Test_EventDispatcher extends Test_BaseTest
+	public function testConstructor() {
+		$app = $this->app;
+		
+		$this->assertInstance(\Cumula\Application::instance(), 'Cumula\\Application');
+		
+		$that = $this;
+		$constructed = false;
+		$testFunction = function($event, $dispatcher) use ($that, &$constructed) {
+			$that->assertInstance($dispatcher, '\Cumula\EventDispatcher');
+			$constructed = true;
+		};
+		$app->addEventListener('EventDispatcherCreated', $testFunction);
+		
+		$this->assertTrue(in_array($testFunction, $app->getEventListeners('EventDispatcherCreated')), 'Listener not in listeners array.');
+		
+		$eventDispatcher = $this->createInstance();
+		
+		$this->assertTrue(!$constructed, 'EventDispatcherCreated not called.');
+		$this->assertTrue($eventDispatcher->eventIsRegistered('EventDispatcherEventDispatched'));
+		$this->assertTrue($eventDispatcher->eventIsRegistered('EventListenerRegistered'));
+		$this->assertTrue($eventDispatcher->eventIsRegistered('EventLogged'));
+	}
 
-class EventDispatcherClass extends Cumula\EventDispatcher {
-	/**
-	 * proxy method for Cumula\EventDispatcher::instance()
-	 **/
-	public function myInstance($className) 
-	{
-		return \I($className);
-	} // end function myInstance
+	public function testAddRemoveEvent() {
+		$event = uniqid("event_");
+		$eventDispatcher = $this->createInstance();
+		$eventDispatcher->addEvent($event);
+		$this->assertContains($event, array_keys($eventDispatcher->getEvents()));
+		$this->assertTrue($eventDispatcher->eventIsRegistered($event));
+
+		$eventDispatcher->removeEvent($event);
+		$this->assertNotContains($event, array_keys($eventDispatcher->getEvents()));
+		$this->assertFalse($eventDispatcher->eventIsRegistered($event));
+	}
+
+	public function testAddRemoveEventListener() {
+		$event = uniqid("event_");
+		$eventDispatcher = $this->createInstance();
+		$eventDispatcher->addEvent($event);
+
+		$handler =  function () {};
+		$eventDispatcher->addEventListener($event, $handler);
+		$this->assertContains($handler, $eventDispatcher->getEventListeners($event));
+
+		$eventDispatcher->removeEventListener($event, $handler);
+		$this->assertNotContains($handler, $eventDispatcher->getEventListeners($event));
+	}
+
+	public function testAddEventListenerOnlyOnce() {
+		$event = uniqid("event_");
+		$eventDispatcher = $this->createInstance();
+		$eventDispatcher->addEvent($event);
+
+		$handler =  function () {};
+		$eventDispatcher->addEventListener($event, $handler);
+		$eventDispatcher->addEventListener($event, $handler);
+		$this->assertContains($handler, $eventDispatcher->getEventListeners($event));
+		$this->assertEquals(count($eventDispatcher->getEventListeners($event)),
+							1);
+		$eventDispatcher->removeEventListener($event, $handler);
+		$this->assertNotContains($handler, $eventDispatcher->getEventListeners($event));
+	}
+
+	public function testAddEventListenerByName() {
+		$event = uniqid("event_");
+		$eventDispatcher = $this->createInstance();
+		$eventDispatcher->addEvent($event);
+
+		$eventDispatcher->addEventListener($event, "handle_method");
+		$ref = array($eventDispatcher, "handle_method");
+		$this->assertContains($ref,
+							  $eventDispatcher->getEventListeners($event));
+		$eventDispatcher->removeEventListener($event, "handle_method");
+		$this->assertNotContains($ref,
+								 $eventDispatcher->getEventListeners($event),
+								 var_export($eventDispatcher->getEventListeners($event), true));
+	}
 }
-
-class EventDispatcherClass2 extends Cumula\EventDispatcher {
-    public $calls = 0;
-    
-    public function eventCallback() {
-        $this->calls++;
-    }
-}
-
-class EventDispatcherClass3 extends Cumula\EventDispatcher {}
