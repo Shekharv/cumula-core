@@ -1,8 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-define('TMPROOT', realpath(__DIR__ .'/../').DIRECTORY_SEPARATOR);
-
 //check if this is command line and install
 global $argv, $argc;
 
@@ -11,7 +9,7 @@ if(isset($argv)) {
 		echo "Install Cumula Usage: install <name>\n";
 		exit;
 	}
-	include TMPROOT.'bin'.DIRECTORY_SEPARATOR.'install.php';
+	include 'bin'.DIRECTORY_SEPARATOR.'install.php';
 }
 
-include TMPROOT.'bin'.DIRECTORY_SEPARATOR.'boot.php';
+include 'bin'.DIRECTORY_SEPARATOR.'boot.php';
