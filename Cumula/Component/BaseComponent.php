@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\Component;
 /**
  * Cumula
  *
@@ -34,7 +34,7 @@ namespace Cumula;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-abstract class BaseComponent extends EventDispatcher {
+abstract class BaseComponent extends \Cumula\EventDispatcher {
 	protected $rootDirectory;
 	public $config;
 	protected $_output;
@@ -130,7 +130,7 @@ abstract class BaseComponent extends EventDispatcher {
 	 * Load a config based on this class
 	 **/
 	public function constructConfig() {
-		return new \StandardConfig\StandardConfig(CONFIGROOT, get_class($this).'.yaml');
+		return new \Cumula\Config\Standard(CONFIGROOT, get_class($this).'.yaml');
 	}
 	/**
 	 * Install the assets for the module in the public directory

@@ -13,9 +13,7 @@
  * @link        http://cumula.org
  */
 
-require_once 'base/Test.php';
-require_once BASE_DIR.'/classes/EventDispatcher.class.php';
-require_once BASE_DIR.'/classes/Application.class.php';
+require_once 'Cumula/Test/Base.php';
 
 /**
  * EventDispatcher Test Class
@@ -71,7 +69,8 @@ class Test_EventDispatcher extends Test_BaseTest {
 		$event = uniqid("event_");
 		$eventDispatcher = $this->createInstance();
 		$eventDispatcher->addEvent($event);
-		$this->assertContains($event, array_keys($eventDispatcher->getEvents()));
+		$this->assertContains($event, array_keys($eventDispatcher->getEvents()),
+							  var_export(array_keys($eventDispatcher->getEvents()), true));
 		$this->assertTrue($eventDispatcher->eventIsRegistered($event));
 
 		$eventDispatcher->removeEvent($event);

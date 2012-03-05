@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\Component;
 
 use \ReflectionClass as ReflectionClass;
 
@@ -32,7 +32,7 @@ use \ReflectionClass as ReflectionClass;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-final class ComponentManager extends BaseComponent {
+final class Manager extends BaseComponent {
 	private $_components = array();
 	private $_enabledClasses = array();
 	private $_installedClasses = array();

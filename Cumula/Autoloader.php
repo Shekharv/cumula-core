@@ -1,7 +1,8 @@
 <?php
 namespace Cumula;
 
-require_once realpath(dirname(__FILE__) .'/EventDispatcher.class.php');
+require_once 'Cumula/Event/Dispatcher.php';
+require_once 'Cumula/SplClassLoader.php';
 
 /**
  * Cumula Autoloader
@@ -21,6 +22,8 @@ class Autoloader extends EventDispatcher
 	
 	private static $className_cache;
 	
+	private static $loader;
+	
 	/**
 	 * Cached Class map
 	 * @var array
@@ -37,8 +40,6 @@ class Autoloader extends EventDispatcher
 		spl_autoload_register(array('Cumula\\Autoloader', 'load'));
 		$instance = new self();
 		$instance->addEvent('EventAutoload');
-		$instance->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', array($instance, 'defaultAutoloader'));
-		$instance->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', array($instance, 'libraryAutoloader'));
 		static::$className_cache = array();
 	} // end function setup
 
@@ -54,12 +55,9 @@ class Autoloader extends EventDispatcher
 		if (($classFile = $instance->classExists($className)) === FALSE)
 		{
 			$instance->dispatch('EventAutoload', array($className), 'registerClasses');
-			if (($classFile = $instance->classExists($className)) === FALSE)
-			{
-				return FALSE;
-			}
 		}
-		require_once($classFile);
+		$loader = new \SplClassLoader();
+		$loader->loadClass($className);
 		return $instance;
 	} // end function load
 
@@ -73,79 +71,6 @@ class Autoloader extends EventDispatcher
 		$cache = $this->getCache();
 		return isset($cache[$className]) ? $cache[$className] : FALSE;
 	} // end function classExists
-
-	/**
-	 * Default Autoloader Method
-	 * @param void
-	 * @return array Returns an associative array of classes and the files they are found in.
-	 **/
-	public function defaultAutoloader($event, $dispatcher, $className) 
-	{
-		$basedir = realpath(dirname(__FILE__) .'/../');
-		$dir = realpath(dirname(__FILE__));
-		$libDir = realpath($basedir .'/libraries/');
-		$interfaceDir = realpath($basedir .'/interfaces/');
-		return array(
-			// Core Classes
-			'Cumula\\Autoloader' => $dir .'/Autoloader.class.php',
-			'Cumula\\Application' => $dir. '/Application.class.php',
-			'Cumula\\EventDispatcher' => $dir .'/EventDispatcher.class.php',
-			'Cumula\\BaseComponent' => $dir .'/BaseComponent.class.php',
-			'Cumula\\Request' => $dir .'/Request.class.php',
-			'Cumula\\Response' => $dir .'/Response.class.php',
-			'Cumula\\Router' => $dir .'/Router.class.php',
-			'Cumula\\ComponentManager' => $dir .'/ComponentManager.class.php',
-			'Cumula\\SimpleSchema' => $dir .'/SimpleSchema.class.php',
-			'Cumula\\BaseDataStore' => $dir .'/BaseDataStore.class.php',
-			'Cumula\\BaseAPIDataStore' => $dir .'/BaseAPIDataStore.class.php',
-			'Cumula\\BaseSqlDataStore' => $dir .'/BaseSqlDataStore.class.php',
-			'Cumula\\BaseMVCComponent' => $dir .'/BaseMVCComponent.class.php',
-			'Cumula\\BaseMVCController' => $dir .'/BaseMVCController.class.php',
-			'Cumula\\BaseMVCModel' => $dir .'/BaseMVCModel.class.php',
-			'Cumula\\SystemConfig' => $dir .'/SystemConfig.class.php',
-			'Cumula\\BaseSchema' => $dir .'/BaseSchema.class.php',
-			'Cumula\\Renderer' => $dir .'/Renderer.class.php',
-			'Cumula\\Error' => $dir .'/Error.class.php',
-			'Cumula\\BaseTemplate' => $dir .'/BaseTemplate.class.php',
-			'I' => $dir .'/I.class.php',
-
-			// Exceptions
-			'Cumula\\EventException' => $dir .'/Exception/EventException.class.php',
-			'Cumula\\DataStoreException' => $dir .'/Exception/DataStoreException.class.php',
-
-			// Interfaces
-			'Cumula\\CumulaConfig' => $interfaceDir .'/CumulaConfig.interface.php',
-			'Cumula\\CumulaSchema' => $interfaceDir .'/CumulaSchema.interface.php',
-			'Cumula\\CumulaTemplater' => $interfaceDir .'/CumulaTemplater.interface.php',
-		);
-	} // end function defaultAutoloader
-
-	/**
-	 * Autoloader Function for the libraries
-	 * For libraries, the namespace is the directory and the class is the filename (without .class.php)
-	 * 	ie. the file libraries/MyLibrary/MyLibrary.class.php will contain the class MyLibrary\MyLibrary
-	 * 		and libraries/MyLibrary/SomeOtherFile.class.php will have the MyLibrary\SomeOtherFile class
-	 * @param string $event Event being dispatched
-	 * @param Cumula\Autoloader $dispatcher Object dispatching the event
-	 * @param string $className className being loaded
-	 * @return void
-	 **/
-	public function libraryAutoloader($event, $dispatcher, $className) 
-	{
-		$libraryPath = realpath(dirname(__DIR__) .'/libraries');
-
-		$files = glob(sprintf('%s/*/*.class.php', $libraryPath), GLOB_NOSORT);
-		$classes = array();
-		foreach ($files as $file) 
-		{
-			$class = sprintf('%s\\%s', basename(dirname($file)), basename($file, '.class.php'));
-			if (stripos($file, str_replace('\\', '/', $class)) !== 0) 
-			{
-				$classes[$class] = $file; 
-			}
-		}
-		return $classes;
-	} // end function libraryAutoloader
 	/**
 	 * Register a class with the autoloader
 	 * @param string $className Name of the class being registered

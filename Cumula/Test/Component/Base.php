@@ -13,10 +13,7 @@
  * @link        http://cumula.org
  */
 
-require_once 'base/Test.php';
-require_once BASE_DIR.'/classes/BaseComponent.class.php';
-require_once BASE_DIR.'/classes/Application.class.php';
-require_once BASE_DIR.'/classes/ComponentManager.class.php';
+require_once 'Cumula/Test/Base.php';
 
 /**
  * BaseComponent Test Class
@@ -37,9 +34,9 @@ class Test_BaseComponent extends Test_BaseTest {
 		if (!$this->app) {
 			$this->app = new \Cumula\Application();
 		}
-		$this->cm = \Cumula\ComponentManager::instance();
+		$this->cm = \Cumula\Component\Manager::instance();
 		if (!$this->cm) {
-			$this->cm = new \Cumula\ComponentManager();
+			$this->cm = new \Cumula\Component\Manager();
 		}
     }
 
@@ -61,7 +58,7 @@ class Test_BaseComponent extends Test_BaseTest {
 	}
 }
 
-class TestBaseComponent extends \Cumula\BaseComponent {
+class TestBaseComponent extends \Cumula\Component\BaseComponent {
 	public function startup() {
 		
 	}

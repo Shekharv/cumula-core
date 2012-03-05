@@ -18,10 +18,9 @@ if (function_exists("xdebug_disable")) {
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
     BASE_DIR,
-    BASE_DIR .'/test',
 )));
 
-require_once 'classes/Autoloader.class.php';
+require_once 'Cumula/Autoloader.php';
 \Cumula\Autoloader::setup();
 
 if (ini_get('date.timezone') == '') {

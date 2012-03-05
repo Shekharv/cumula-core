@@ -1,5 +1,5 @@
 <?php
-namespace StandardConfig;
+namespace Cumula\Config;
 /**
  * Cumula
  *
@@ -22,7 +22,7 @@ namespace StandardConfig;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class StandardConfig implements \Cumula\CumulaConfig {
+class Standard implements \Cumula\Config\ConfigInterface {
 	private $_dataStore;
 	
 	/**

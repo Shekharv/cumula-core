@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\Config;
 /**
  * Cumula
  *
@@ -22,7 +22,7 @@ namespace Cumula;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-interface CumulaConfig {
+interface ConfigInterface {
 	public function getConfigValue($config);
 	public function setConfigValue($config, $value);
 	public function deleteConfigValue($config);
