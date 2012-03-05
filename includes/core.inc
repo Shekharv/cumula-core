@@ -17,6 +17,8 @@ require_once dirname(__FILE__) . '/utils.php';
 
 require_once dirname(__FILE__) .'/../classes/Error.class.php';
 
+require_once dirname(__FILE__) .'/../interfaces/CumulaDataStoreFactory.interface.php';
+
 register_shutdown_function('handle_shutdown');
 set_exception_handler('handle_exception');
 set_error_handler('handle_error');

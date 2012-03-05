@@ -351,13 +351,10 @@ final class ComponentManager extends BaseComponent {
 	{
 		if (is_null($this->componentFiles) || count($this->componentFiles) == 0)
 		{
-			foreach(glob(sprintf('{%s*/*.component}', COMPROOT), GLOB_BRACE) as $file)
-			{
-				$basename = basename($file, '.component');
-				$this->componentFiles[sprintf('%s\\%s', $basename, $basename)] = $file;
-			}
 			$files = $this->recurseCompDirectory(APPROOT);
+			$coreFiles = $this->recurseCompDirectory(COMPROOT);
 			$this->componentFiles = array_merge($this->componentFiles, $files);
+			$this->componentFiles = array_merge($this->componentFiles, $coreFiles);
 		}
 		return $this->componentFiles;
 	} // end function getComponentFiles

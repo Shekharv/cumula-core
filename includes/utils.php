@@ -34,3 +34,20 @@ function fromCamelCase($str)
 function object_merge($object1, $object2) {
 	return (object)array_merge((array)$object1, (array)$object2);
 }
+
+function this($methodName = false, $index = 1) {
+	global $thisCache;
+	if(isset($thisCache) && $thisCache) {
+		if($methodName && method_exists($thisCache, $methodName)) {
+			return array($thisCache, $methodName);
+		}
+	}
+	$bt = debug_backtrace();
+	$frame = $bt[$index];
+	$newThis = $frame['object'];
+	$thisCache = $newThis;
+	if($methodName) {
+		return array($newThis, $methodName);
+	} 
+	return $newThis;
+}

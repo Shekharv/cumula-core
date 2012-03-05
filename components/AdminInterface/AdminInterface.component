@@ -67,7 +67,7 @@ class AdminInterface extends BaseComponent {
 		//$dispatcher = isset($args[1]) ? $args[1] : NULL;
 		
 		// bind to the route collector event
-		$this->addEventListenerTo('Router', 'RouterCollectRoutes', 'collectAdminPages');
+		$this->addEventListenerTo('Router', 'GatherRoutes', 'collectAdminPages');
 		
 		// bind to the menu collector event
 		$this->addEventListenerTo('MenuManager', 'MenuCollectMenus', 'sendMenus');

@@ -48,9 +48,12 @@ abstract class BaseDataStore extends EventDispatcher {
 	 * 
 	 * @return unknown_type
 	 */
-	public function __construct(CumulaSchema $schema, array $configValues = array()) {
+	public function __construct() {
 		parent::__construct();
-		$this->setSchema($schema);
+	}
+	
+	public function setup($fields, $id, $domain, $configValues) {
+		$this->setSchema(new SimpleSchema($fields, $id, $domain));
 	}
 	
 	public function isConnected() {
@@ -78,8 +81,6 @@ abstract class BaseDataStore extends EventDispatcher {
 	abstract public function disconnect();
 	
 	abstract public function lastRowId();
-	
-	abstract public function setup($fields, $primaryField, $domain);
 	
 	public function newObj() {
 		return $this->getSchema()->getObjInstance();

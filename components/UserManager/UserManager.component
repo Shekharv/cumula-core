@@ -22,7 +22,7 @@ class UserManager extends BaseComponent {
 	
 	public function startup() {
 		$this->addEventListenerTo('Application', 'BootPreprocess', 'checkRoutes');
-		$this->addEventListenerTo('Router', 'RouterCollectRoutes', 'sendRoutes');
+		$this->addEventListenerTo('Router', 'GatherRoutes', 'sendRoutes');
 		$this->_userStore->connect();
 	}
 	

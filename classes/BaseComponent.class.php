@@ -185,7 +185,7 @@ abstract class BaseComponent extends EventDispatcher {
 		$this->renderContent($contents, 'content');
 	}
 	
-	protected function renderPlain($output, $useTemplate = false, $contentType = 'text/plain') {
+	protected function renderPlain($output, $contentType = 'text/plain', $useTemplate = false) {
 		if(($response = \I('Response')) && ($app = \I('Application'))) {
 			$response->response['content'] = $output;
 			$response->response['headers']['Content-Type'] = $contentType;
@@ -221,6 +221,15 @@ abstract class BaseComponent extends EventDispatcher {
 		if($app = Application::instance()) {
 			$response->response['content'] = '';
 			$app->removeEventListener('BootPostprocess', array(Templater::instance(), 'postProcessRender'));
+		}
+	}
+	
+	
+	public function render404() {
+		if(($response = \I('Response')) && ($app = \I('Application'))) {
+			$response->send404();
+			if(!$useTemplate) 
+				$app->removeEventListener('BootPostprocess', array(\I('Templater'), 'postProcessRender'));
 		}
 	}
 	

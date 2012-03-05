@@ -41,7 +41,7 @@ class WriteOnlyTextDataStore extends BaseDataStore {
 		return true;
 	}
 	
-	public function setup($fields, $id, $domain) {
+	public function setup($fields, $id, $domain, $config) {
 		
 	}
 

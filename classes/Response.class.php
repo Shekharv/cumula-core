@@ -70,12 +70,12 @@ class Response extends EventDispatcher {
 	}
 	
 	public function send302($url) {
-    if (FALSE === stripos($url, 'http')) {
-      $protocol = ($_SERVER['SERVER_PORT'] == 443 || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off'))
-        ? 'https' : 'http';
-      if ($url{0} != '/') $url = '/'.$url;
-      $url = $protocol.'://'.$_SERVER['HTTP_HOST'].$url;
-    }
+	    if (FALSE === stripos($url, 'http') && !\I('Request')->cli) {
+	      $protocol = ($_SERVER['SERVER_PORT'] == 443 || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off'))
+	        ? 'https' : 'http';
+	      if ($url{0} != '/') $url = '/'.$url;
+	      $url = $protocol.'://'.$_SERVER['HTTP_HOST'].$url;
+	    }
 		$this->response['headers']['Location'] = $url;
 		$this->response['status_code'] = 302;
 	}
@@ -89,15 +89,17 @@ class Response extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function sendRawResponse($headers, $body, $code) {
-		if ($code == 404) {
-			header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
-			echo $body;
-			return;
+		if(!\I('Request')->cli) {
+			if ($code == 404) {
+				header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
+				echo $body;
+				return;
+			}
+			foreach($headers as $key => $value) {
+				$this->_sendHeader($key, $value, $code);
+			}
 		}
-		foreach($headers as $key => $value) {
-			$this->_sendHeader($key, $value, $code);
-		}
-		echo $body;
+		echo $body."\n";
 	}
 	
 	private function _sendHeader($header, $value, $status_code = null) {

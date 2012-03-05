@@ -118,7 +118,7 @@ class EventDispatcher {
 	
 	public function bind($event, $callback) {
 		$myClass = get_class($this);
-		$absClass = Autoloader::absoluteClassName($class);
+		$absClass = Autoloader::absoluteClassName($myClass);
 		$myClass::addClassListenerHash($absClass, $event, $callback);
 		$myClass::instance()->dispatch('event_registered', array($absClass, $event));
 	}

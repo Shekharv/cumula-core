@@ -27,6 +27,7 @@ class SqliteDataStore extends \Cumula\BaseSqlDataStore {
 	
 	public function __construct($schema, $config_values) {
 		parent::__construct($schema, $config_values);
+		$this->setSchema($schema);
 		$this->_sourceDirectory = $config_values['source_directory'];
 		$this->_filename = $config_values['filename'];
 		$this->_db = new \SQLite3($this->_sourceDirectory.'/'.$this->_filename);
@@ -43,8 +44,8 @@ class SqliteDataStore extends \Cumula\BaseSqlDataStore {
 		return $this->_db->query($sql);
 	}
 	
-	public function setup($fields, $id, $domain) {
-		
+	public function setup($fields, $id, $domain, $config) {
+		parent::setup($fields, $id, $domain, $config);
 	}
 
 	/* (non-PHPdoc)

@@ -35,7 +35,7 @@ class Router extends BaseComponent
 		parent::__construct();
 
 		$this->_routes = array();
-		$this->addEvent('RouterCollectRoutes');
+		$this->addEvent('GatherRoutes');
 		$this->addEvent('RouterFileNotFound');
 		$this->addEvent('RouterAddRoute');
 
@@ -46,11 +46,16 @@ class Router extends BaseComponent
 
 	public function filenotfound($event, $dispatcher, $request, $response) 
 	{
-		//TODO: do something more smart here
-		$fileName = Templater::instance()->config->getConfigValue('template_directory', TEMPLATEROOT).'404.tpl.php';
-		$this->renderContent($this->renderPartial($fileName), 'content');
-		$response->response['content'] = $this->renderPartial(implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', '404.html')));
-		$response->send404();
+		if(\I('Request')->cli) {
+			$response->response['content'] = "Command not found";
+			$response->send404();
+		} else {
+			//TODO: do something more smart here
+			$fileName = Templater::instance()->config->getConfigValue('template_directory', TEMPLATEROOT).'404.tpl.php';
+			$this->renderContent($this->renderPartial($fileName), 'content');
+			$response->response['content'] = $this->renderPartial(implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', '404.html')));
+			$response->send404();
+		}
 	}
 
 	public function addRoutes($routes) 
@@ -73,7 +78,7 @@ class Router extends BaseComponent
 
 	public function collectRoutes($event) 
 	{
-		$this->dispatch('RouterCollectRoutes', array(), 'addRoutes');
+		$this->dispatch('GatherRoutes', array(), 'addRoutes');
 		$routes = $this->_collectedRoutes;
 
 		if (!$routes)

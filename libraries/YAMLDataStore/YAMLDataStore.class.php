@@ -44,6 +44,7 @@ class YAMLDataStore extends \Cumula\BaseDataStore {
 	 */
 	public function __construct(\Cumula\CumulaSchema $schema, $configValues) {
 		parent::__construct($schema, $configValues);
+		$this->_schema = $schema;
 		$this->_storage = array();
 		$this->_sourceDirectory = $configValues['source_directory'];
 		$this->_filename = $configValues['filename'];
@@ -57,7 +58,7 @@ class YAMLDataStore extends \Cumula\BaseDataStore {
 		$this->_load();
 	}
 	
-	public function setup($fields, $id, $domain) {
+	public function setup($fields, $id, $domain, $config) {
 		
 	}
 	
