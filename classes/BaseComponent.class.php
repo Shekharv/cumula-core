@@ -233,6 +233,10 @@ abstract class BaseComponent extends EventDispatcher {
 		}
 	}
 	
+	public function renderCLI($output) {
+		\I('Response')->response['content'] = $output;
+	}
+	
 	/**
 	 * Adds a block to the render queue for dispatching to the templater.
 	 * 

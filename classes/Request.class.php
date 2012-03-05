@@ -46,9 +46,10 @@ final class Request extends EventDispatcher {
 			array_walk_recursive($this->params, function(&$ele, $key) {$ele = str_replace("\\\\", "\\", $ele);});
 		} else {
 			global $argv, $argc;
+			$this->fullPath = $argv[0];
+			array_shift($argv);
 			$this->path = implode(' ', $argv);
 			$this->requestIp = null;
-			$this->fullPath = $argv[0];
 			$this->params = array();
 		}
 	}

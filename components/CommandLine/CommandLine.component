@@ -1,0 +1,51 @@
+<?php
+namespace CommandLine;
+
+use \I as I;
+use \Cumula\BaseComponent as BaseComponent;
+
+class CommandLine extends BaseComponent {
+	public function startup() {
+		I('Router')->bind('GatherRoutes', 
+			array(
+				'>' => array($this, 'main'),
+				'>help' => array(
+					'callback' => array($this, 'help'),
+					'help' => 'Get Cumula Help',
+				),
+				'>-i' => array(
+					'callback' => array($this, 'info'),
+					'help' => 'Get info on the installed version of Cumula.',
+				),
+				'>setup' => array(
+					'callback' => array($this, 'cumulaSetup'),
+					'help' => 'Setup the Cumula Install.'
+				)
+			)
+		);
+	}
+	
+	public function main() {
+		$this->renderCLI("Welcome to Cumula!");
+	}
+	
+	public function help() {
+		$output = "Cumula Help\n\nAvailable Commands\n";
+		foreach(I('Router')->getRoutes() as $route) {
+			$config = I('Router')->getRouteConfig($route);
+			if(isset($config['help']))
+				$output .= str_replace(">", "", $route)."\t".$config['help']."\n";
+		}
+		$this->renderCLI($output);
+	}
+	
+	public function info() {
+		$this->renderCLI("Welcome to Cumula.\nVersion ".CUMULAVERSION);
+	}
+	
+	public function cumulaSetup() {
+		fwrite(STDOUT, "Setting Up Cumula...");
+		sleep(5);
+		fwrite(STDOUT, "Done!");
+	}
+}

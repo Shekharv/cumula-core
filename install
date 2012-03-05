@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+//check if this is command line and install
+global $argv, $argc;
+
+if(isset($argv)) {
+	if(!isset($argv[1])) {
+		echo "Install Cumula Usage: install <name>\n";
+		exit;
+	}
+	include 'bin'.DIRECTORY_SEPARATOR.'install.php';
+}
+
+include 'bin'.DIRECTORY_SEPARATOR.'boot.php';
