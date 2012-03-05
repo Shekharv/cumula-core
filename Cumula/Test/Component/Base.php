@@ -14,114 +14,59 @@
  */
 
 require_once 'base/Test.php';
-require_once 'vfsStream/vfsStream.php';
-require_once 'classes/EventDispatcher.class.php';
-require_once 'interfaces/CumulaConfig.interface.php';
-require_once 'libraries/StandardConfig/StandardConfig.class.php';
-require_once 'classes/BaseComponent.class.php';
+require_once BASE_DIR.'/classes/BaseComponent.class.php';
+require_once BASE_DIR.'/classes/Application.class.php';
+require_once BASE_DIR.'/classes/ComponentManager.class.php';
 
 /**
- * Tests for the BaseComponent Class
+ * BaseComponent Test Class
  * @package Cumula
- * @author Seabourne Consulting
- */
+ * @subpackage Core
+ **/
+
 class Test_BaseComponent extends Test_BaseTest {
-    /**
-     * Store the component variable
-     * @var BaseComponent
-     */
-    private $component;
 
     /**
      * setUp
      * @param void
      * @return void
      **/
+
     public function setUp() {
-			parent::setUp();
-			defined('ROOT') || 
-					define('ROOT', dirname(BASE_DIR));
+		$this->app = \Cumula\Application::instance();
+		if (!$this->app) {
+			$this->app = new \Cumula\Application();
+		}
+		$this->cm = \Cumula\ComponentManager::instance();
+		if (!$this->cm) {
+			$this->cm = new \Cumula\ComponentManager();
+		}
+    }
 
-			defined('CONFIGROOT') ||
-				define('CONFIGROOT', vfsStream::url('app/config'));
-
-			$this->component = new TestBaseComponent();
-    } // end function setUp
-
-    /**
-     * Test the constructor
-     * @param void
-     * @return void
-     * @author Seabourne Consulting
-     * @group all
-     * @covers Cumula\BaseComponent::__construct
-     **/
-    public function testConstructor() {
-        $this->assertObjectHasAttribute('config', $this->component);
-        $this->assertObjectNotHasAttribute(uniqid(), $this->component);
-    } // end function testConstructor
-
-    /**
-     * Test the renderPartial
-     * @param void
-     * @return void
-     * @group all
-     * @covers Cumula\BaseComponent::renderPartial
-     **/
-    public function testRenderPartial() {
-        $value = uniqid('value_');
-
-        $templateFile = $this->createTemplate($value);
-        
-        $output = $this->component->renderPartial($templateFile);
-
-        $this->assertEquals($output, $value);
-    } // end function testRenderPartial
-
-    /**
-     * Test the renderContent method
-     * @param void
-     * @return void
-     * @group all
-     * @covers Cumula\BaseComponent::renderContent
-     **/
-    public function testRenderContent() {
-        $this->markTestSkipped('Unable to test this method. It relies on Application::getResponse which is not able to be mocked or overloaded.');
-        $value = uniqid('value_');
-
-        $templateFile = $this->createTemplate($value);
-        $this->component->render($templateFile);
-
-        $mockResponse = $this->getMock('Response');
-        $this->assertTrue(($mockResponse instanceOf Response) === TRUE);
-        $response = Application::getResponse();
-    } // end function testRenderContent
-
-    /**
-     * Create a template and store the contents
-     * @param string $contents
-     * @return string
-     * @author Craig Gardner <craig@seabourneconsulting.com>
-     **/
-    public function createTemplate($contents, $fileName = NULL) {
-        if (is_null($fileName)) {
-            $fileName = CONFIGROOT . DIRECTORY_SEPARATOR . 'view.tpl.php';
-        }
-
-        if (file_put_contents($fileName, $contents) === FALSE) {
-            $this->fail(sprintf('Failed to write to %s', $fileName));
-        }
-        return $fileName;
-    } // end function createTemplate
-    
-}
-
-class TestBaseComponent extends Cumula\BaseComponent {
-	public function rootDirectory() {
-		return CONFIGROOT;
+	public function tearDown() {
+	}
+	 
+	public function createInstance() {
+		return new TestBaseComponent();
 	}
 
-	public static function getInfo() {
-		return array();
+	public function testConstructor() {
+		$component = $this->createInstance();
+		$this->assertContains(array($component, "startup"),
+							  $this->cm->getEventListeners('ComponentStartupComplete'));
+		$this->assertContains(array($component, "shutdown"),
+							  $this->app->getEventListeners('BootShutdown'));
+		// constructConfig was called
+		$this->assertEquals($component->config, 5);
+	}
+}
+
+class TestBaseComponent extends \Cumula\BaseComponent {
+	public function startup() {
+		
+	}
+	public function constructConfig() {
+		// Skip this for testing
+		return 5;
 	}
 }
