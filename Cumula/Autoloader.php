@@ -1,7 +1,7 @@
 <?php
 namespace Cumula;
 
-require_once 'Cumula/Event/Dispatcher.php';
+require_once 'Cumula/EventDispatcher.php';
 require_once 'Cumula/SplClassLoader.php';
 
 /**

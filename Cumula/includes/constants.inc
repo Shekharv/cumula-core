@@ -15,10 +15,10 @@ const SETTING_ROUTER = 'default_router';
 const DEFAULT_ROUTER_CLASS = 'Cumula\\Router';
 
 const SETTING_DEFAULT_DATASTORE = 'default_datastore';
-const DEFAULT_DATASTORE_CLASS = 'YAMLDataStore\\YAMLDataStore';
+const DEFAULT_DATASTORE_CLASS = '\\Cumula\\DataStore\\YAML';
 
 const SETTING_DEFAULT_CONFIG = 'default_config';
-const DEFAULT_CONFIG_CLASS = 'StandardConfig\\StandardConfig';
+const DEFAULT_CONFIG_CLASS = 'Cumula\\Config\\Standard';
 
 const SETTING_DEFAULT_BASE_PATH = 'default_base_path';
 const DEFAULT_SITE_BASE_PATH = '/index.php';

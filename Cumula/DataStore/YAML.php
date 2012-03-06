@@ -1,5 +1,5 @@
 <?php
-namespace YAMLDataStore;
+namespace Cumula\DataStore;
 /**
  * Cumula
  *
@@ -13,8 +13,8 @@ namespace YAMLDataStore;
  * @link       http://cumula.org
  */
 
-require_once dirname(__FILE__) . '/includes/sfYamlDumper.php';
-require_once dirname(__FILE__) . '/includes/sfYamlParser.php';
+require_once dirname(__FILE__) . '/YAML/lib/sfYamlDumper.php';
+require_once dirname(__FILE__) . '/YAML/lib/sfYamlParser.php';
 
 
 /**
@@ -27,7 +27,7 @@ require_once dirname(__FILE__) . '/includes/sfYamlParser.php';
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class YAMLDataStore extends \Cumula\BaseDataStore {
+class YAML extends Base {
 	private $_storage;
 	private $_sourceDirectory;
 	private $_filename;
@@ -42,7 +42,7 @@ class YAMLDataStore extends \Cumula\BaseDataStore {
 	 * @param $config_values
 	 * @return unknown_type
 	 */
-	public function __construct(\Cumula\CumulaSchema $schema, $configValues) {
+	public function __construct(\Cumula\Schema\Simple $schema, $configValues) {
 		parent::__construct($schema, $configValues);
 		$this->_storage = array();
 		$this->_sourceDirectory = $configValues['source_directory'];

@@ -73,7 +73,7 @@ final class Manager extends BaseComponent {
 		$this->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', 'getComponentFiles');
 
 		// Initialize config and settings
-		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, 'components.yaml');
+		$this->config = new \Cumula\Config\Standard(CONFIGROOT, 'components.yaml');
 		$this->loadSettings();
 
 		// Set output

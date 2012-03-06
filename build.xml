@@ -43,11 +43,11 @@
 
 			<!-- Run the automated tests -->
 			<phpunit haltonerror="false" haltonfailure="false" codecoverage="false"
-					haltonskipped="false" bootstrap="${project.basedir}/test/bootstrap.php">
+					haltonskipped="false" bootstrap="${project.basedir}/Cumula/Test/bootstrap.php">
 					<formatter type="xml" usefile="true" todir="${tests.reportdir}" />
 					<formatter type="plain" usefile="false" />
 					<batchtest name="Cumula Automated Tests">
-							<fileset dir="${project.basedir}/test">
+							<fileset dir="${project.basedir}/Cumula/Test">
 									<include name="**/${test.class}.php" />
 									<exclude name="base/*.php" />
 									<exclude name="bootstrap.php" />

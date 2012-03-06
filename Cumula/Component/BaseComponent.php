@@ -322,7 +322,7 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function defaultDataStore() {
-		$store = SystemConfig::instance()->getValue('default_datastore', 'YAMLDataStore\\YAMLDataStore');
+		$store = SystemConfig::instance()->getValue('default_datastore', 'Cumula\\DataStore\\YAML');
 		return $store;
 	}
 	

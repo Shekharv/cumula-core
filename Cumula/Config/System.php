@@ -25,7 +25,7 @@ namespace Cumula;
 class SystemConfig extends BaseComponent {
 	public function __construct() {
 		parent::__construct();
-		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, 'system.yaml');
+		$this->config = new \Cumula\Config\Standard(CONFIGROOT, 'system.yaml');
 		
 		$this->addEvent('SystemConfigSetValue');
 		$this->addEvent('SystemConfigGetValue');

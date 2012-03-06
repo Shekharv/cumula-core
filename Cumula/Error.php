@@ -1,7 +1,6 @@
 <?php
 
 namespace Cumula;
-use \Cumula\EventDispatcher as EventDispatcher;
 
 class Error extends EventDispatcher {
 	public static $files = array();

@@ -228,7 +228,7 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 	 * @return void
 	 * @author Craig Gardner <craig@seabourneconsulting.com>
 	 **/
-	public function setSchema(CumulaSchema $arg0) 
+	public function setSchema(\Cumula\Schema\Simple $arg0) 
 	{
 		if (($arg0 instanceOf BaseSchema) === FALSE)
 		{

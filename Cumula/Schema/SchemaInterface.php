@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\Schema;
 /**
  * Cumula
  *
@@ -22,7 +22,7 @@ namespace Cumula;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-interface CumulaSchema {	
+interface SchemaInterface {
 	/**
 	 * Returns an array of key value pairs describing the fields associated with the object stored in the schema.
 	 * @return unknown_type

@@ -1,12 +1,12 @@
 <?php
-namespace Cumula;
+namespace Cumula\Schema;
 
 /**
  * Simple Schema Class
  * @package Cumula
  * @subpackage Core
  */
-class SimpleSchema extends BaseSchema {
+class Simple extends Base {
     /**
      * Constructor
      * @param string $name

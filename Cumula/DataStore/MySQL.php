@@ -1,7 +1,6 @@
 <?php
 namespace MySQLDataStore;
-use \Cumula\PDODataStore as PDODataStore;
-require_once realpath(dirname(__FILE__) .'/../../classes/PDODataStore.class.php');
+use \Cumula\DataStore\PDO as PDODataStore;
 
 /**
  * MySQL Data Store

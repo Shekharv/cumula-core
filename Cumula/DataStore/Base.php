@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\DataStore;
 /**
  * Cumula
  *
@@ -13,7 +13,6 @@ namespace Cumula;
  * @link       http://cumula.org
  */
 
-require_once realpath(dirname(__FILE__) .'/Exception/DataStoreException.class.php');
 
 /**
  * BaseDataStore Class
@@ -27,7 +26,7 @@ require_once realpath(dirname(__FILE__) .'/Exception/DataStoreException.class.ph
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-abstract class BaseDataStore extends EventDispatcher {
+abstract class Base extends \Cumula\EventDispatcher {
 	protected $_schema;
 	protected $_connected = false;
 
@@ -48,7 +47,7 @@ abstract class BaseDataStore extends EventDispatcher {
 	 * 
 	 * @return unknown_type
 	 */
-	public function __construct(CumulaSchema $schema, array $configValues = array()) {
+	public function __construct(\Cumula\Schema\Simple $schema, array $configValues = array()) {
 		parent::__construct();
 		$this->setSchema($schema);
 	}
@@ -89,7 +88,7 @@ abstract class BaseDataStore extends EventDispatcher {
 	 * @param $schema
 	 * @return unknown_type
 	 */
-	public function setSchema(CumulaSchema $schema) {
+	public function setSchema(\Cumula\Schema\Simple $schema) {
 		$this->_schema = $schema;
 	}
 	
