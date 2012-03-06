@@ -1,6 +1,7 @@
 <?php
 
-define('TMPROOT', realpath(__DIR__ .'/../../'));
+
+define('TMPROOT', realpath(__DIR__ .'/../../').DIRECTORY_SEPARATOR);
 
 define('CUMULAVERSION', "0.4.0");
 
@@ -12,19 +13,19 @@ function checkVersion() {
 }
 
 function checkPerms() {
+	global $argv, $argc;
 	//check parent dir is writable
-	if(is_writable(realpath(__DIR__."/.."))) {
-		mkdir(realpath(__DIR__."/../".$argv[2]));
-		rename(realpath(__DIR__), realpath(__DIR__."/../".$argv[2].DIRECTORY_SEPARATOR.basename(__DIR__)));
+	if(is_writable(TMPROOT)) {
+		echo "Creating Project Folder...\n";
+		mkdir(TMPROOT.$argv[1]);
+		mkdir(TMPROOT.$argv[1].DIRECTORY_SEPARATOR.'app');
+		echo "Moving Files...\n";
+		rename(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'), TMPROOT.$argv[1].DIRECTORY_SEPARATOR.basename(realpath(__DIR__.DIRECTORY_SEPARATOR.'..')));
 	} else {
 		echo "Parent folder ".realpath(__DIR__."/..")." is not writable.  Can not install Cumula.\n".
 		"Please make this folder writable and try again.\n";
 		exit;
-	}
-	if(!file_exists(TMPROOT.DIRECTORY_SEPARATOR.'app')) {
-		
-	}
-		
+	}		
 }
 
 echo 'Checking PHP Version: ';
@@ -32,5 +33,6 @@ checkVersion();
 echo PHP_VERSION."...ok\n";
 checkPerms();
 echo "Starting Install...\n";
-echo "Booting Cumula...\n";
-$argv[1] = 'install';
+echo "Booting Cumula for the first time...\n";
+$argv[1] = 'setup';
+

@@ -17,9 +17,9 @@ class CommandLine extends BaseComponent {
 					'callback' => array($this, 'info'),
 					'help' => 'Get info on the installed version of Cumula.',
 				),
-				'>install' => array(
-					'callback' => array($this, 'cumulaInstall'),
-					'help' => 'Install the full Cumula application directories.'
+				'>setup' => array(
+					'callback' => array($this, 'cumulaSetup'),
+					'help' => 'Setup the Cumula Install.'
 				)
 			)
 		);
@@ -43,9 +43,9 @@ class CommandLine extends BaseComponent {
 		$this->renderCLI("Welcome to Cumula.\nVersion ".CUMULAVERSION);
 	}
 	
-	public function cumulaInstall() {
-		fwrite(STDOUT, "Checking PHP Version.");
+	public function cumulaSetup() {
+		fwrite(STDOUT, "Setting Up Cumula...");
 		sleep(5);
-		fwrite(STDOUT, "More....");
+		fwrite(STDOUT, "Done!");
 	}
 }
