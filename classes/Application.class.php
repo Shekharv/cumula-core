@@ -137,8 +137,8 @@ final class Application extends EventDispatcher {
 	
 	private function _setupConstants($paths = array()) {
         // Only define ROOT if it isn't already defined
-        defined('ROOT') ||
-            define('ROOT', realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', '..'))));
+        //defined('ROOT') ||
+           // define('ROOT', realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', '..'))));
 
         //TODO: rewrite the part to support passing in arbitrary paths
         defined('APPROOT') ||
@@ -182,8 +182,6 @@ final class Application extends EventDispatcher {
 
         defined('TESTROOT') ||
             define('TESTROOT', $test_path . DIRECTORY_SEPARATOR);
-
-		define('CUMULAVERSION', "0.4.0");
 		
 		define('PUBLICROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR);
 		define('ASSETROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR);
