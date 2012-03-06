@@ -186,6 +186,8 @@ final class Application extends EventDispatcher {
 		define('PUBLICROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR);
 		define('ASSETROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR);
 		define('LIBDIR', $core_path.DIRECTORY_SEPARATOR.'libraries');
+		define('INCDIR', $core_path.DIRECTORY_SEPARATOR.'includes');
+		define('BINDIR', $core_path.DIRECTORY_SEPARATOR.'bin');
 	}
 	
 	/**
