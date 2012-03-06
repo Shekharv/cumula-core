@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\Templater;
 /**
  * Cumula
  *
@@ -22,7 +22,7 @@ namespace Cumula;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-interface CumulaTemplater {
+interface TemplaterInterface {
 	
 	public function __construct();
 	

@@ -1,5 +1,5 @@
 <?php
-namespace Authentication;
+namespace Cumula\Components\Authentication;
 /**
  * Cumula
  *
@@ -22,7 +22,7 @@ namespace Authentication;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-interface CumulaAuth {
+interface AuthInterface {
   
   /**
    * The authenticate function of an auth class must take a set of parameters, 

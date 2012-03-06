@@ -1,6 +1,6 @@
 <?php
-namespace AdminInterface;
-use Cumula\BaseComponent as BaseComponent;
+namespace Cumula\Components;
+use \Cumula\Component\BaseComponent as BaseComponent;
 /**
  * Cumula
  *

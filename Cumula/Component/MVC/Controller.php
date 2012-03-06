@@ -1,6 +1,6 @@
 <?php
-namespace Cumula;
-use Templater\Templater as Templater;
+namespace Cumula\Component\MVC;
+use \Cumula\Templater\TemplaterInterface as Templater;
 
 /**
  * Cumula
@@ -24,7 +24,7 @@ use Templater\Templater as Templater;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-abstract class BaseMVCController extends EventDispatcher {
+abstract class Controller extends \Cumula\EventDispatcher {
 	public $component;
 	
 	protected $_Beforefilters = array();
@@ -138,7 +138,7 @@ abstract class BaseMVCController extends EventDispatcher {
 		$this->_renderCalled = false;
 		$func = $this->_parseFunc($name);
 
-		if($arguments[1] instanceof Router) {
+		if($arguments[1] instanceof \Cumula\Router) {
 			foreach($this->_Beforefilters as $filter) {
 				//stop processing if the before filter returns false
 				if($filter instanceof \Closure) {

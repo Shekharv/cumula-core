@@ -1,7 +1,7 @@
 <?php
 
-namespace AdvancedErrorHandler;
-use \Cumula\BaseComponent as BaseComponent;
+namespace Cumula\Components;
+use \Cumula\Component\BaseComponent as BaseComponent;
 
 require_once('lib/handlers.inc');
 

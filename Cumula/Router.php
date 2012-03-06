@@ -1,6 +1,6 @@
 <?php
 namespace Cumula;
-use Templater\Templater as Templater;
+use Components\Templater as Templater;
 /**
  * Cumula
  *
@@ -24,7 +24,7 @@ use Templater\Templater as Templater;
  * @subpackage	Router
  * @author     Seabourne Consulting
  */
-class Router extends BaseComponent 
+class Router extends Component\BaseComponent 
 {
 
 	// Stores all routes registered with the application

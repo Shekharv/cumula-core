@@ -1,7 +1,7 @@
 <?php
-namespace MenuManager;
-use Cumula\BaseComponent as BaseComponent;
-use Cumula\Application as Application;
+namespace Cumula\Components;
+use \Cumula\Component\BaseComponent as BaseComponent;
+use \Cumula\Application as Application;
 /**
  * Cumula
  *

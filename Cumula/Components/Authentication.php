@@ -1,8 +1,8 @@
 <?php
-namespace Authentication;
-use Cumula\BaseComponent as BaseComponent;
+namespace Cumula\Components;
+use \Cumula\Component\BaseComponent as BaseComponent;
 
-require 'CumulaAuth.interface.php';
+require 'Authentication/AuthInterface.php';
 
 class Authentication extends BaseComponent
 {
@@ -12,14 +12,14 @@ class Authentication extends BaseComponent
   
   public function factory($service)
   {
-    $library_path = static::rootDirectory().'/libraries/'.$service.'.php';
+    $library_path = 'Authentication/lib/'.$service.'.php';
     if (!file_exists($library_path)) {
       throw new Exception('Auth library not found');
       return FALSE;
     }
     
     require_once($library_path);
-		$class = sprintf('Authentication\\%sAuthentication', $service);
+		$class = sprintf('Cumula\\Components\\%sAuthentication', $service);
     return new $class();
     
   }

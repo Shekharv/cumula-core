@@ -1,5 +1,5 @@
 <?php
-namespace Cache;
+namespace Cumula\Components;
 
 /**
  * Cache Component
@@ -9,7 +9,7 @@ namespace Cache;
  * @TODO Allow developers to override how the caches are stored based on the bin (ie. Cache::get('cacheKey', 'myBin') 
  * 		would allow the developer to hook into cache_get_myBin to return the cached value and store the cache differently
  **/
-class Cache extends \Cumula\BaseComponent 
+class Cache extends \Cumula\Component\BaseComponent 
 {
 	/**
 	 * Properties
@@ -174,7 +174,7 @@ class Cache extends \Cumula\BaseComponent
 	 * @param BaseDataStore $store Data Store Instance to store
 	 * @return Cache\Class
 	 **/
-	public function addDataStore($bin, \Cumula\BaseDataStore $store) 
+	public function addDataStore($bin, \Cumula\DataStore\Base $store) 
 	{
 		$stores = $this->getDataStores();
 		if (get_called_class() != __CLASS__ && $bin == 'cache' || isset($stores[$bin])) {
@@ -209,4 +209,4 @@ class Cache extends \Cumula\BaseComponent
 		$this->dataStores = $arg0;
 		return $this;
 	} // end function setDataStores()
-} // end class Cache extends \Cumula\BaseComponent
+} 

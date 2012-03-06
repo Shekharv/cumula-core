@@ -1,9 +1,9 @@
 <?php
-namespace Templater;
-use Cumula\BaseComponent as BaseComponent;
-use Cumula\CumulaTemplater as CumulaTemplater;
-use Cumula\Application as Application;
-use Cumula\SystemConfig as SystemConfig;
+namespace Cumula\Components;
+use \Cumula\Component\BaseComponent as BaseComponent;
+use \Cumula\Templater\TemplaterInterface as CumulaTemplater;
+use \Cumula\Application as Application;
+use \Cumula\Config\System as SystemConfig;
 
 /**
  * Cumula

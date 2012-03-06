@@ -1,8 +1,7 @@
 <?php
-namespace UserManager;
-use \Cumula\BaseComponent as BaseComponent;
-
-require_once 'lib/BasicUserSchema.class.php';
+namespace Cumula\Components
+use \Cumula\Component\BaseComponent as BaseComponent;
+use UserManager\Schema as BasicUserSchema;
 
 class UserManager extends BaseComponent {
 	protected $_domains;
@@ -17,7 +16,7 @@ class UserManager extends BaseComponent {
 		$this->_paths = array();
 		
 		$schema = new BasicUserSchema();
-		$this->_userStore = new \SqliteDataStore\SqliteDataStore($schema, array('source_directory' => DATAROOT, 'filename' => 'user_store'));
+		$this->_userStore = new \Cumula\DataStore\Sqlite($schema, array('source_directory' => DATAROOT, 'filename' => 'user_store'));
 	}
 	
 	public function startup() {

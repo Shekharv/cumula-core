@@ -1,7 +1,7 @@
 <?php
-namespace Cumula;
+namespace Cumula\Component\MVC;
 
-abstract class BaseMVCModel extends EventDispatcher {
+abstract class Model extends \Cumula\EventDispatcher {
 	protected static $_fields;
 	protected $_data;
 	protected static $_dataStore = array();

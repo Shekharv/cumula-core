@@ -1,6 +1,6 @@
 <?php
 namespace Install;
-use \Cumula\BaseComponent as BaseComponent;
+use \Cumula\Component\BaseComponent as BaseComponent;
 
 class Install extends BaseComponent {
 	public function __construct() {

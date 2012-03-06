@@ -1,8 +1,8 @@
 <?php
 namespace FormHelper;
 
-use Cumula\BaseComponent as BaseComponent;
-use Cumula\SimpleSchema as SimpleSchema;
+use Cumula\Component\BaseComponent as BaseComponent;
+use Cumula\Schema\Simple as SimpleSchema;
 
 /**
  * Cumula

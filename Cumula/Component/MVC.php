@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\Component;
 /**
  * Cumula
  *
@@ -22,7 +22,7 @@ namespace Cumula;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-abstract class BaseMVCComponent extends BaseComponent 
+abstract class MVC extends BaseComponent 
 {
 	protected $_routes;
 	

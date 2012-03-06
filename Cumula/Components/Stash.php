@@ -1,6 +1,6 @@
 <?php
-namespace Stash;
-use \Cache\Cache as Cache;
+namespace Cumula\Components;
+use \Cumula\Component\BaseComponent as BaseComponent;
 use \Cumula\Autoloader as Autoloader;
 
 /**
@@ -8,7 +8,7 @@ use \Cumula\Autoloader as Autoloader;
  * @package Cumula
  * @author Craig Gardner <craig@seabourneconsulting.com>
  **/
-class Stash extends \Cumula\BaseComponent 
+class Stash extends BaseComponent 
 {
 	/**
 	 * Properties
@@ -276,4 +276,4 @@ class Stash extends \Cumula\BaseComponent
 		$this->stashTable = $arg0;
 		return $this;
 	} // end function setStashTable()
-} // end class Stash extends BaseComponent
+} 

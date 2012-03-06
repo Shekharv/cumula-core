@@ -1,9 +1,9 @@
 <?php
 
-namespace UserManager;
-use \Cumula\BaseSchema as BaseSchema;
+namespace Cumula\Components\UserManager;
+use \Cumula\Schema\Base as BaseSchema;
 
-class BasicUserSchema extends BaseSchema {
+class Schema extends BaseSchema {
 
 	public function getName() {
 		return 'user';

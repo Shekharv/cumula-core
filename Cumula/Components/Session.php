@@ -1,7 +1,7 @@
 <?php
-namespace Session;
-use \Cumula\BaseComponent as BaseComponent;
-use \Cumula\ComponentManager as ComponentManager;
+namespace Cumula\Components;
+use \Cumula\Component\BaseComponent as BaseComponent;
+use \Cumula\Component\Manager as ComponentManager;
 
 class Session extends BaseComponent {
 	public function __construct() {

@@ -22,7 +22,7 @@ namespace Cumula;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class SystemConfig extends BaseComponent {
+class SystemConfig extends Component\BaseComponent {
 	public function __construct() {
 		parent::__construct();
 		$this->config = new \Cumula\Config\Standard(CONFIGROOT, 'system.yaml');

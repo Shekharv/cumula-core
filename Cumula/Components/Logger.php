@@ -1,9 +1,9 @@
 <?php
-namespace Logger;
-use Cumula\BaseComponent as BaseComponent;
-use Cumula\SystemConfig as SystemConfig;
-use Cumula\SimpleSchema as SimpleSchema;
-use Cumula\ComponentManager as ComponentManager;
+namespace Cumula\Components;
+use \Cumula\Component\BaseComponent as BaseComponent;
+use \Cumula\Config\System as SystemConfig;
+use \Cumula\Schema\Simple as SimpleSchema;
+use \Cumula\Component\Manager as ComponentManager;
 
 /**
  * Cumula
