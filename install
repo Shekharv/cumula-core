@@ -3,13 +3,16 @@
 
 //check if this is command line and install
 global $argv, $argc;
+global $installPath;
 
 if(isset($argv)) {
 	if(!isset($argv[1])) {
-		echo "Install Cumula Usage: install <name>\n";
+		echo "Install Cumula Usage: install <name> [-base-dir=<path>]\n";
 		exit;
 	}
 	include 'bin'.DIRECTORY_SEPARATOR.'install.php';
 }
+include realpath($installPath).DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'boot.php';
 
-include 'bin'.DIRECTORY_SEPARATOR.'boot.php';
+echo 'Your new Cumula app is now ready at: '.realpath($installPath.DIRECTORY_SEPARATOR."..")."\n";
+echo "Final Step: point your web server at ".realpath($installPath.DIRECTORY_SEPARATOR."..").DIRECTORY_SEPARATOR."app".DIRECTORY_SEPARATOR."public and visit http://localhost\n";
