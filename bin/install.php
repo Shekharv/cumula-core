@@ -11,6 +11,7 @@ if(isset($argv[2]) && strstr($argv[2], "-base-dir=")) {
 	define('TMPROOT', realpath(__DIR__.'/../../').DIRECTORY_SEPARATOR);
 }
 
+
 define('CUMULAVERSION', "0.4.0");
 
 function copyFiles($source, $destination) {
@@ -71,3 +72,4 @@ echo "Booting Cumula for the first time...\n";
 $argv[1] = 'setup';
 if(isset($argv[2]))
 	unset($argv[2]);
+
