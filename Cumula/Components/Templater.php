@@ -38,8 +38,11 @@ class Templater extends BaseComponent implements CumulaTemplater {
 	public function __construct() {
 		parent::__construct();
 	
-		$this->addEventListenerTo('Application', 'BootPostprocess', array(&$this, 'postProcessRender'));
-		$this->addEventListener('TemplaterRender', array(&$this, 'renderTemplate'));
+
+		if(!A('Request')->cli) {
+			A('Application')->bind('BootPostprocess', array($this, 'postProcessRender'));
+			$this->bind('TemplaterRender', array($this, 'renderTemplate'));
+		}
 
 		$this->_template_dir = $this->config->getConfigValue('template_directory', ROOT.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'templates');
 		$this->_output = '';

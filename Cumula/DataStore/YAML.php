@@ -44,6 +44,7 @@ class YAML extends Base {
 	 */
 	public function __construct(\Cumula\Schema\Simple $schema, $configValues) {
 		parent::__construct($schema, $configValues);
+		$this->_schema = $schema;
 		$this->_storage = array();
 		$this->_sourceDirectory = $configValues['source_directory'];
 		$this->_filename = $configValues['filename'];
@@ -55,6 +56,10 @@ class YAML extends Base {
 	 */
 	public function connect() {
 		$this->_load();
+	}
+	
+	public function setup($fields, $id, $domain, $config) {
+		
 	}
 	
 	/* (non-PHPdoc)

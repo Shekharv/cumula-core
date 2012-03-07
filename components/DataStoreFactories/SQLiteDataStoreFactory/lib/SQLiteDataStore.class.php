@@ -1,5 +1,5 @@
 <?php
-namespace SqliteDataStore;
+namespace SQLiteDataStore;
 /**
  * Cumula
  *
@@ -22,16 +22,11 @@ namespace SqliteDataStore;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class SqliteDataStore extends \Cumula\BaseSqlDataStore {
+class NewSQLiteDataStore extends \Cumula\BaseSqlDataStore {
 	protected $_db;
 	
-	public function __construct($schema, $config_values) {
-		parent::__construct($schema, $config_values);
-		$this->setSchema($schema);
-		$this->_sourceDirectory = $config_values['source_directory'];
-		$this->_filename = $config_values['filename'];
-		$this->_db = new \SQLite3($this->_sourceDirectory.'/'.$this->_filename);
-		$this->connect();
+	public function __construct() {
+		parent::__construct();
 	}
 	
 	protected function doExec($sql) {
@@ -44,8 +39,12 @@ class SqliteDataStore extends \Cumula\BaseSqlDataStore {
 		return $this->_db->query($sql);
 	}
 	
-	public function setup($fields, $id, $domain, $config) {
-		parent::setup($fields, $id, $domain, $config);
+	public function setup($fields, $id, $domain, $configValues) {
+		parent::setup($fields, $id, $domain, $configValues);
+		$this->_sourceDirectory = $configValues['source_directory'];
+		$this->_filename = $configValues['filename'];
+		$this->_db = new \SQLite3($this->_sourceDirectory.'/'.$this->_filename);
+		$this->connect();
 	}
 
 	/* (non-PHPdoc)

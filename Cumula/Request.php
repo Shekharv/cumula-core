@@ -28,17 +28,29 @@ final class Request extends EventDispatcher {
 	public $arguments;
 	public $requestIp;
 	public $params;
-	
+	public $cli;
+
 	public function __construct() {
+		global $argv, $argc;
 		parent::__construct();
+		$this->cli = isset($argv);
 		$this->init();
 	}
 	
 	protected function init() {
-		$this->path = array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : '';
-		$this->requestIp = $_SERVER['REMOTE_ADDR'];
-		$this->fullPath = $_SERVER['REQUEST_URI'];
-		$this->params = array_merge($_GET, $_POST);
-		array_walk_recursive($this->params, function(&$ele, $key) {$ele = str_replace("\\\\", "\\", $ele);});
+		if(!$this->cli) {
+			$this->path = array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : '';
+			$this->requestIp = $_SERVER['REMOTE_ADDR'];
+			$this->fullPath = $_SERVER['REQUEST_URI'];
+			$this->params = array_merge($_GET, $_POST);
+			array_walk_recursive($this->params, function(&$ele, $key) {$ele = str_replace("\\\\", "\\", $ele);});
+		} else {
+			global $argv, $argc;
+			$this->fullPath = $argv[0];
+			array_shift($argv);
+			$this->path = implode(' ', $argv);
+			$this->requestIp = null;
+			$this->params = array();
+		}
 	}
 }

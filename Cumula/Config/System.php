@@ -36,7 +36,7 @@ class SystemConfig extends Component\BaseComponent {
 	}
 	
 	public function setupListeners() {
-		$this->addEventListenerTo('Cumula\\ComponentManager', 'ComponentStartupComplete', 'startup');
+		A('ComponentManager')->bind('ComponentStartupComplete', array($this, 'startup'));
 	}
 	
 	
@@ -45,22 +45,7 @@ class SystemConfig extends Component\BaseComponent {
 	 * 
 	 * @return unknown_type
 	 */
-	public function setupDefaults() {
-		if(!$this->config->getConfigValue(SETTING_TEMPLATER))
-			$this->config->setConfigValue(SETTING_TEMPLATER, DEFAULT_TEMPLATER_CLASS);
-			
-		if(!$this->config->getConfigValue(SETTING_ROUTER))
-			$this->config->setConfigValue(SETTING_ROUTER, DEFAULT_ROUTER_CLASS);
-
-		if(!$this->config->getConfigValue(SETTING_DEFAULT_DATASTORE))
-			$this->config->setConfigValue(SETTING_DEFAULT_DATASTORE, DEFAULT_DATASTORE_CLASS);
-
-		if(!$this->config->getConfigValue(SETTING_DEFAULT_CONFIG))
-			$this->config->setConfigValue(SETTING_DEFAULT_CONFIG, DEFAULT_CONFIG_CLASS);	
-		
-		if(!$this->config->getConfigValue(SETTING_COMPONENT_MANAGER))
-			$this->config->setConfigValue(SETTING_COMPONENT_MANAGER, DEFAULT_COMPONENT_MANAGER_CLASS);
-			
+	public function setupDefaults() {			
 		if(!$this->config->getConfigValue(SETTING_DEFAULT_BASE_PATH))
 			$this->config->setConfigValue(SETTING_DEFAULT_BASE_PATH, DEFAULT_SITE_BASE_PATH);	
 			
@@ -69,6 +54,12 @@ class SystemConfig extends Component\BaseComponent {
 			
 		if(!$this->config->getConfigValue(SETTING_SITE_TITLE))
 			$this->config->setConfigValue(SETTING_SITE_TITLE, DEFAULT_SITE_TITLE);		
+			
+		if(!$this->config->getConfigValue(SETTING_DEFAULT_DATASTORE))
+			$this->config->setConfigValue(SETTING_DEFAULT_DATASTORE, DEFAULT_DATASTORE_CLASS);
+
+		if(!$this->config->getConfigValue(SETTING_DEFAULT_CONFIG))
+			$this->config->setConfigValue(SETTING_DEFAULT_CONFIG, DEFAULT_CONFIG_CLASS);	
 	}
 	
 	/**
@@ -77,7 +68,7 @@ class SystemConfig extends Component\BaseComponent {
 	 */
 
 	public function startup() {
-		$this->addEventListenerTo('AdminInterface\\AdminInterface', 'AdminCollectSettingsPages', 'setupAdminPages');
+		A('AdminInterface')->bind('AdminCollectSettingsPages', array($this, 'setupAdminPages'));
 	}
 	
 	/**
@@ -111,7 +102,7 @@ class SystemConfig extends Component\BaseComponent {
 		$page->component = &$this;
 		$am->addAdminPage($page);
 		
-		$page = $am->newAdminPage();
+		/*$page = $am->newAdminPage();
 		$page->title = 'Component Defaults';
 		$page->route = '/admin/component_defaults';
 		$page->description = 'Set the default classes used in Cumula.  WARNING: only edit this page if you know what you are doing!';
@@ -137,7 +128,7 @@ class SystemConfig extends Component\BaseComponent {
 										'value' => $this->config->getConfigValue(SETTING_DEFAULT_CONFIG)),
 							);		
 		$page->component = &$this;
-		$am->addAdminPage($page);
+		$am->addAdminPage($page);*/
 	}
 	
 	/**

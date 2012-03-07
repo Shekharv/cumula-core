@@ -20,8 +20,8 @@ class UserManager extends BaseComponent {
 	}
 	
 	public function startup() {
-		$this->addEventListenerTo('Application', 'BootPreprocess', 'checkRoutes');
-		$this->addEventListenerTo('Router', 'RouterCollectRoutes', 'sendRoutes');
+		A('Application')->bind('BootPreprocess', array($this, 'checkRoutes'));
+		A('Router')->bind('GatherRoutes', array($this, 'sendRoutes'));
 		$this->_userStore->connect();
 	}
 	
@@ -48,13 +48,10 @@ class UserManager extends BaseComponent {
 		$domain = $this->_parseRoutes($request);
 		if($domain) {
 			$this->_logInfo('setting domain to '.$domain);
-			if($app = \Cumula\Application::instance()) {
-				$router = \Cumula\Router::instance();
-				$app->removeEventListener('BootProcess', array($router, 'processRoute'));
-				$this->addEventListenerTo('Application', 'BootProcess', 'process'.$domain);
-				\I('Session')->domain = $domain;
-				\I('Session')->returnUrl = $request->path;
-			}
+			A('Application')->unbind('BootProcess', array(A('Router'), 'processRoute'));
+			A('Application')->bind('BootProcess', array($this, 'process'.$domain));
+			A('Session')->domain = $domain;
+			A('Session')->returnUrl = $request->path;
 		}
 	}
 	
@@ -69,9 +66,9 @@ class UserManager extends BaseComponent {
 	
 	public function authDomain($domain) {
 		//Check if the session $user var is set
-		if(isset(\I('Session')->user)) {
+		if(isset(\A('Session')->user)) {
 			//if found, process the route as is without doing anything
-			\I('Router')->processRoute('boot_proces', \I('Application'), \I('Request'), \I('Response'));
+			\A('Router')->processRoute('boot_proces', \A('Application'), \A('Request'), \A('Response'));
 		} else {
 			//if not, redirect the user to the login page, pass the original path and domain in the session for the user
 			$this->redirectTo('/user/login');
@@ -83,8 +80,8 @@ class UserManager extends BaseComponent {
 	}
 	
 	public function logout() {
-		unset(\I('Session')->user);
-		\I('Session')->notice = 'You have been logged out.';
+		unset(\A('Session')->user);
+		\A('Session')->notice = 'You have been logged out.';
 		$this->redirectTo('/');
 	}
 	
@@ -106,15 +103,15 @@ class UserManager extends BaseComponent {
 	}
 	
 	public function authenticate($route, $router, $args) {
-		$domain = \I('Session')->domain;
-		$returnUrl = \I('Session')->returnUrl;
+		$domain = \A('Session')->domain;
+		$returnUrl = \A('Session')->returnUrl;
 
 		//get the username and credentail from auth
 		if($this->_userStore->query(array('domain' => $domain, 'username' => $args['username'], 'password' => md5($args['password'])))) {
 			$this->redirectTo($returnUrl);
-			\I('Session')->user = new \stdClass();
+			\A('Session')->user = new \stdClass();
 		} else {
-			\I('Session')->warning = 'Username or Password Incorrect.';
+			\A('Session')->warning = 'Username or Password Incorrect.';
 			$this->redirectTo('/user/login');
 		}
 		//check the username/auth against the domain, pulling from the specified datastore

@@ -29,8 +29,12 @@ class Stash extends BaseComponent
 	 **/
 	public function startup() 
 	{
-		$this->addEventListenerTo('Router', 'RouterCollectRoutes', 'provideRoutes');
-		$this->addEventListenerTo('Stash', 'stash_get_map', function($event, $dispatcher) { $dispatcher->addStash('mystash', 'http://www.fcc.gov/api/content.jsonp?callback=jsonCallback_c4bd2a7021615615285e77df2d0edbb7&type=edoc&terms%5B%5D=12&limit=5&fields=all');});
+		A('Router')->bind('GatherRoutes', array($this, 'provideRoutes'));
+		$this->bind('stash_get_map', 
+			function($event, $dispatcher) { 
+				$dispatcher->addStash('mystash', 'http://www.fcc.gov/api/content.jsonp?callback=jsonCallback_c4bd2a7021615615285e77df2d0edbb7&type=edoc&terms%5B%5D=12&limit=5&fields=all');
+			}
+		);
 	} // end function startup
 
 	/**
@@ -241,14 +245,8 @@ class Stash extends BaseComponent
 	 **/
 	public function sendResponse($output, $headers, $code) 
 	{
-		$appClass = \Cumula\Autoloader::absoluteClassName('Application');
-		$templaterClass = \Cumula\Autoloader::absoluteClassName('Templater');
-		$responseClass = \Cumula\Autoloader::absoluteClassName('Response');
-		if ($appClass !== FALSE && $templaterClass !== FALSE && $responseClass !== FALSE) 
-		{
-			$responseClass::instance()->sendRawResponse($headers, $output, $code);
-			$appClass::instance()->removeEventListener('BootPostprocess', array($templaterClass::instance(), 'postProcessRender'));
-		}
+		A('Response')->sendRawResponse($headers, $output, $code);
+		A('Application')->unbind('BootPostprocess', array(A('Templater'), 'postProcessRender'));
 	} // end function sendResponse
 
 	/**

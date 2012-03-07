@@ -8,10 +8,20 @@
 const SETTING_COMPONENT_MANAGER = 'component_manager';
 const DEFAULT_COMPONENT_MANAGER_CLASS = 'Cumula\\ComponentManager';
 
-const SETTING_TEMPLATER = 'default_templater';
+const APPLICATION_CLASS = 'Cumula\\Application';
+
+const DEFAULT_ALIAS_MANAGER_CLASS = 'Cumula\\AliasManager';
+
+const DEFAULT_REQUEST_MANAGER_CLASS = 'Cumula\\Request';
+
+const DEFAULT_RESPONSE_MANAGER_CLASS = 'Cumula\\Response';
+
+const DEFAULT_SYSTEM_CONFIG_CLASS = 'Cumula\\SystemConfig';
+
+const DEFAULT_AUTOLOADER_CLASS = 'Cumula\\Autoloader';
+
 const DEFAULT_TEMPLATER_CLASS = 'Cumula\\Templater';
 
-const SETTING_ROUTER = 'default_router';
 const DEFAULT_ROUTER_CLASS = 'Cumula\\Router';
 
 const SETTING_DEFAULT_DATASTORE = 'default_datastore';

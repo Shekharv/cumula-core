@@ -50,10 +50,18 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 		$this->_output = array();
 		$this->config = $this->constructConfig();
 		
-		$this->addEventListenerTo('ComponentManager', 'ComponentStartupComplete', 'startup');
-		$this->addEventListenerTo('Application', 'BootShutdown', 'shutdown');
+		A('ComponentManager')->bind('ComponentStartupComplete', array($this, 'startup'));
+		A('Application')->bind('BootShutdown', array($this, 'shutdown'));
 		$this->addEvent('RenderFile');
 		$this->installAssets();
+	}
+	
+	public function getConfigValue($name, $default) {
+		return $this->config->getConfigValue($name, $default);
+	}
+	
+	public function setConfigValue($name, $value) {
+		$this->config->setConfigValue($name, $value);
 	}
 	
 
@@ -152,7 +160,7 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 			if (is_dir($assetDir) === FALSE) {
 				mkdir($assetDir);
 			} else {
-				if($sc = \I('SystemConfig')){
+				if($sc = \A('SystemConfig')){
 					if($sc->getValue('setting_environment', false) != 'development')
 						return;
 				}
@@ -163,7 +171,7 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 				mkdir($componentPublicAssetDir);
 			}
 			foreach ($files as $componentAssetDir) {
-				$this->copyFiles($componentAssetDir, $componentPublicAssetDir);
+				\copyDir($componentAssetDir, $componentPublicAssetDir);
 			}
 		}
 	} // end function installAssets
@@ -184,13 +192,12 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 		$this->renderContent($contents, 'content');
 	}
 	
-	protected function renderPlain($output, $useTemplate = false, $contentType = 'text/plain') {
-		if(($response = \I('Response')) && ($app = \I('Application'))) {
-			$response->response['content'] = $output;
-			$response->response['headers']['Content-Type'] = $contentType;
-			if(!$useTemplate) 
-				$app->removeEventListener('BootPostprocess', array(\I('Templater'), 'postProcessRender'));
-		}
+	protected function renderPlain($output, $contentType = 'text/plain', $useTemplate = false) {
+		A('Response')->response['content'] = $output;
+		A('Response')->response['headers']['Content-Type'] = $contentType;
+		if(!$useTemplate) 
+			A('Application')->unbind('BootPostprocess', array(A('Templater'), 'postProcessRender'));
+
 	}
 	
 	/**
@@ -217,10 +224,19 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 	}
 	
 	public function renderNothing() {
-		if($app = Application::instance()) {
-			$response->response['content'] = '';
-			$app->removeEventListener('BootPostprocess', array(Templater::instance(), 'postProcessRender'));
-		}
+		A('Response')->response['content'] = '';
+		A('Application')->unbind('BootPostprocess', array(Templater::instance(), 'postProcessRender'));
+	}
+	
+	
+	public function render404() {
+		A('Response')->send404();
+		if(!$useTemplate) 
+			A('Application')->unbind('BootPostprocess', array(\A('Templater'), 'postProcessRender'));
+	}
+	
+	public function renderCLA($output) {
+		A('Response')->response['content'] = $output;
 	}
 	
 	/**
@@ -260,16 +276,14 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 	 * @param $block
 	 * @return unknown_type
 	 */
-	public function addOutputBlock($block) {
-		$response = Response::instance();
-		
-		if(empty($response->response['data'][$block->data['variable_name']]))
+	public function addOutputBlock($block) {		
+		if(empty(A('Response')->response['data'][$block->data['variable_name']]))
 		{
-			$response->response['data'][$block->data['variable_name']] = array($block);
+			A('Response')->response['data'][$block->data['variable_name']] = array($block);
 		}
 		else 
 		{
-			$response->response['data'][$block->data['variable_name']][] = $block;
+			A('Response')->response['data'][$block->data['variable_name']][] = $block;
 		}
 	}
 	
@@ -302,7 +316,7 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function redirectTo($url) {
-		Response::instance()->send302($this->completeUrl($url));
+		A('Response')->send302($this->completeUrl($url));
 	}
 	
 	/**
@@ -312,7 +326,7 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function completeUrl($url) {
-		$base = SystemConfig::instance()->getValue(SETTING_DEFAULT_BASE_PATH);
+		$base = A('SystemConfig')->getValue(SETTING_DEFAULT_BASE_PATH);
 		return ($base == '/') ? $url : $base.$url;
 	}
 	
@@ -322,7 +336,7 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function defaultDataStore() {
-		$store = SystemConfig::instance()->getValue('default_datastore', 'Cumula\\DataStore\\YAML');
+		$store = A('SystemConfig')->getValue('default_datastore', 'Cumula\\DataStore\\YAML');
 		return $store;
 	}
 	
@@ -344,30 +358,5 @@ abstract class BaseComponent extends \Cumula\EventDispatcher {
 		$class = new \ReflectionClass(get_class($this));
 		return dirname($class->getFileName());	
 	}
-	/**
-	 * Recursive function to re-create the filestructure in the
-	 * component's asset directory in the public asset directory
-	 * @param string $source
-	 * @param string $destination
-	 * @return void
-	 **/
-	protected function copyFiles($source, $destination) {
-		if (is_dir($source)) {
-			// Find all of the files in the directory and create directories
-			// for the subdirectories
-			foreach(glob($source .'/*', GLOB_NOSORT) as $file) {
-				$dirname = basename($file);
-				$newDestination = $destination . DIRECTORY_SEPARATOR . $dirname;
-				if (is_dir($file) && is_dir($newDestination) === FALSE) {
-					mkdir($newDestination, 0777, TRUE);
-				}
-				$this->copyFiles($file, $newDestination);
-			}
-		}
-		else {
-			// Copy the file to the public assets directory
-			if(!file_exists($destination) || md5_file($source) != md5_file($destination))
-				copy($source, $destination);
-		}
-	} // end function copyFiles
+
 }

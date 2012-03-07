@@ -71,12 +71,21 @@ class Error extends EventDispatcher {
 	}
 	
 	public static function processError($error, $message, $file, $line) {
+		global $argv;
+		if(!isset($argv)) {
 		$view = ROOT.DIRECTORY_SEPARATOR.'cumula'.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR.'error.tpl.php';
 		echo \Cumula\Renderer::renderFile($view, array('error' => static::$levels[$error], 
 											'message' => $message, 
 											'file' => $file, 
 											'line' => $line,
 											'snippet' => static::getFileSnippet($file, $line)));
+		} else {
+			echo <<<EOF
+Error: $message\n
+$file:$line\n
+\n
+EOF;
+		}
 	}
 	
 	public static function getFileSnippet($filepath, $lineNum, $highlight = true, $padding = 5)

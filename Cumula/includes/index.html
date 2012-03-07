@@ -6,7 +6,7 @@
 <!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]--> 
 <head> 
 	<meta charset="utf-8"> 
-	<title>Welcome to Cumula | Install</title>
+	<title>Welcome to Cumula</title>
 	
 	<meta name="description" content="Cumula Welcome Screen">
 	<meta name="author" content="Jay Contonio">
@@ -55,21 +55,13 @@
 				background: linear-gradient(top,  #f2825b 0%,#e55b2b 50%,#f07146 100%); /* W3C */
 				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2825b', endColorstr='#f07146',GradientType=0 ); /* IE6-9 */
 				
-				border:none; border-radius:6px; color:#fff; display:inline-block; font-size:14px; padding:.25em 1em; text-decoration:none; text-shadow:1px 1px 1px #A33611; -webkit-appearance:none; }
+				border-radius:6px; color:#fff; display:inline-block; font-size:14px; padding:.25em 1em; text-decoration:none; text-shadow:1px 1px 1px #A33611; }
 			#welcome .button:hover { background:#E14A17; }
 			#welcome .button:active { background:#A33611; }
 		
 		hr { border:none; border-top:1px dashed #ccc; display:block; margin:1.75em 0; }
 		
 		ul { list-style:none; margin:0; padding:0; }
-		.box { background:#444; color:#fff; font-size:14px; margin:0 0 2em 0; padding:1em; }
-		.success { color:#99E100; }
-		.error { color:red; }
-		
-		fieldset { border:none; margin:0 0 1em 0; padding:0; }
-		label { display:block; font-size:14px; }
-		fieldset input { border:1px solid #ccc; color:#666; font-size:13px; margin-bottom:1em; outline:none; padding:6px 12px 6px 6px; }
-			fieldset input:focus { border:1px solid #333; }
 
 	</style>
  
@@ -91,9 +83,15 @@
 
 		<section id="welcome">
 			<div class="bucket">
-				<?php echo \A('Session')->warning; ?>
-				<?php echo \A('Session')->notice; ?>
-				<?php echo $content; ?>
+				<p>You've successfully downloaded Cumula.</p>
+				<p>Next up, <a class="button" href="/index.php/install">Run the Installer</a></p>
+				<hr>
+				<h1>Resources</h1>
+				<ul>
+					<li><a href="https://github.com/Cumula/CumulaFramework/wiki/Cumula-Basics">Cumula Basics</a></li>
+					<li><a href="https://github.com/Cumula/CumulaFramework/wiki/Hello-world">Creating a Hello World App</a></li>
+					<li><a href="https://github.com/Cumula/CumulaFramework/wiki/Developing-a-component">Developing a Component</a></li>
+				</ul>
 			</div>
 		</section>
 

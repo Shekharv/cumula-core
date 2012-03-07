@@ -29,28 +29,35 @@ class Router extends Component\BaseComponent
 
 	// Stores all routes registered with the application
 	protected $_collectedRoutes = array();
+	protected $_routeConfigs;
 
 	public function __construct() 
 	{
 		parent::__construct();
 
 		$this->_routes = array();
-		$this->addEvent('RouterCollectRoutes');
+		$this->_routeConfigs = array();
+		$this->addEvent('GatherRoutes');
 		$this->addEvent('RouterFileNotFound');
 		$this->addEvent('RouterAddRoute');
 
-		$this->addEventListenerTo('Application', 'BootPreprocess', array(&$this, 'collectRoutes'));
-		$this->addEventListenerTo('Application', 'BootProcess', array(&$this, 'processRoute'));
-		$this->addEventListener('RouterFileNotFound', array(&$this, 'filenotfound'));
+		A('Application')->bind('BootPreprocess', array($this, 'collectRoutes'));
+		A('Application')->bind('BootProcess', array($this, 'processRoute'));
+		$this->bind('RouterFileNotFound', array($this, 'filenotfound'));
 	}
 
 	public function filenotfound($event, $dispatcher, $request, $response) 
 	{
-		//TODO: do something more smart here
-		$fileName = Templater::instance()->config->getConfigValue('template_directory', TEMPLATEROOT).'404.tpl.php';
-		$this->renderContent($this->renderPartial($fileName), 'content');
-		$response->response['content'] = $this->renderPartial(implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', '404.html')));
-		$response->send404();
+		if(\A('Request')->cli) {
+			$response->response['content'] = "Command not found";
+			$response->send404();
+		} else {
+			//TODO: do something more smart here
+			$fileName = Templater::instance()->config->getConfigValue('template_directory', TEMPLATEROOT).'404.tpl.php';
+			$this->renderContent($this->renderPartial($fileName), 'content');
+			$response->response['content'] = $this->renderPartial(implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', '404.html')));
+			$response->send404();
+		}
 	}
 
 	public function addRoutes($routes) 
@@ -63,17 +70,22 @@ class Router extends Component\BaseComponent
 	
 	public function setRoutes($routes) 
 	{
-		$this->_collectedRoutes = $routes;
+		
 	}
 	
 	public function getRoutes() 
 	{
-		return $this->_collectedRoutes;
+		$routes = array();
+		foreach($this->getEvents() as $route => $handler) {
+			if(substr($route, 0, 1) == '/' || substr($route, 0, 1) == '>')
+				$routes[] = $route;
+		}
+		return $routes;
 	}
 
 	public function collectRoutes($event) 
 	{
-		$this->dispatch('RouterCollectRoutes', array(), 'addRoutes');
+		$this->dispatch('GatherRoutes', array(), 'addRoutes');
 		$routes = $this->_collectedRoutes;
 
 		if (!$routes)
@@ -83,19 +95,29 @@ class Router extends Component\BaseComponent
 
 		foreach ($routes as $route => $return) 
 		{
-			if (is_array($return[0])) 
+			if (isset($return['callback'])) 
 			{
-				$handler = $return[0];
-				$args = !empty($return[1]) ? $return[1] : array();
+				$handler = $return['callback'];
+				unset($return['callback']);
+				$config = $return;
 			} 
 			else 
 			{
 				$handler = $return;
-				$args = array();
+				$config = array();
 			}
-			$this->dispatch('RouterAddRoute', array($route, $handler, $args));
+			$this->setRouteConfig($route, $config);
+			$this->dispatch('RouterAddRoute', array($route, $handler, $config));
 			$this->_addRoute($route, $handler);
 		}
+	}
+	
+	public function getRouteConfig($route) {
+		return isset($this->_routeConfigs[$route]) ? $this->_routeConfigs[$route] : false;
+	}
+	
+	public function setRouteConfig($route, $config) {
+		$this->_routeConfigs[$route] = $config;
 	}
 
 	public function processRoute($event, $dispatcher, $request, $response) 
@@ -119,7 +141,10 @@ class Router extends Component\BaseComponent
 		$return_handlers = array();
 
 		//Trim off forward slash
-		$path = substr($path, 1, strlen($path));
+		if(strlen($path) > 0 && substr($path, 0, 1) == '/')
+			$path = substr($path, 1, strlen($path));
+
+		$separator = \A('Request')->cli ? " " : "/";
 
 		//Trim off trailing slash
 		if(substr($path, strlen($path)-1, strlen($path)) == '/')
@@ -128,24 +153,24 @@ class Router extends Component\BaseComponent
 		}
 			
 		//Generate array of url segments
-		$segments = explode('/', $path);
+		$segments = explode($separator, $path);
 		//Iterate through passed routes
 		foreach ($this->getEvents() as $route => $handlers) 
 		{
-			if ($route == '/' && ($path == '/' || $path == '')) 
+			if (($route == '/' && $path == '/' ) || ($route == '>' && $path == '')) 
 			{
 				$return_handlers[$route] = array();
 				return $return_handlers;
 			}
 			
 			//Check if the event is a route, if not continue
-			if (substr($route, 0, 1) != '/')
+			if (substr($route, 0, 1) != '/' && substr($route, 0, 1) != '>')
 			{
 				continue;
 			}
-
+		
 			//Extract route segemtns
-			$route_segments = explode('/', substr($route, 1, strlen($route)));
+			$route_segments = explode($separator, substr($route, 1, strlen($route)));
 			$match = false;
 			$args = array();
 
@@ -203,7 +228,7 @@ class Router extends Component\BaseComponent
 
 	protected function _addRoute($route, $handler) 
 	{
-		$this->addEventListener($route, $handler);
+		$this->bind($route, $handler);
 	}
 
   /**

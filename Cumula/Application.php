@@ -137,8 +137,8 @@ final class Application extends EventDispatcher {
 	
 	private function _setupConstants($paths = array()) {
         // Only define ROOT if it isn't already defined
-        defined('ROOT') ||
-            define('ROOT', realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', '..'))));
+        //defined('ROOT') ||
+           // define('ROOT', realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', '..'))));
 
         //TODO: rewrite the part to support passing in arbitrary paths
         defined('APPROOT') ||
@@ -182,12 +182,12 @@ final class Application extends EventDispatcher {
 
         defined('TESTROOT') ||
             define('TESTROOT', $test_path . DIRECTORY_SEPARATOR);
-
-		define('CUMULAVERSION', "0.4.0");
 		
 		define('PUBLICROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR);
 		define('ASSETROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR);
 		define('LIBDIR', $core_path.DIRECTORY_SEPARATOR.'libraries');
+		define('INCDIR', $core_path.DIRECTORY_SEPARATOR.'includes');
+		define('BINDIR', $core_path.DIRECTORY_SEPARATOR.'bin');
 	}
 	
 	/**
@@ -206,17 +206,6 @@ final class Application extends EventDispatcher {
 	public function boot() {
 		foreach($this->bootProcess as $step) {
 			$this->dispatch($step, array(Request::instance(), Response::instance()));
-		}
-	}
-	
-	public static function __callStatic($name, $args) {
-		if(strstr($name, 'get')) {
-			$className = str_replace('get', '', "$name\\$name");
-			if (class_exists($className)) 
-			{
-				return call_user_func(array($className, 'instance'));
-			}
-			return FALSE;
 		}
 	}
 }

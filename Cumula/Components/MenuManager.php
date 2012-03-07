@@ -35,7 +35,7 @@ class MenuManager extends BaseComponent {
 		
 		$this->_menus = array();
 		
-		$this->addEventListenerTo('Application', 'BootPreprocess', 'renderMenus');
+		A('Application')->bind('BootPreprocess', array($this, 'renderMenus'));
 	}
 
 	//Item should be an array defining an itemTitle and itemPath

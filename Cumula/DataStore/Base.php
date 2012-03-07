@@ -1,5 +1,7 @@
 <?php
 namespace Cumula\DataStore;
+use \Cumula\Schema\Simple as SimpleSchema
+
 /**
  * Cumula
  *
@@ -47,9 +49,12 @@ abstract class Base extends \Cumula\EventDispatcher {
 	 * 
 	 * @return unknown_type
 	 */
-	public function __construct(\Cumula\Schema\Simple $schema, array $configValues = array()) {
+	public function __construct() {
 		parent::__construct();
-		$this->setSchema($schema);
+	}
+	
+	public function setup($fields, $id, $domain, $configValues) {
+		$this->setSchema(new SimpleSchema($fields, $id, $domain));
 	}
 	
 	public function isConnected() {

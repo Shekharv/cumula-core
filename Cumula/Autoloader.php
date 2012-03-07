@@ -4,6 +4,8 @@ namespace Cumula;
 require_once 'Cumula/EventDispatcher.php';
 require_once 'Cumula/SplClassLoader.php';
 
+use \A as A;
+
 /**
  * Cumula Autoloader
  * @package Cumula
@@ -40,6 +42,8 @@ class Autoloader extends EventDispatcher
 		spl_autoload_register(array('Cumula\\Autoloader', 'load'));
 		$instance = new self();
 		$instance->addEvent('EventAutoload');
+		$instance->bind('EventAutoload', array($instance, 'defaultAutoloader'));
+		$instance->bind('EventAutoload', array($instance, 'libraryAutoloader'));
 		static::$className_cache = array();
 	} // end function setup
 
@@ -71,6 +75,7 @@ class Autoloader extends EventDispatcher
 		$cache = $this->getCache();
 		return isset($cache[$className]) ? $cache[$className] : FALSE;
 	} // end function classExists
+			'Cumula\\AliasManager' => $dir .'/AliasManager.class.php',
 	/**
 	 * Register a class with the autoloader
 	 * @param string $className Name of the class being registered

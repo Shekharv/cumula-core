@@ -115,35 +115,11 @@ class EventDispatcher {
 		}
 	}
 	
-	/**
-	 * Adds a handler to be called when a specific event is dispatched.  This function accepts two parameters.
-	 * 
-	 * @param	string	The event to bind to
-	 * @param	function	a function, or an array containing the class and method, or a closure.  Uses the same syntax as call_user_func_array.
-	 */
-	public function addEventListener($event, $handler) 
-	{
-		$this->addEventListenerTo(get_called_class(), $event, $handler);
-	}
-	
-	/**
-	 * Adds a handler to be called when a specific event is dispatched.  This function accepts two parameters.
-	 * 
-	 * @param	string	The class to bind to
-	 * @param	string	The event to bind to
-	 * @param	function|string	A string or closure.  If a string, must be a publicly accessible function in the EventDispatcher instance.
-	 */
-	public function addEventListenerTo($class, $event, $handler) 
-	{
-		if (is_string($handler)) 
-		{
-			$handler = array($this, $handler);
-		}
-
+	public function bind($event, $callback) {
 		$myClass = get_class($this);
-		$absClass = Autoloader::absoluteClassName($class);
-		static::addClassListenerHash($absClass, $event, $handler);
-		$myClass::instance()->dispatch('EventListenerRegistered', array($absClass, $event, $handler, $myClass));
+		$absClass = Autoloader::absoluteClassName($myClass);
+		$myClass::addClassListenerHash($absClass, $event, $callback);
+		$myClass::instance()->dispatch('EventListenerRegistered', array($absClass, $event));
 	}
 	
 	/**
@@ -189,13 +165,8 @@ class EventDispatcher {
 	 * @param	string The event to remove handler from.
 	 * @param	function	a function, or an array containing the class and method, or a closure to remove.
 	 */
-	public function removeEventListener($event, $handler) 
+	public function unbind($event, $handler) 
 	{
-		if (is_string($handler)) 
-		{
-			$handler = array($this, $handler);
-		}
-	
 		$calledClass = get_called_class();
 		$eventHash = static::getEventHash();
 		if (isset($eventHash[$calledClass][$event]))
@@ -212,7 +183,7 @@ class EventDispatcher {
 		}
 	}
 	
-	public function removeEventListeners($event) 
+	public function unbindAll($event) 
 	{
 		$calledClass = get_called_class();
 		$eventHash = static::getEventHash();
@@ -274,7 +245,11 @@ class EventDispatcher {
 						$this->dispatch('EventDispatcherEventDispatched', array($event, $this, $event_handler, $level, $new_data));
 					}
 
+				//If event handler is a callback, save the result of the callback
+				if(is_callable($event_handler))
 					$result = call_user_func_array($event_handler, $data);
+				else //otherwise, the callback is a value, and just use that
+					$result = $event_handler;
 				
 					if($callback)
 					{
