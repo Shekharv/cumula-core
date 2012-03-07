@@ -150,7 +150,7 @@ class Test_EventDispatcher extends Test_BaseTest {
         $this->assertEquals(1, $this->calls);
 
         // Remove the event and dispatch the event again
-        $this->eventDispatcher->removeEventListener($eventId, $callback);
+        $this->eventDispatcher->unbind($eventId, $callback);
         $this->eventDispatcher->dispatch($eventId);
         $this->assertEquals(1, $this->calls);
     } // end function testRemoveEventListener

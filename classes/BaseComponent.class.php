@@ -191,7 +191,7 @@ abstract class BaseComponent extends EventDispatcher {
 		A('Response')->response['content'] = $output;
 		A('Response')->response['headers']['Content-Type'] = $contentType;
 		if(!$useTemplate) 
-			A('Application')->removeEventListener('BootPostprocess', array(A('Templater'), 'postProcessRender'));
+			A('Application')->unbind('BootPostprocess', array(A('Templater'), 'postProcessRender'));
 
 	}
 	
@@ -220,14 +220,14 @@ abstract class BaseComponent extends EventDispatcher {
 	
 	public function renderNothing() {
 		A('Response')->response['content'] = '';
-		A('Application')->removeEventListener('BootPostprocess', array(Templater::instance(), 'postProcessRender'));
+		A('Application')->unbind('BootPostprocess', array(Templater::instance(), 'postProcessRender'));
 	}
 	
 	
 	public function render404() {
 		A('Response')->send404();
 		if(!$useTemplate) 
-			A('Application')->removeEventListener('BootPostprocess', array(\A('Templater'), 'postProcessRender'));
+			A('Application')->unbind('BootPostprocess', array(\A('Templater'), 'postProcessRender'));
 	}
 	
 	public function renderCLA($output) {

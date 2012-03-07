@@ -245,14 +245,8 @@ class Stash extends \Cumula\BaseComponent
 	 **/
 	public function sendResponse($output, $headers, $code) 
 	{
-		$appClass = \Cumula\Autoloader::absoluteClassName('Application');
-		$templaterClass = \Cumula\Autoloader::absoluteClassName('Templater');
-		$responseClass = \Cumula\Autoloader::absoluteClassName('Response');
-		if ($appClass !== FALSE && $templaterClass !== FALSE && $responseClass !== FALSE) 
-		{
-			$responseClass::instance()->sendRawResponse($headers, $output, $code);
-			$appClass::instance()->removeEventListener('BootPostprocess', array($templaterClass::instance(), 'postProcessRender'));
-		}
+		A('Response')->sendRawResponse($headers, $output, $code);
+		A('Application')->unbind('BootPostprocess', array(A('Templater'), 'postProcessRender'));
 	} // end function sendResponse
 
 	/**

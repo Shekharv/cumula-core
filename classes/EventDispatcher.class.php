@@ -166,7 +166,7 @@ class EventDispatcher {
 	 * @param	string The event to remove handler from.
 	 * @param	function	a function, or an array containing the class and method, or a closure to remove.
 	 */
-	public function removeEventListener($event, $handler) 
+	public function unbind($event, $handler) 
 	{
 		$calledClass = get_called_class();
 		$eventHash = static::getEventHash();
@@ -184,7 +184,7 @@ class EventDispatcher {
 		}
 	}
 	
-	public function removeEventListeners($event) 
+	public function unbindAll($event) 
 	{
 		$calledClass = get_called_class();
 		$eventHash = static::getEventHash();

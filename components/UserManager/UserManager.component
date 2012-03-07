@@ -49,7 +49,7 @@ class UserManager extends BaseComponent {
 		$domain = $this->_parseRoutes($request);
 		if($domain) {
 			$this->_logInfo('setting domain to '.$domain);
-			A('Application')->removeEventListener('BootProcess', array(A('Router'), 'processRoute'));
+			A('Application')->unbind('BootProcess', array(A('Router'), 'processRoute'));
 			A('Application')->bind('BootProcess', array($this, 'process'.$domain));
 			A('Session')->domain = $domain;
 			A('Session')->returnUrl = $request->path;
