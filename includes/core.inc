@@ -7,7 +7,6 @@
 
 //TODO: Replace with function to dynamically load everything in the core folder
 
-require_once dirname(__FILE__) .'/../classes/I.class.php';
 //Load Constants
 require_once dirname(__FILE__) . '/constants.inc';
 
