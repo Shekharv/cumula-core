@@ -1,6 +1,7 @@
 <?php
-
 namespace Cumula;
+
+use \I as I;
 
 class BaseTemplate extends BaseComponent {
 	
@@ -21,10 +22,10 @@ class BaseTemplate extends BaseComponent {
 	public function startup() {
 		parent::startup();
 		
-		$components = \I('ComponentManager')->getEnabledComponents();
+		$components = A('ComponentManager')->getEnabledComponents();
 		
 		foreach($components as $component) {
-			$this->addEventListenerTo($component, 'RenderFile', 'handleFileOverrides');
+			$component->bind('RenderFile', array($this, 'handleFileOverrides'));
 		}
 		
 		$this->_files = $this->recurseDirectory($this->rootDirectory().DIRECTORY_SEPARATOR.$this->_overrides_dir);
@@ -44,9 +45,9 @@ class BaseTemplate extends BaseComponent {
 			return 'Override'.$file_name;
 		};
 		
-		$that = static::instance();
-		$this->addEventListenerTo('Templater', 'templater_prepare', function($event, $templater) use (&$that) {
-			$templater->setTemplateDir($that->rootDirectory().'/files');
+		$dir = $this->rootDirectory();
+		A('Templater')->bind('templater_prepare', function($event, $templater) use ($dir) {
+			$templater->setTemplateDir($dir.'/files');
 		});
 	}
 	

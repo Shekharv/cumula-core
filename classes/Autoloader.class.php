@@ -3,6 +3,8 @@ namespace Cumula;
 
 require_once realpath(dirname(__FILE__) .'/EventDispatcher.class.php');
 
+use \I as I;
+
 /**
  * Cumula Autoloader
  * @package Cumula
@@ -37,8 +39,8 @@ class Autoloader extends EventDispatcher
 		spl_autoload_register(array('Cumula\\Autoloader', 'load'));
 		$instance = new self();
 		$instance->addEvent('EventAutoload');
-		$instance->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', array($instance, 'defaultAutoloader'));
-		$instance->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', array($instance, 'libraryAutoloader'));
+		$instance->bind('EventAutoload', array($instance, 'defaultAutoloader'));
+		$instance->bind('EventAutoload', array($instance, 'libraryAutoloader'));
 		static::$className_cache = array();
 	} // end function setup
 
@@ -88,6 +90,7 @@ class Autoloader extends EventDispatcher
 		return array(
 			// Core Classes
 			'Cumula\\Autoloader' => $dir .'/Autoloader.class.php',
+			'Cumula\\AliasManager' => $dir .'/AliasManager.class.php',
 			'Cumula\\Application' => $dir. '/Application.class.php',
 			'Cumula\\EventDispatcher' => $dir .'/EventDispatcher.class.php',
 			'Cumula\\BaseComponent' => $dir .'/BaseComponent.class.php',

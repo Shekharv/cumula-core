@@ -1,5 +1,8 @@
 <?php
 namespace Cumula;
+
+use \I as I;
+
 /**
  * Cumula
  *
@@ -40,7 +43,7 @@ class Response extends EventDispatcher {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->addEventListenerTo('Cumula\\Application', 'BootShutdown', 'send');
+		A('Application')->bind('BootShutdown', array($this, 'send'));
 		$this->addEvent('ResponsePrepare');
 		$this->addEvent('response_send');
 	}
@@ -70,7 +73,7 @@ class Response extends EventDispatcher {
 	}
 	
 	public function send302($url) {
-	    if (FALSE === stripos($url, 'http') && !\I('Request')->cli) {
+	    if (FALSE === stripos($url, 'http') && !\A('Request')->cli) {
 	      $protocol = ($_SERVER['SERVER_PORT'] == 443 || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off'))
 	        ? 'https' : 'http';
 	      if ($url{0} != '/') $url = '/'.$url;
@@ -89,7 +92,7 @@ class Response extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function sendRawResponse($headers, $body, $code) {
-		if(!\I('Request')->cli) {
+		if(!\A('Request')->cli) {
 			if ($code == 404) {
 				header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
 				echo $body;

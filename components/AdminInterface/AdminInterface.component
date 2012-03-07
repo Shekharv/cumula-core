@@ -48,6 +48,7 @@ class AdminInterface extends BaseComponent {
 		parent::__construct();
 		$this->_pages = array();
 		$this->stats = array();
+		A('AliasManager')->setDefaultAlias('AdminInterface', get_called_class());
 	}
 	
 	/**
@@ -67,20 +68,20 @@ class AdminInterface extends BaseComponent {
 		//$dispatcher = isset($args[1]) ? $args[1] : NULL;
 		
 		// bind to the route collector event
-		$this->addEventListenerTo('Router', 'GatherRoutes', 'collectAdminPages');
+		A('Router')->bind('GatherRoutes', array($this, 'collectAdminPages'));
 		
 		// bind to the menu collector event
-		$this->addEventListenerTo('MenuManager', 'MenuCollectMenus', 'sendMenus');
+		A('MenuManager')->bind('MenuCollectMenus', array($this, 'sendMenus'));
 		
 		//Initialize stats for display on homepage.
 		$stats = &$this->stats;
-		$this->addEventListenerTo('Application', 'AfterBootStartup', function() use(&$stats) {
-			$stats['installed_components'] = count(\I('ComponentManager')->getEnabledComponents());
+		A('Application')->bind('AfterBootStartup', function() use(&$stats) {
+			$stats['installed_components'] = count(\A('ComponentManager')->getEnabledComponents());
 		});
 
-		$this->addEventListenerTo('Autoloader', 'EventAutoload', 'autoload');
+		A('Autoloader')->bind('EventAutoload', array($this, 'autoload'));
 
-		$this->addEventListener('AdminCollectSettingsPages', array(\I('SystemConfig'), 'setupAdminPages'));
+		$this->bind('AdminCollectSettingsPages', array(A('SystemConfig'), 'setupAdminPages'));
 		
 		//$this->addEventListenerTo('UserManager', 'register_auth_domain', function($event, $dispatcher) {
 		//	$dispatcher->registerAuthDomain('admin_interface', array('paths' => array('/admin', '/admin/*')));
@@ -185,7 +186,7 @@ class AdminInterface extends BaseComponent {
 	public function adminPage($route, $router, $args, $request) {
 		if(!$this->checkUser($request))
 			return;
-		$this->addEventListenerTo('Templater\\Templater', 'templater_prepare', function($event, $templater) {
+		A('Templater')->bind('templater_prepare', function($event, $templater) {
 			$templater->setTemplateDir(COMPROOT.'AdminInterface/template/');
 		});
 		
@@ -193,10 +194,10 @@ class AdminInterface extends BaseComponent {
 		foreach($this->_pages as $page) {
 			//If the route matches, render a form based on the passed settings.
 			if($page->route == $route) {
-				$this->fh = I('FormHelper');
+				$this->fh = A('FormHelper');
 				$this->page = $page;
 				$title = $page->title;
-				$this->addEventListenerTo('Templater\\Templater', 'templater_prepare', function($event, $templater) use ($title) {
+				A('Templater')->bind('templater_prepare', function($event, $templater) use ($title) {
 					$templater->setTitle($title);
 				});
 				$this->render();
@@ -211,7 +212,7 @@ class AdminInterface extends BaseComponent {
 	public function index($route, $router, $args, $request) {
 		if(!$this->checkUser($request))
 			return;
-		$this->addEventListenerTo('Templater\\Templater', 'templater_prepare', function($event, $templater) {
+		A('Templater')->bind('templater_prepare', function($event, $templater) {
 			$templater->setTemplateDir(COMPROOT.'AdminInterface/template/');
 		});
 		$this->pages = $this->_pages;

@@ -51,3 +51,23 @@ function this($methodName = false, $index = 1) {
 	} 
 	return $newThis;
 }
+
+function copyDir($source, $destination) {
+	if (is_dir($source)) {
+		// Find all of the files in the directory and create directories
+		// for the subdirectories
+		foreach(glob($source .'/*', GLOB_NOSORT) as $file) {
+			$dirname = basename($file);
+			$newDestination = $destination . DIRECTORY_SEPARATOR . $dirname;
+			if (is_dir($file) && is_dir($newDestination) === FALSE) {
+				mkdir($newDestination, 0777, TRUE);
+			}
+			copyDir($file, $newDestination);
+		}
+	}
+	else {
+		// Copy the file to the public assets directory
+		if(!file_exists($destination) || md5_file($source) != md5_file($destination))
+			copy($source, $destination);
+	}
+}

@@ -4,6 +4,7 @@ use Cumula\BaseComponent as BaseComponent;
 use Cumula\SystemConfig as SystemConfig;
 use Cumula\SimpleSchema as SimpleSchema;
 use Cumula\ComponentManager as ComponentManager;
+use \I as I;
 
 /**
  * Cumula
@@ -41,27 +42,26 @@ class Logger extends BaseComponent
 		parent::__construct();
 		$this->_registered = array();
 		
-		$log_dir = SystemConfig::instance()->getValue('log_directory', APPROOT.'/log');
-		$log_file = SystemConfig::instance()->getValue('environment', ENV_DEVELOPMENT).'.log';
-		$this->syslog = SystemConfig::instance()->getValue('syslog', FALSE);
+		$log_dir = A('SystemConfig')->getValue('log_directory', APPROOT.'/log');
+		$log_file = A('SystemConfig')->getValue('environment', ENV_DEVELOPMENT).'.log';
+		$this->syslog = A('SystemConfig')->getValue('syslog', FALSE);
 		if (!file_exists($log_dir))
 		{
 			mkdir($log_dir);
 		}
 		$schema = new SimpleSchema(array('id' => 'string'), 'id', 'log');
 		$this->dataStore = new WriteOnlyTextDataStore($schema, array('logfile' => $log_dir .'/'.$log_file));
-		$this->addEventListenerTo('Application', 'EventDispatcherCreated', 'registerForEvents');
+		A('Application')->bind('EventDispatcherCreated', array($this, 'registerForEvents'));
 	}
 	
 	public function registerForEvents($event, $dispatcher, $comp) 
 	{
-		$this->addEventListenerTo($comp, 'EventLogged', 'logMessage');
+		$comp::instance()->bind('EventLogged', array($this, 'logMessage'));
 	}
 	
 	public function install() 
 	{
-		$cm = ComponentManager::instance();
-		$cm->registerStartupComponent($this);
+		A('ComponentManager')->registerStartupComponent($this);
 	}
 	
 	/**

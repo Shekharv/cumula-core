@@ -1,7 +1,8 @@
 <?php
 namespace Devel;
-Use Cumula\BaseComponent as BaseComponent;
+use Cumula\BaseComponent as BaseComponent;
 use Cumula\ComponentManager as ComponentManager;
+use \I as I;
 /**
  * Cumula
  *
@@ -47,7 +48,7 @@ class Devel extends BaseComponent {
 		$this->_benchmarks = array();
 		
 		//Add  listener to app BOOT_INIT event
-		$this->addEventListenerTo('Application', 'BootInit', 'startAppTimer');
+		A('Application')->bind('BootInit', array($this, 'startAppTimer'));
 		$this->_logEventStack = '';
 		$this->_logInstances = array();
 		$this->_eventedInstances = array();
@@ -66,12 +67,12 @@ class Devel extends BaseComponent {
 	 * @return unknown_type
 	 */
 	public function startAppTimer($event, $dispatcher, $request, $response) {
-		$this->addEventListenerTo('Cumula\\Application', 'InstanceAccessed', 'logInstanceAccessed');
-		$this->addEventListenerTo('Application', 'EventDispatcherEventDispatched', 'logEventDispatch');
-		$this->addEventListenerTo('Response', 'EventDispatcherEventDispatched', 'logEventDispatch');
+		A('Application')->bind('InstanceAccessed', array($this, 'logInstanceAccessed'));
+		A('Application')->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch'));
+		A('Response')->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch'));
 		
 		$this->addBenchmark('app_boot');
-		$this->addEventListenerTo('Response', 'ResponsePrepare', 'stopAppTimer');
+		A('Response')->bind('ResponsePrepare', array($this, 'stopAppTimer'));
 	}
 	
 	/**
@@ -103,7 +104,7 @@ class Devel extends BaseComponent {
 	 * @see core/abstracts/BaseComponent#install()
 	 */
 	public function install() {
-		\I('ComponentManager')->registerStartupComponent($this);
+		\A('ComponentManager')->registerStartupComponent($this);
 	}
 	
 	/* (non-PHPdoc)
@@ -112,25 +113,25 @@ class Devel extends BaseComponent {
 	public function startup() 
 	{
 		
-		$components = ComponentManager::instance()->getEnabledComponents();
+		$components = A('ComponentManager')->getEnabledComponents();
 		foreach($components as $component) 
 		{
 			if($component != get_class($this))
 			{
-				$this->addEventListenerTo($component, 'EventDispatcherEventDispatched', 'logEventDispatch');
-				$this->addEventListenerTo($component, 'EventListenerRegistered', 'registerPreAndPost');
+				A($component)->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch'));
+				A($component)->bind('EventListenerRegistered', array($this, 'registerPreAndPost'));
 			}
 		}
 		
 		$that = &$this;
-		$this->addEventListenerTo('Cumula\\Application', 'AfterBootPreprocess', function() use (&$that) {
+		A('Application')->bind('AfterBootPreprocess', function() use (&$that) {
 			$that->_afterStartup = true;
 		}); 
 		
-		$this->addEventListenerTo('Cumula\\ComponentManager', 'EventDispatcherEventDispatched', 'logEventDispatch'); 
-		$this->addEventListenerTo('Cumula\\Application', 'EventDispatcherEventDispatched', 'logEventDispatch'); 
-		$this->addEventListenerTo('Cumula\\SystemConfig', 'EventDispatcherEventDispatched', 'logEventDispatch');
-		$this->addEventListenerTo('Cumula\\Router', 'EventDispatcherEventDispatched', 'logEventDispatch');
+		A('ComponentManager')->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch')); 
+		A('Application')->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch')); 
+		A('SystemConfig')->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch'));
+		A('Router')->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch'));
 	}
 	
 	/**
@@ -232,8 +233,6 @@ class Devel extends BaseComponent {
 		{
 			$beforeEvent = sprintf('Before%s', $registeredEvent);
 			$afterEvent = sprintf('After%s', $registeredEvent);
-			//$this->addEventListenerTo($registeredClass, $beforeEvent, 'logEventDispatch');
-			//$this->addEventListenerTo($registeredClass, $afterEvent, 'logEventDispatch');
 		}
 	} // end function registerPreAndPost
 	

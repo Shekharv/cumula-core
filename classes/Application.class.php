@@ -186,6 +186,8 @@ final class Application extends EventDispatcher {
 		define('PUBLICROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR);
 		define('ASSETROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR);
 		define('LIBDIR', $core_path.DIRECTORY_SEPARATOR.'libraries');
+		define('INCDIR', $core_path.DIRECTORY_SEPARATOR.'includes');
+		define('BINDIR', $core_path.DIRECTORY_SEPARATOR.'bin');
 	}
 	
 	/**
@@ -204,17 +206,6 @@ final class Application extends EventDispatcher {
 	public function boot() {
 		foreach($this->bootProcess as $step) {
 			$this->dispatch($step, array(Request::instance(), Response::instance()));
-		}
-	}
-	
-	public static function __callStatic($name, $args) {
-		if(strstr($name, 'get')) {
-			$className = str_replace('get', '', "$name\\$name");
-			if (class_exists($className)) 
-			{
-				return call_user_func(array($className, 'instance'));
-			}
-			return FALSE;
 		}
 	}
 }

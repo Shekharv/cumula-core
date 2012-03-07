@@ -23,7 +23,7 @@ class Test_Stash extends Test_BaseTest
 	{
 		parent::setUp();
 		$this->component = new \Stash\Stash();
-		\I('Cache')->startup();
+		\A('Cache')->startup();
 	} // end function setUp
 
 	/**

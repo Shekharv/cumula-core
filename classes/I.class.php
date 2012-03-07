@@ -60,17 +60,25 @@ class ComponentProxy {
 	}
 }
 
-function I($component) {
-	$loader = \Cumula\Autoloader::instance();
-	if($abs = $loader->absoluteClassName($component)) {
+function X() {
+	var_dump(__NAMESPACE__);
+	die;
+}
+
+function A($component) {
+	$am = \Cumula\AliasManager::instance();
+	if(class_exists($component))
+		return $component::instance();
+	if($class = $am->getClassName($component)) {
 		$app = \Cumula\Application::instance();
 		if($app)
-			$app->dispatch('InstanceAccessed', array($abs));
-		//$obj = new ComponentProxy($abs::instance());
-		//return $obj;
-		return $abs::instance();
+			$app->dispatch('InstanceAccessed', array($class));
+		return $class::instance();
 	} else {
-		return new DummyComponent($component);
+		$class = "\\$component\\$component";
+		if(class_exists($class))
+			return (($ins = $class::instance()) ? $ins : new DummyComponent($class));
+		throw new Exception('You tried to get an alias or class which doesn\'t exist: '.$component);
 	}
 }
 

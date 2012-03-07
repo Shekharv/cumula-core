@@ -6,7 +6,7 @@ use \Cumula\BaseComponent as BaseComponent;
 
 class CommandLine extends BaseComponent {
 	public function startup() {
-		I('Router')->bind('GatherRoutes', 
+		A('Router')->bind('GatherRoutes', 
 			array(
 				'>' => array($this, 'main'),
 				'>help' => array(
@@ -26,21 +26,21 @@ class CommandLine extends BaseComponent {
 	}
 	
 	public function main() {
-		$this->renderCLI("Welcome to Cumula!");
+		$this->renderCLA("Welcome to Cumula!");
 	}
 	
 	public function help() {
 		$output = "Cumula Help\n\nAvailable Commands\n";
-		foreach(I('Router')->getRoutes() as $route) {
-			$config = I('Router')->getRouteConfig($route);
+		foreach(A('Router')->getRoutes() as $route) {
+			$config = A('Router')->getRouteConfig($route);
 			if(isset($config['help']))
 				$output .= str_replace(">", "", $route)."\t".$config['help']."\n";
 		}
-		$this->renderCLI($output);
+		$this->renderCLA($output);
 	}
 	
 	public function info() {
-		$this->renderCLI("Welcome to Cumula.\nVersion ".CUMULAVERSION);
+		$this->renderCLA("Welcome to Cumula.\nVersion ".CUMULAVERSION);
 	}
 	
 	public function cumulaSetup() {

@@ -41,14 +41,14 @@ class Router extends BaseComponent
 		$this->addEvent('RouterFileNotFound');
 		$this->addEvent('RouterAddRoute');
 
-		$this->addEventListenerTo('Application', 'BootPreprocess', array(&$this, 'collectRoutes'));
-		$this->addEventListenerTo('Application', 'BootProcess', array(&$this, 'processRoute'));
-		$this->addEventListener('RouterFileNotFound', array(&$this, 'filenotfound'));
+		A('Application')->bind('BootPreprocess', array($this, 'collectRoutes'));
+		A('Application')->bind('BootProcess', array($this, 'processRoute'));
+		$this->bind('RouterFileNotFound', array($this, 'filenotfound'));
 	}
 
 	public function filenotfound($event, $dispatcher, $request, $response) 
 	{
-		if(\I('Request')->cli) {
+		if(\A('Request')->cli) {
 			$response->response['content'] = "Command not found";
 			$response->send404();
 		} else {
@@ -144,7 +144,7 @@ class Router extends BaseComponent
 		if(strlen($path) > 0 && substr($path, 0, 1) == '/')
 			$path = substr($path, 1, strlen($path));
 
-		$separator = \I('Request')->cli ? " " : "/";
+		$separator = \A('Request')->cli ? " " : "/";
 
 		//Trim off trailing slash
 		if(substr($path, strlen($path)-1, strlen($path)) == '/')
@@ -228,7 +228,7 @@ class Router extends BaseComponent
 
 	protected function _addRoute($route, $handler) 
 	{
-		$this->addEventListener($route, $handler);
+		$this->bind($route, $handler);
 	}
 
   /**

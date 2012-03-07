@@ -124,40 +124,6 @@ class EventDispatcher {
 	}
 	
 	/**
-	 * Adds a handler to be called when a specific event is dispatched.  This function accepts two parameters.
-	 * 
-	 * @param	string	The event to bind to
-	 * @param	function	a function, or an array containing the class and method, or a closure.  Uses the same syntax as call_user_func_array.
-	 */
-	public function addEventListener($event, $handler) 
-	{
-		$this->addEventListenerTo(get_called_class(), $event, $handler);
-	}
-	
-	/**
-	 * Adds a handler to be called when a specific event is dispatched.  This function accepts two parameters.
-	 * 
-	 * @param	string	The class to bind to
-	 * @param	string	The event to bind to
-	 * @param	function	A closure or value to be passed to the dispatching callback.
-	 */
-	public function addEventListenerTo($class, $event, $function) 
-	{
-		if (is_string($function)) 
-		{
-			$callback = array($this, $function);
-		}
-		else if (is_callable($function) || is_array($function)) 
-		{
-			$callback = $function;
-		} 
-		$myClass = get_class($this);
-		$absClass = Autoloader::absoluteClassName($class);
-		static::addClassListenerHash($absClass, $event, $callback);
-		$myClass::instance()->dispatch('EventListenerRegistered', array($absClass, $event, $callback, $myClass));
-	}
-	
-	/**
 	 * Add the Listener to the Class hash
 	 * @param string $class The class the listener is being attached to
 	 * @param string $event The Event the listener is for

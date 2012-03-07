@@ -11,9 +11,6 @@ if(isset($argv[2]) && strstr($argv[2], "-base-dir=")) {
 	define('TMPROOT', realpath(__DIR__.'/../../').DIRECTORY_SEPARATOR);
 }
 
-
-define('CUMULAVERSION', "0.4.0");
-
 function copyFiles($source, $destination) {
 	if (is_dir($source)) {
 		// Find all of the files in the directory and create directories
@@ -24,7 +21,7 @@ function copyFiles($source, $destination) {
 			if (is_dir($file) && is_dir($newDestination) === FALSE) {
 				mkdir($newDestination, 0777, TRUE);
 			}
-			copyFiles($file, $newDestination);
+			copyDir($file, $newDestination);
 		}
 	}
 	else {

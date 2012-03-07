@@ -8,7 +8,7 @@ class Install extends BaseComponent {
 	}
 	
 	public function startup() {
-		$this->addEventListenerTo('Router', 'GatherRoutes', 'handleRoutes');
+		A('Router')->bind('GatherRoutes', array($this, 'handleRoutes'));
 	}
 	
 	public function handleRoutes($route, $router) {
@@ -58,24 +58,24 @@ class Install extends BaseComponent {
 	
 	
 	public function saveUser($route, $router, $args) {
-		$um = \I('UserManager');
+		$um = \A('UserManager');
 		if($args['password'] == $args['passconf']) {
 			$um->createUser('admin_interface', $args['username'], $args['password']);
 			$this->redirectTo('/install/finished');
 		} else {
-			\I('Session')->warning = 'Password and confirmation don\'t match!';
+			\A('Session')->warning = 'Password and confirmation don\'t match!';
 			$this->redirectTo('/install/setup_user');
 		}
 	}
 	
 	public function finished() {
 		$this->_setTemplate();
-		\I('ComponentManager')->uninstallComponent('Install');
+		\A('ComponentManager')->uninstallComponent('Install');
 		$this->render();
 	}
 	
 	protected function _setTemplate() {
-		$this->addEventListenerTo('Templater', 'templater_prepare', function($event, $templater) {
+		A('Templater')->bind('templater_prepare', function($event, $templater) {
 			$templater->setTemplateDir(COMPROOT.'Install/template/');
 		});
 	}

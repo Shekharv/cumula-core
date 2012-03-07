@@ -211,7 +211,7 @@ class EventDispatcherClass extends Cumula\EventDispatcher {
 	 **/
 	public function myInstance($className) 
 	{
-		return \I($className);
+		return \A($className);
 	} // end function myInstance
 }
 

@@ -2,6 +2,7 @@
 namespace Cumula;
 
 use \ReflectionClass as ReflectionClass;
+use \AdminInterface\AdminInterface as AdminInterface;
 
 /**
  * Cumula
@@ -65,12 +66,12 @@ final class ComponentManager extends BaseComponent {
 		$this->addEvent('ComponentStartupComplete');
 
 		// Set listeners for events
-		$this->addEventListenerTo('ComponentManager', 'ComponentStartupComplete', 'startup');
+		$this->bind('ComponentStartupComplete', array($this, 'startup'));
 
-		$this->addEventListenerTo('Application', 'BootInit', 'loadComponents');
-		$this->addEventListenerTo('Application', 'BootStartup', 'startupComponents');
-		$this->addEventListenerTo('Application', 'BootShutdown', 'shutdown');
-		$this->addEventListenerTo('Cumula\\Autoloader', 'EventAutoload', 'getComponentFiles');
+		A('Application')->bind('BootInit', array($this, 'loadComponents'));
+		A('Application')->bind('BootStartup', array($this, 'startupComponents'));
+		A('Application')->bind('BootShutdown', array($this, 'shutdown'));
+		A('Autoloader')->bind('EventAutoload', array($this, 'getComponentFiles'));
 
 		// Initialize config and settings
 		$this->config = new \StandardConfig\StandardConfig(CONFIGROOT, 'components.yaml');
@@ -113,7 +114,7 @@ final class ComponentManager extends BaseComponent {
 	 */
 	public function startup()
 	{
-		$this->addEventListenerTo('AdminInterface', 'AdminCollectSettingsPages', 'setupAdminPages');
+		A('AdminInterface')->bind('AdminCollectSettingsPages', array($this, 'setupAdminPages'));
 	}
 
 	/**

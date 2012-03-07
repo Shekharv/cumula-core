@@ -29,7 +29,7 @@ class Cache extends \Cumula\BaseComponent
 	 **/
 	public function startup() 
 	{
-		$this->addEventListenerTo('Autoloader', 'EventAutoload', array($this, 'populateAutoloader'));
+		A('Autoloader')->bind('EventAutoload', array($this, 'populateAutoloader'));
 		$this->configureDataStore();
 	} // end function startup
 

@@ -8,12 +8,12 @@ class Session extends BaseComponent {
 		parent::__construct();
 	
 		//Add  listener to app BOOT_INIT event
-		$this->addEventListenerTo('Application', 'BootInit', 'startSession');
-		$this->addEventListenerTo('Application', 'BootShutdown', 'clearFlash');
+		A('Application')->bind('BootInit', array($this, 'startSession'));
+		A('Application')->bind('BootShutdown', array($this, 'clearFlash'));
 	}
 	
 	public function clearFlash() {
-		if(\I('Response')->response['status_code'] != 302) {
+		if(\A('Response')->response['status_code'] != 302) {
 			unset($this->warning);
 			unset($this->notice);
 		}
