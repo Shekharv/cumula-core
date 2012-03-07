@@ -1,7 +1,7 @@
 <?php
 namespace CommandLine;
 
-use \I as I;
+use \A as A;
 use \Cumula\BaseComponent as BaseComponent;
 
 class CommandLine extends BaseComponent {
@@ -13,14 +13,14 @@ class CommandLine extends BaseComponent {
 					'callback' => array($this, 'help'),
 					'help' => 'Get Cumula Help',
 				),
-				'>info' => array(
+				'>-i' => array(
 					'callback' => array($this, 'info'),
 					'help' => 'Get info on the installed version of Cumula.',
 				),
 				'>setup' => array(
 					'callback' => array($this, 'cumulaSetup'),
 					'help' => 'Setup the Cumula Install.'
-				) 
+				)
 			)
 		);
 	}
@@ -45,19 +45,7 @@ class CommandLine extends BaseComponent {
 	
 	public function cumulaSetup() {
 		fwrite(STDOUT, "Setting Up Cumula...");
-		$this->_installPublicDir();
+		sleep(5);
 		fwrite(STDOUT, "Done!");
-	}
-	
-	protected function _installPublicDir() {
-		$dir = PUBLICROOT;
-		if(!file_exists($dir)) {
-			mkdir($dir);
-			mkdir(PUBLICROOT.DIRECTORY_SEPARATOR.'assets');
-			copy(INCDIR.DIRECTORY_SEPARATOR.'404.html', $dir.DIRECTORY_SEPARATOR.'404.html');
-			copy(INCDIR.DIRECTORY_SEPARATOR.'index.html', $dir.DIRECTORY_SEPARATOR.'index.html');
-			$f = fopen($dir.DIRECTORY_SEPARATOR.'index.php', 'w');
-			fwrite($f, "<?php\n\ninclude realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'cumula'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'boot.php';");
-		}
 	}
 }

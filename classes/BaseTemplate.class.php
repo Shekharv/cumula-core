@@ -1,7 +1,7 @@
 <?php
 namespace Cumula;
 
-use \I as I;
+use \A as A;
 
 class BaseTemplate extends BaseComponent {
 	

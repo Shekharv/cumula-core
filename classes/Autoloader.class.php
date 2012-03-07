@@ -3,7 +3,7 @@ namespace Cumula;
 
 require_once realpath(dirname(__FILE__) .'/EventDispatcher.class.php');
 
-use \I as I;
+use \A as A;
 
 /**
  * Cumula Autoloader

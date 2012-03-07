@@ -13,8 +13,6 @@ namespace Cumula;
  * @link       http://cumula.org
  */
 
-use \I as I;
-
 /**
  * BaseComponent Class
  *
