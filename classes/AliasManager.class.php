@@ -12,8 +12,8 @@ class AliasManager extends EventDispatcher {
 	}
 	
 	public function setup() {
-		if(!$this->config->getConfigValue('Templater', false))
-			$this->config->setConfigValue('Templater', DEFAULT_TEMPLATER_CLASS);
+		if(!$this->config->getConfigValue('Template', false))
+			$this->config->setConfigValue('Template', DEFAULT_TEMPLATE_CLASS);
 			
 		if(!$this->config->getConfigValue('Router', false))
 			$this->config->setConfigValue('Router', DEFAULT_ROUTER_CLASS);	
@@ -32,6 +32,9 @@ class AliasManager extends EventDispatcher {
 			
 		if(!$this->config->getConfigValue('Request', false))
 			$this->config->setConfigValue('Request', DEFAULT_REQUEST_MANAGER_CLASS);
+			
+		if(!$this->config->getConfigValue('Renderer', false))
+			$this->config->setConfigValue('Renderer', DEFAULT_RENDERER_CLASS);
 			
 		if(!$this->config->getConfigValue('SystemConfig', false))
 			$this->config->setConfigValue('SystemConfig', DEFAULT_SYSTEM_CONFIG_CLASS);	

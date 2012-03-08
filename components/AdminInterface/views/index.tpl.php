@@ -7,10 +7,10 @@
 		<li class="success">Cumula will work with your version of PHP (<?php echo PHP_VERSION ?>).</li>
 		<?php } ?>
 		<!--<li class="error">Some library <span class="notes">You must install some library, follow <a href="#">these instructions</a> in the documentation</span></li>-->
-		<?php if(in_array(FALSE, $this->perms)) { ?>
+		<?php if(in_array(FALSE, $cm->perms)) { ?>
 			<li class="error">File Permissions Need Help. Follow <a href="#">these instructions</a> to fix this.</span> 
 				<ul>
-					<? foreach($this->perms as $file => $value) {
+					<? foreach($cm->perms as $file => $value) {
 						$readable = is_readable($file);
 						$writable = is_writable($file);
 						if(!$value) {
@@ -33,7 +33,7 @@
 	<h1>System Summary</h1>
 	<ul>
 		<li>Running Cumula Version <strong><?php echo CUMULAVERSION ?></strong>.</li>
-		<li><strong><?php echo $this->stats['installed_components'] ?></strong> components enabled.</li>
+		<li><strong><?php echo $cm->stats['installed_components'] ?></strong> components enabled.</li>
 	</ul>
 </section>
 

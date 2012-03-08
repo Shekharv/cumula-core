@@ -2,26 +2,40 @@
 
 namespace Cumula;
 
-class Renderer {
+class Renderer extends EventDispatcher {
+	protected $_renderers;
+	public $buffer = array();
+	public $useTemplate = true;
 	
-	static public function renderFile($fileName, $args) {
-		extract($args, EXTR_OVERWRITE);
-		ob_start();
-			include $fileName;
-			$contents = ob_get_contents();
-		ob_end_clean();
-		return $contents;
+	public function __construct() {
+		parent::__construct();
+		
+		$this->addEvent('GatherRenderers');
+		
+		A('Application')->bind('BootPrepare', array($this, 'gatherRenderers'));
 	}
 	
-	static public function renderJson($data) {
-		return json_encode($data);
+	public function gatherRenderers() {
+		$renderers = array();
+		$this->dispatch('GatherRenderers', function($renderer) use (&$renderers) {
+			$renderers = array_merge($renderer, $renderers);
+		});
+		$this->_renderers = $renderers;
+	}
+		
+	public function getRenderers() {
+		return $this->_renderers;
+	}	
+		
+	public function renderBlock($content, $block, $config = array()) {
+		if($block)
+			A('Renderer')->buffer[$block] = array('data' => $content, 'config' => $config);
+		return $content;
 	}
 	
-	static public function renderXML($data) {
-		//TODO: Implement XML serialization of objects
-	}
-	
-	static public function renderJSONP($data, $callback) {
-		return "$callback($data);";
-	}
+	public function __call($name, $args) {
+		if(in_array($name, array_keys($this->_renderers))) {
+			return call_user_func_array($this->_renderers[$name], $args);
+		}
+	}	
 }

@@ -10,6 +10,7 @@ call_user_func(function() {
 		new Cumula\AliasManager();
 		new Cumula\Request();
 		new Cumula\Response();
+		new Cumula\Renderer();
 	
 		$cm = new Cumula\ComponentManager();
 		$config = new Cumula\SystemConfig();

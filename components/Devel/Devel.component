@@ -72,7 +72,7 @@ class Devel extends BaseComponent {
 		A('Response')->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch'));
 		
 		$this->addBenchmark('app_boot');
-		A('Response')->bind('ResponsePrepare', array($this, 'stopAppTimer'));
+		A('Response')->bind('BeforeResponseSend', array($this, 'stopAppTimer'));
 	}
 	
 	/**
@@ -96,7 +96,7 @@ class Devel extends BaseComponent {
 			$content .= '<div>Rendering the page triggered '.$this->_eventCount.' events</div>';
 			
 		    $content .= '<div>Call Stack</div><pre>'.$this->_logEventStack.'</pre>';
-			$response->response['content'] = str_replace('<!-- $debugOutput -->', $content, $response->response['content']);
+			$response->content = str_replace('<!-- $debugOutput -->', $content, $response->content);
 		}
 	}
 	

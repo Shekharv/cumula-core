@@ -112,28 +112,40 @@ final class Application extends EventDispatcher {
 			'BootCleanup', 
 			'BootShutdown',
 	);
-						   	
 	
-	protected static $_request;
-	protected static $_response;
+	protected $_streams;
 	
 	/**
 	 * Constructor
 	 * 
 	 */
-	public function __construct($startupCallback = null, $paths = null) {
+	public function __construct($startupCallback = null, $paths = null) {		
 		$this->_setupConstants($paths);
 		$this->_setupBootstrap();
 		$this->addEvent('InstanceAccessed');
 		$this->addEvent('EventDispatcherCreated');
+		$this->addEvent('GatherStreams');
 		parent::__construct();
+		
+		$this->bind('BootStartup', array($this, 'gatherStreams'));
 		
 		if(is_callable($startupCallback))
 			call_user_func($startupCallback);
 		
 		$this->boot();
 	}
-
+	
+	public function gatherStreams() {
+		$streams = array();
+		$this->dispatch('GatherStreams', array(), function($stream) use (&$streams) {
+			$streams = array_merge($streams, $stream);					
+		});
+		$this->_streams = $streams;
+	}
+	
+	public function getStreams() {
+		return $this->_streams;
+	}
 	
 	private function _setupConstants($paths = array()) {
         // Only define ROOT if it isn't already defined

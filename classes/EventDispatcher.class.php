@@ -123,6 +123,13 @@ class EventDispatcher {
 		$myClass::instance()->dispatch('event_registered', array($absClass, $event));
 	}
 	
+	public function chain($startEvent, $dispatchEvent, $callback) {
+		$that = $this;
+		$this->bind($startEvent, function() use ($that, $dispatchEvent, $callback) {
+			$that->dispatch($dispatchEvent, $callback);
+		});
+	}
+	
 	/**
 	 * Add the Listener to the Class hash
 	 * @param string $class The class the listener is being attached to
@@ -209,6 +216,10 @@ class EventDispatcher {
 		$beforeEvent = sprintf('Before%s', $event);
 		$afterEvent = sprintf('After%s', $event);
 		$hash = static::getEventHash();
+		if(is_callable($data)) {
+			$callback = $data;
+			$data = array();
+		}
 		if(true)// (isset($hash[$class][$event]) && count($hash[$class][$event]) > 0)
 		{
 			//if $callback is a string, wrap it as a callable array with $this

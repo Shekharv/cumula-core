@@ -13,7 +13,7 @@ class CommandLine extends BaseComponent {
 					'callback' => array($this, 'help'),
 					'help' => 'Get Cumula Help',
 				),
-				'>-i' => array(
+				'>info' => array(
 					'callback' => array($this, 'info'),
 					'help' => 'Get info on the installed version of Cumula.',
 				),
@@ -26,7 +26,7 @@ class CommandLine extends BaseComponent {
 	}
 	
 	public function main() {
-		$this->renderCLA("Welcome to Cumula!");
+		$this->render("Welcome to Cumula!");
 	}
 	
 	public function help() {
@@ -36,11 +36,11 @@ class CommandLine extends BaseComponent {
 			if(isset($config['help']))
 				$output .= str_replace(">", "", $route)."\t".$config['help']."\n";
 		}
-		$this->renderCLA($output);
+		$this->render($output);
 	}
 	
 	public function info() {
-		$this->renderCLA("Welcome to Cumula.\nVersion ".CUMULAVERSION);
+		$this->render("Welcome to Cumula.\nVersion ".CUMULAVERSION);
 	}
 	
 	public function cumulaSetup() {

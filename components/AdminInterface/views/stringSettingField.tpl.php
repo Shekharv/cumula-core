@@ -1,4 +1,4 @@
 <?php
-echo $this->fh->labelFor($setting['title'], $setting['name']);
-echo $this->fh->textFieldTag($setting['name'], (isset($setting['value']) ? $setting['value'] : '') );
+echo $cm->fh->labelFor($setting['title'], $setting['name']);
+echo $cm->fh->textFieldTag($setting['name'], (isset($setting['value']) ? $setting['value'] : '') );
 ?>

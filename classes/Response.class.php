@@ -31,10 +31,8 @@ class Response extends EventDispatcher {
 	 * 
 	 * @var array
 	 */
-	public $response = array('headers' => array(), 
-							   'content' => '',
-							   'status_code' => 200,
-							   'data' => array());
+	public $content = '';
+	public $data = array();
 	
 	/**
 	 * Constructor
@@ -45,7 +43,7 @@ class Response extends EventDispatcher {
 		parent::__construct();
 		A('Application')->bind('BootShutdown', array($this, 'send'));
 		$this->addEvent('ResponsePrepare');
-		$this->addEvent('response_send');
+		$this->addEvent('ResponseSend');
 	}
 	
 	/**
@@ -54,58 +52,9 @@ class Response extends EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function send() {
+		$streams = A('Application')->getStreams();
 		$this->dispatch('ResponsePrepare');
-		$this->sendRawResponse($this->response['headers'], $this->response['content'], $this->response['status_code']);
-		$this->dispatch('response_send');
-	}
-	
-	public function send404() {
-		$this->response['status_code'] = 404;
-		$this->sendRawResponse($this->response['headers'], $this->response['content'], $this->response['status_code']);
-		exit;
-	}
-	
-	public function send405() {
-		$this->response['status_code'] = 405; //Change Denied
-		$this->response['headers']['Pragma'] = 'no-cache';
-		$this->sendRawResponse($this->response['headers'], 'Invalid Change', $this->response['status_code']);
-		exit;
-	}
-	
-	public function send302($url) {
-	    if (FALSE === stripos($url, 'http') && !\A('Request')->cli) {
-	      $protocol = ($_SERVER['SERVER_PORT'] == 443 || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off'))
-	        ? 'https' : 'http';
-	      if ($url{0} != '/') $url = '/'.$url;
-	      $url = $protocol.'://'.$_SERVER['HTTP_HOST'].$url;
-	    }
-		$this->response['headers']['Location'] = $url;
-		$this->response['status_code'] = 302;
-	}
-	
-	/**
-	 * Sends the raw response to the browser.
-	 * 
-	 * @param $headers array An array of key value pairs of header: values
-	 * @param $body string The body of the response
-	 * @param $code integer The HTTP response code
-	 * @return unknown_type
-	 */
-	public function sendRawResponse($headers, $body, $code) {
-		if(!\A('Request')->cli) {
-			if ($code == 404) {
-				header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
-				echo $body;
-				return;
-			}
-			foreach($headers as $key => $value) {
-				$this->_sendHeader($key, $value, $code);
-			}
-		}
-		echo $body."\n";
-	}
-	
-	private function _sendHeader($header, $value, $status_code = null) {
-		header("$header: $value", true, $status_code);
+		$this->dispatch('ResponseSend');
+		echo $this->content;
 	}
 }

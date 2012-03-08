@@ -30,6 +30,7 @@ class Router extends BaseComponent
 	// Stores all routes registered with the application
 	protected $_collectedRoutes = array();
 	protected $_routeConfigs;
+	protected $_routeTypes;
 
 	public function __construct() 
 	{
@@ -40,24 +41,17 @@ class Router extends BaseComponent
 		$this->addEvent('GatherRoutes');
 		$this->addEvent('RouterFileNotFound');
 		$this->addEvent('RouterAddRoute');
+		$this->addEvnet('GatherRouteTypes');
 
+		A('Application')->bind('BootPreprocess', array($this, 'collectRouteTypes'));
 		A('Application')->bind('BootPreprocess', array($this, 'collectRoutes'));
 		A('Application')->bind('BootProcess', array($this, 'processRoute'));
-		$this->bind('RouterFileNotFound', array($this, 'filenotfound'));
+		$this->bind('RouterFileNotFound', array($this, 'fileNotFound'));
 	}
 
-	public function filenotfound($event, $dispatcher, $request, $response) 
+	public function fileNotFound($event, $dispatcher, $request, $response) 
 	{
-		if(\A('Request')->cli) {
-			$response->response['content'] = "Command not found";
-			$response->send404();
-		} else {
-			//TODO: do something more smart here
-			$fileName = Templater::instance()->config->getConfigValue('template_directory', TEMPLATEROOT).'404.tpl.php';
-			$this->renderContent($this->renderPartial($fileName), 'content');
-			$response->response['content'] = $this->renderPartial(implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', '404.html')));
-			$response->send404();
-		}
+		A('Renderer')->renderNotFound();
 	}
 
 	public function addRoutes($routes) 
@@ -112,6 +106,18 @@ class Router extends BaseComponent
 		}
 	}
 	
+	public function collectRouteTypes() {
+		$routeTypes = array();
+		$this->dispatch('GatherRouteTypes', function($routeType) use (&$routeTypes) {
+			$routeTypes = array_merge($routeTypes, $routeType);
+		});
+		$this->_routeTypes = $routeTypes;
+	}
+	
+	public function getRouteTypes() {
+		return $this->_routeTypes;
+	}
+	
 	public function getRouteConfig($route) {
 		return isset($this->_routeConfigs[$route]) ? $this->_routeConfigs[$route] : false;
 	}
@@ -135,17 +141,19 @@ class Router extends BaseComponent
 		}
 	}
 
-	public function parseRoute($path) 
+	public function parseRoute($origPath) 
 	{
 		//The return array of matching handlers
 		$return_handlers = array();
 
-		//Trim off forward slash
-		if(strlen($path) > 0 && substr($path, 0, 1) == '/')
-			$path = substr($path, 1, strlen($path));
-
-		$separator = \A('Request')->cli ? " " : "/";
-
+		foreach($this->_routeTypes as $routeType => $separator) {
+			if(substr($origPath, 0, strlen($routeType)) == $routeType) 
+				break;
+		}
+		
+		//Trim off route type indicator
+		$path = substr($origPath, strlen($routeType), strlen($origPath)-1);
+		
 		//Trim off trailing slash
 		if(substr($path, strlen($path)-1, strlen($path)) == '/')
 		{
@@ -157,14 +165,14 @@ class Router extends BaseComponent
 		//Iterate through passed routes
 		foreach ($this->getEvents() as $route => $handlers) 
 		{
-			if (($route == '/' && $path == '/' ) || ($route == '>' && $path == '')) 
+			if (($route == $routeType && $origPath == $routeType)) 
 			{
 				$return_handlers[$route] = array();
 				return $return_handlers;
 			}
 			
 			//Check if the event is a route, if not continue
-			if (substr($route, 0, 1) != '/' && substr($route, 0, 1) != '>')
+			if (substr($route, 0, 1) != $routeType)
 			{
 				continue;
 			}

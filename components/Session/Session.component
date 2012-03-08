@@ -13,7 +13,7 @@ class Session extends BaseComponent {
 	}
 	
 	public function clearFlash() {
-		if(\A('Response')->response['status_code'] != 302) {
+		if(isset(A('Response')->data['code']) && A('Response')->data['code'] != 302) {
 			unset($this->warning);
 			unset($this->notice);
 		}

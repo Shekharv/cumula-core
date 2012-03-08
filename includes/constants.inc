@@ -20,9 +20,11 @@ const DEFAULT_SYSTEM_CONFIG_CLASS = 'Cumula\\SystemConfig';
 
 const DEFAULT_AUTOLOADER_CLASS = 'Cumula\\Autoloader';
 
-const DEFAULT_TEMPLATER_CLASS = 'Cumula\\Templater';
+const DEFAULT_TEMPLATE_CLASS = 'CumulaTemplate\\CumulaTemplate';
 
 const DEFAULT_ROUTER_CLASS = 'Cumula\\Router';
+
+const DEFAULT_RENDERER_CLASS = 'Cumula\\Renderer';
 
 const SETTING_DEFAULT_DATASTORE = 'default_datastore';
 const DEFAULT_DATASTORE_CLASS = 'YAMLDataStore\\YAMLDataStore';

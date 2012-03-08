@@ -1,0 +1,9 @@
+<?php
+
+namespace CumulaTemplate;
+
+use \Cumula\BaseTemplate as BaseTemplate;
+
+class CumulaTemplate extends BaseTemplate {
+	
+}

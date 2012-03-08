@@ -177,21 +177,40 @@ abstract class BaseComponent extends EventDispatcher {
 	 * rendered content is sent to the templater as a block using the $var_name param.
 	 * 
 	 */
-	public function render($args = array()) {
-		$bt = debug_backtrace(false); //TODO: See if there's a better way to do this than debug backtrace.
-		$caller = $bt[1]['function'];
-		$file_name = dirname($this->_getThisFile()).'/views/'.$caller.'.tpl.php';
-		$contents = $this->renderPartial($file_name, $args);
-		$this->renderContent($contents, 'content');
+	public function render($arg1 = array(), $arg2 = array()) {
+		$blockName = 'content';
+		if(is_array($arg1)) {
+			$bt = debug_backtrace(false); //TODO: See if there's a better way to do this than debug backtrace.
+			$caller = $bt[1]['function'];
+			$fileName = dirname($this->_getThisFile()).'/views/'.$caller.'.tpl.php';	
+			$args = $arg1;	
+		} else if (is_string($arg1)) {
+			$blockName = false;
+			$args = $arg2;
+			if(!file_exists($arg1))
+				$fileName = $this->rootDirectory().DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR.$arg1;
+			if(!file_exists($fileName)) {
+				$fileName = $arg1;
+			}
+		}
+		return $this->renderBlock($this->renderDefault($fileName, $args), $blockName);
 	}
 	
-	protected function renderPlain($output, $contentType = 'text/plain', $useTemplate = false) {
+	public function __call($name, $args) {
+		if(strstr($name,'render')) {
+			global $cm;
+			$cm = $this;
+			return call_user_func_array(array(A('Renderer'), $name), $args);
+		}
+	}
+	
+	/*protected function renderPlain($output, $contentType = 'text/plain', $useTemplate = false) {
 		A('Response')->response['content'] = $output;
 		A('Response')->response['headers']['Content-Type'] = $contentType;
 		if(!$useTemplate) 
 			A('Application')->unbind('BootPostprocess', array(A('Templater'), 'postProcessRender'));
 
-	}
+	}*/
 	
 	/**
 	 * Returns a rendered view specified in $file_name.  $args is exposed to the view.
@@ -199,7 +218,7 @@ abstract class BaseComponent extends EventDispatcher {
 	 * @param $url
 	 * @return unknown_type
 	 */
-	public function renderPartial($file_name = null, $args = array()) {
+	/*public function renderPartial($file_name = null, $args = array()) {
 		$ext = '.tpl.php';
 		if(pathinfo($file_name, PATHINFO_EXTENSION) == '' && !strpos($file_name, $ext)) {
 			$file_name = dirname($this->_getThisFile()).'/views/'.$file_name.$ext;
@@ -214,54 +233,54 @@ abstract class BaseComponent extends EventDispatcher {
 		$contents = ob_get_contents();
 		ob_end_clean();
 		return $contents;
-	}
+	}*/
 	
-	public function renderNothing() {
+	/*public function renderNothing() {
 		A('Response')->response['content'] = '';
 		A('Application')->unbind('BootPostprocess', array(Templater::instance(), 'postProcessRender'));
-	}
+	}*/
 	
 	
-	public function render404() {
+	/*public function render404() {
 		A('Response')->send404();
 		if(!$useTemplate) 
 			A('Application')->unbind('BootPostprocess', array(\A('Templater'), 'postProcessRender'));
-	}
+	}*/
 	
-	public function renderCLA($output) {
+	/*public function renderCLA($output) {
 		A('Response')->response['content'] = $output;
-	}
+	}*/
 	
 	/**
 	 * Adds a block to the render queue for dispatching to the templater.
 	 * 
 	 */
-	public function renderContent($content, $var_name = 'content') {
+	/*public function renderContent($content, $var_name = 'content') {
 		$block = new \ContentBlock\ContentBlock();
 		$block->content = $content;
 		$block->data['variable_name'] = $var_name;
 		$this->addOutputBlock($block);
-	}
+	}*/
 	
-	protected function renderString($markup, $args = array()) {
+	/*protected function renderString($markup, $args = array()) {
 		extract($args, EXTR_OVERWRITE);
 		ob_start();
 		eval("?>$markup<?");
 		$contents = ob_get_contents();
 		ob_end_clean();
 		return $contents;
-	}
+	}*/
 	
 	/**
 	 * @param $event
 	 * @param $args
 	 * @return unknown_type
 	 */
-	public function sendOutput($event, $args) {
+	/*public function sendOutput($event, $args) {
 		foreach($this->_output as $block) {
 			$args[$block->data['variable_name']] = $block;
 		}
-	}
+	}*/
 
 	/**
 	 * Adds an output block to the templater
@@ -269,7 +288,7 @@ abstract class BaseComponent extends EventDispatcher {
 	 * @param $block
 	 * @return unknown_type
 	 */
-	public function addOutputBlock($block) {		
+	/*public function addOutputBlock($block) {		
 		if(empty(A('Response')->response['data'][$block->data['variable_name']]))
 		{
 			A('Response')->response['data'][$block->data['variable_name']] = array($block);
@@ -278,7 +297,7 @@ abstract class BaseComponent extends EventDispatcher {
 		{
 			A('Response')->response['data'][$block->data['variable_name']][] = $block;
 		}
-	}
+	}*/
 	
 
 	/**********************************************

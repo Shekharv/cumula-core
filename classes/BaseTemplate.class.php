@@ -25,7 +25,7 @@ class BaseTemplate extends BaseComponent {
 		$components = A('ComponentManager')->getEnabledComponents();
 		
 		foreach($components as $component) {
-			$component->bind('RenderFile', array($this, 'handleFileOverrides'));
+			A($component)->bind('RenderFile', array($this, 'handleFileOverrides'));
 		}
 		
 		$this->_files = $this->recurseDirectory($this->rootDirectory().DIRECTORY_SEPARATOR.$this->_overrides_dir);
@@ -46,9 +46,6 @@ class BaseTemplate extends BaseComponent {
 		};
 		
 		$dir = $this->rootDirectory();
-		A('Templater')->bind('templater_prepare', function($event, $templater) use ($dir) {
-			$templater->setTemplateDir($dir.'/files');
-		});
 	}
 	
 	public function recurseDirectory($source_dir) {
@@ -75,5 +72,14 @@ class BaseTemplate extends BaseComponent {
 				return $this->_full_dir.$output;
 			}
 		}
+	}
+	
+	public function renderTemplate($args) {
+		extract($args, EXTR_OVERWRITE);
+		ob_start();
+		include $this->_full_dir.'template.tpl.php';
+		$content = ob_get_contents();
+		ob_end_clean();
+		return $content;
 	}
 }

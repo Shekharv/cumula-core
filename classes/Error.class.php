@@ -75,7 +75,7 @@ class Error extends EventDispatcher {
 		global $argv;
 		if(!isset($argv)) {
 		$view = ROOT.DIRECTORY_SEPARATOR.'cumula'.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR.'error.tpl.php';
-		echo \Cumula\Renderer::renderFile($view, array('error' => static::$levels[$error], 
+		echo static::renderFile($view, array('error' => static::$levels[$error], 
 											'message' => $message, 
 											'file' => $file, 
 											'line' => $line,
@@ -132,5 +132,14 @@ EOF;
 	public function __construct() {
 		parent::__construct();
 		$this->addEvent('ErrorEncountered');
+	}
+	
+	public static function renderFile($fileName, $args) {
+		extract($args, EXTR_OVERWRITE);
+		ob_start();
+			include $fileName;
+			$contents = ob_get_contents();
+		ob_end_clean();
+		return $contents;
 	}
 }

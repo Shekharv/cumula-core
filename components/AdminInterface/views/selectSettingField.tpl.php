@@ -1,4 +1,4 @@
 <?php
-echo $this->fh->labelFor($setting['title'], $setting['name']);
-echo $this->fh->selectTag($setting['name'], $setting['values'], $setting['selected']);
+echo $cm->fh->labelFor($setting['title'], $setting['name']);
+echo $cm->fh->selectTag($setting['name'], $setting['values'], $setting['selected']);
 ?>

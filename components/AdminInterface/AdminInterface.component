@@ -186,9 +186,6 @@ class AdminInterface extends BaseComponent {
 	public function adminPage($route, $router, $args, $request) {
 		if(!$this->checkUser($request))
 			return;
-		A('Templater')->bind('templater_prepare', function($event, $templater) {
-			$templater->setTemplateDir(COMPROOT.'AdminInterface/template/');
-		});
 		
 		//Iterate through the pages.
 		foreach($this->_pages as $page) {
@@ -197,9 +194,6 @@ class AdminInterface extends BaseComponent {
 				$this->fh = A('FormHelper');
 				$this->page = $page;
 				$title = $page->title;
-				A('Templater')->bind('templater_prepare', function($event, $templater) use ($title) {
-					$templater->setTitle($title);
-				});
 				$this->render();
 			}
 		}
@@ -212,13 +206,10 @@ class AdminInterface extends BaseComponent {
 	public function index($route, $router, $args, $request) {
 		if(!$this->checkUser($request))
 			return;
-		A('Templater')->bind('templater_prepare', function($event, $templater) {
-			$templater->setTemplateDir(COMPROOT.'AdminInterface/template/');
-		});
 		$this->pages = $this->_pages;
 		$this->_setPhpVersion();
 		$this->_checkPerms();
-		$this->render();
+		$this->render(array('perms' => $this->perms, 'stats' => $this->stats));
 	}
 	
 	/**
@@ -283,7 +274,7 @@ class AdminInterface extends BaseComponent {
 						$component->$callback($vals);
 					}
 				}
-				$this->redirectTo($page->route);
+				$this->renderRedirect($page->route);
 				return;
 			}
 		}
