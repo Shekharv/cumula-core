@@ -1,6 +1,6 @@
 <?php
-namespace Authentication;
-use Cumula\SystemConfig as SystemConfig;
+namespace Cumula\Components\Authentication;
+use Cumula\Config\System as SystemConfig;
 require_once(dirname(__FILE__) .'/facebook-php-sdk/src/facebook.php');
 
 class facebookAuthentication extends Authentication implements CumulaAuth

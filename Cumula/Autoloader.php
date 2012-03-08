@@ -61,7 +61,8 @@ class Autoloader extends EventDispatcher
 			$instance->dispatch('EventAutoload', array($className), 'registerClasses');
 		}
 		$loader = new \SplClassLoader();
-		$loader->loadClass($className);
+		$filename = $loader->loadClass($className);
+		$instance->registerClass($className, $filename);
 		return $instance;
 	} // end function load
 
@@ -75,7 +76,7 @@ class Autoloader extends EventDispatcher
 		$cache = $this->getCache();
 		return isset($cache[$className]) ? $cache[$className] : FALSE;
 	} // end function classExists
-			'Cumula\\AliasManager' => $dir .'/AliasManager.class.php',
+
 	/**
 	 * Register a class with the autoloader
 	 * @param string $className Name of the class being registered

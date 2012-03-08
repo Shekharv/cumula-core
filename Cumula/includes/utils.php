@@ -135,17 +135,14 @@ class ComponentProxy {
 
 function A($component) {
 	$am = \Cumula\AliasManager::instance();
-	if(class_exists($component))
-		return $component::instance();
 	if($class = $am->getClassName($component)) {
 		$app = \Cumula\Application::instance();
 		if($app)
 			$app->dispatch('InstanceAccessed', array($class));
 		return $class::instance();
+	} elseif (class_exists($component)) {
+		return $component::instance();
 	} else {
-		$class = "\\$component\\$component";
-		if(class_exists($class))
-			return (($ins = $class::instance()) ? $ins : new DummyComponent($class));
 		throw new Exception('You tried to get an alias or class which doesn\'t exist: '.$component);
 	}
 }

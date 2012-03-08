@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\Config;
 /**
  * Cumula
  *
@@ -22,7 +22,7 @@ namespace Cumula;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class SystemConfig extends Component\BaseComponent {
+class System extends \Cumula\Component\BaseComponent {
 	public function __construct() {
 		parent::__construct();
 		$this->config = new \Cumula\Config\Standard(CONFIGROOT, 'system.yaml');

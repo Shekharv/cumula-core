@@ -1,6 +1,6 @@
 <?php
-namespace Authentication;
-use Cumula\SystemConfig as SystemConfig;
+namespace Cumula\Components\Authentication;
+use Cumula\Config\System as SystemConfig;
 use Cumula\Request as Request;
 require_once(dirname(__FILE__) .'/yahoo-yos-social-php5/lib/OAuth/OAuth.php');
 require_once(dirname(__FILE__) .'/yahoo-yos-social-php5/lib/Yahoo/YahooOAuthApplication.class.php');

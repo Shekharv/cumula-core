@@ -20,8 +20,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
     BASE_DIR,
 )));
 
-require_once 'Cumula/Autoloader.php';
-\Cumula\Autoloader::setup();
+require_once realpath(__DIR__."/../../bin/boot.php");
 
 if (ini_get('date.timezone') == '') {
     date_default_timezone_set('America/Los_Angeles');

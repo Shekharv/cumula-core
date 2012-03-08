@@ -1,6 +1,6 @@
 <?php
 namespace Cumula\DataStore;
-use \Cumula\Schema\Simple as SimpleSchema
+use \Cumula\Schema\Simple as SimpleSchema;
 
 /**
  * Cumula

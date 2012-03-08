@@ -138,7 +138,7 @@ final class Application extends EventDispatcher {
 	private function _setupConstants($paths = array()) {
         // Only define ROOT if it isn't already defined
         //defined('ROOT') ||
-           // define('ROOT', realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', '..'))));
+        //    define('ROOT', realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', '..'))));
 
         //TODO: rewrite the part to support passing in arbitrary paths
         defined('APPROOT') ||
