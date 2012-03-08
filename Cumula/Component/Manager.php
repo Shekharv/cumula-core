@@ -2,7 +2,7 @@
 namespace Cumula\Component;
 
 use \ReflectionClass as ReflectionClass;
-use \Cumula\Components\AdminInterface\AdminInterface as AdminInterface;
+use \Cumula\Autoloader as Autoloader;
 
 /**
  * Cumula
@@ -72,8 +72,7 @@ final class Manager extends BaseComponent {
 		A('Application')->bind('BootInit', array($this, 'loadComponents'));
 		A('Application')->bind('BootStartup', array($this, 'startupComponents'));
 		A('Application')->bind('BootShutdown', array($this, 'shutdown'));
-		A('Autoloader')->bind('EventAutoload', array($this, 'getComponentFiles'));
-
+		
 		// Initialize config and settings
 		$this->config = new \Cumula\Config\Standard(CONFIGROOT, 'components.yaml');
 		$this->loadSettings();
@@ -306,7 +305,7 @@ final class Manager extends BaseComponent {
 				$this->_components[$component_class] = $instance;
 				if(method_exists($component_class,'getInfo') && ($info = $component_class::getInfo()) && isset($info['dependencies'])) {
 					$vals = $info['dependencies'];
-					array_walk($vals, function(&$a) {$a = \Cumula\Autoloader::absoluteClassName($a);});
+					array_walk($vals, function(&$a) {$a = Autoloader::absoluteClassName($a);});
 					$this->_dependencies[$component_class] = $vals;
 				}
 				
@@ -341,7 +340,7 @@ final class Manager extends BaseComponent {
 	}
 	
 	public function componentEnabled($component) {
-		return in_array(Autoloader::absoluteClassName($component), $this->_enabledClasses);
+		return in_array($component, $this->_enabledClasses);
 	}
 
 	/**
@@ -373,7 +372,8 @@ final class Manager extends BaseComponent {
 				$ret = array_merge($ret, $this->recurseCompDirectory($root, $file));
 			} else if(str_replace(basename($file, $suffix), '', basename($file)) == $suffix) {
 				$relativeFile = substr($file, strlen($root));
-				$componentName = substr($relativeFile, 0, strlen($relativeFile)-strlen($suffix));
+				$componentPath = substr($relativeFile, 0, strlen($relativeFile)-strlen($suffix));
+				$componentName = "\\".preg_replace("/\//", "\\", $componentPath);
 				$ret[$componentName] = $file;
 			}
 		}
@@ -391,8 +391,6 @@ final class Manager extends BaseComponent {
 	 */
 	public function installComponent($component) 
 	{
-		$component = Autoloader::absoluteClassName($component);
-
 		if (!in_array($component, $this->_availableClasses)) 
 		{
 			//throw new Exception("Install fail. $component does not exist, please verify file location");
@@ -449,8 +447,6 @@ final class Manager extends BaseComponent {
 	 */
 	public function enableComponent($component) 
 	{
-		$component = Autoloader::absoluteClassName($component);
-
 		if (in_array($component, $this->_enabledClasses)) 
 		{
 			return FALSE;
@@ -507,8 +503,6 @@ final class Manager extends BaseComponent {
 	}
 
 	public function disableComponent($component) {
-		$component = Autoloader::absoluteClassName($component);
-
 		$instance = $this->getComponentInstance($component);
 		if ($instance) {
 			$instance->disable();
@@ -527,7 +521,6 @@ final class Manager extends BaseComponent {
 	}
 
 	public function uninstallComponent($component) {
-		$component = Autoloader::absoluteClassName($component);
 
 		if (!in_array($component, $this->_installedClasses)) {
 			return FALSE;

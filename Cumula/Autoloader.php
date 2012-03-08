@@ -42,8 +42,6 @@ class Autoloader extends EventDispatcher
 		spl_autoload_register(array('Cumula\\Autoloader', 'load'));
 		$instance = new self();
 		$instance->addEvent('EventAutoload');
-		$instance->bind('EventAutoload', array($instance, 'defaultAutoloader'));
-		$instance->bind('EventAutoload', array($instance, 'libraryAutoloader'));
 		static::$className_cache = array();
 	} // end function setup
 
@@ -100,7 +98,10 @@ class Autoloader extends EventDispatcher
 		}
 		elseif ($cache[$className] != $classFile)
 		{
-			throw new \Exception(sprintf('Trying to overwrite the Autoloader Cache for %s', $className));
+			throw new \Exception(sprintf('Trying to overwrite the Autoloader Cache for %s: was %s with %s',
+										 $className,
+										 $cache[$className],
+										 $classFile));
 		}
 		return $this;
 	} // end function registerClass

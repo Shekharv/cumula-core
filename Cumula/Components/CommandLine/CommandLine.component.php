@@ -1,8 +1,8 @@
 <?php
-namespace CommandLine;
+namespace Cumula\Components\CommandLine;
 
 use \A as A;
-use \Cumula\BaseComponent as BaseComponent;
+use \Cumula\Component\BaseComponent as BaseComponent;
 
 class CommandLine extends BaseComponent {
 	public function startup() {
