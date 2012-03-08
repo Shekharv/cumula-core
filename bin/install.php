@@ -1,5 +1,7 @@
 <?php
 
+require_once realpath(__DIR__."/../Cumula/includes/utils.php");
+
 if(isset($argv[2]) && strstr($argv[2], "-base-dir=")) {
 	$path = str_replace("-base-dir=", "", $argv[2]);
 	define('TMPROOT', realpath($path).DIRECTORY_SEPARATOR);
@@ -48,11 +50,11 @@ function checkPerms() {
 		if(!file_exists(TMPROOT.$argv[1].DIRECTORY_SEPARATOR.'app'))
 			mkdir(TMPROOT.$argv[1].DIRECTORY_SEPARATOR.'app');
 		
-		if(!file_exists(TMPROOT.$argv[1].DIRECTORY_SEPARATOR."cumula"))	{
+		if(!file_exists(TMPROOT.$argv[1].DIRECTORY_SEPARATOR."Cumula"))	{
 			echo "Moving Files...\n";
-			copyFiles(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'), TMPROOT.$argv[1].DIRECTORY_SEPARATOR."cumula");
+			copyFiles(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'), TMPROOT.$argv[1].DIRECTORY_SEPARATOR."Cumula");
 		}
-		$installPath = TMPROOT.$argv[1].DIRECTORY_SEPARATOR."cumula";
+		$installPath = TMPROOT.$argv[1].DIRECTORY_SEPARATOR."Cumula";
 	} else {
 		echo "Parent folder ".realpath(TMPROOT)." is not writable.  Can not install Cumula.\n".
 		"Please make this folder writable and try again.\n";
