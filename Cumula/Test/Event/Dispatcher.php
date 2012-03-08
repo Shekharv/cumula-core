@@ -62,9 +62,9 @@ class Test_EventDispatcher extends Test_BaseTest {
 		$eventDispatcher = $this->createInstance();
 		
 		$this->assertTrue(!$constructed, 'EventDispatcherCreated not called.');
-		$this->assertTrue($eventDispatcher->eventIsRegistered('EventDispatcherEventDispatched'));
-		$this->assertTrue($eventDispatcher->eventIsRegistered('EventListenerRegistered'));
-		$this->assertTrue($eventDispatcher->eventIsRegistered('EventLogged'));
+		$this->assertTrue($eventDispatcher->eventIsRegistered('EventDispatcherEventDispatched'), "eventdispatched not registered");
+		$this->assertTrue($eventDispatcher->eventIsRegistered('EventListenerRegistered'), "eventregistered not registered");
+		$this->assertTrue($eventDispatcher->eventIsRegistered('EventLogged'), "logged not registered");
 	}
 
 	public function testAddRemoveEvent() {
@@ -87,7 +87,8 @@ class Test_EventDispatcher extends Test_BaseTest {
 
 		$handler =  function () {};
 		$eventDispatcher->bind($event, $handler);
-		$this->assertContains($handler, $eventDispatcher->getEventListeners($event));
+		$this->assertContains($handler, $eventDispatcher->getEventListeners($event),
+							  var_export($eventDispatcher->getEvents(), true));
 
 		$eventDispatcher->unbind($event, $handler);
 		$this->assertNotContains($handler, $eventDispatcher->getEventListeners($event));

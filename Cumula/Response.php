@@ -73,7 +73,7 @@ class Response extends EventDispatcher {
 	}
 	
 	public function send302($url) {
-	    if (FALSE === stripos($url, 'http') && !\A('Request')->cli) {
+	    if (FALSE === stripos($url, 'http')) {
 	      $protocol = ($_SERVER['SERVER_PORT'] == 443 || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off'))
 	        ? 'https' : 'http';
 	      if ($url{0} != '/') $url = '/'.$url;

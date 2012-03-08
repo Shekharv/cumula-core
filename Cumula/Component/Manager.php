@@ -115,7 +115,10 @@ final class Manager extends BaseComponent {
 	 */
 	public function startup()
 	{
-		A('AdminInterface')->bind('AdminCollectSettingsPages', array($this, 'setupAdminPages'));
+		$admin = A('AdminInterface');
+		if ($admin) {
+			$admin->bind('AdminCollectSettingsPages', array($this, 'setupAdminPages'));
+		}
 	}
 
 	/**

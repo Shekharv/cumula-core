@@ -2,10 +2,7 @@
 
 use Cumula\Response as Response;
 
-require_once 'base/Test.php';
-require_once 'classes/EventDispatcher.class.php';
-require_once 'classes/Request.class.php';
-require_once 'classes/Response.class.php';
+require_once 'Cumula/Test/Base.php';
 
 /**
  * Response Class Tests
@@ -138,8 +135,8 @@ class Test_Response extends Test_BaseTest {
         $this->repsonse->response['content'] = $content;
 
         global $ResponsePrepare, $response_send;
-        $this->response->addEventListener('ResponsePrepare', function() { global $ResponsePrepare; $ResponsePrepare = TRUE; });
-        $this->response->addEventListener('response_send', function() { global $response_send; $response_send = TRUE; });
+        $this->response->bind('ResponsePrepare', function() { global $ResponsePrepare; $ResponsePrepare = TRUE; });
+        $this->response->bind('response_send', function() { global $response_send; $response_send = TRUE; });
 
         $this->response->send();
 
