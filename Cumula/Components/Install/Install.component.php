@@ -1,5 +1,5 @@
 <?php
-namespace Install;
+namespace Cumula\Components\Install;
 use \Cumula\Component\BaseComponent as BaseComponent;
 
 class Install extends BaseComponent {

@@ -1,5 +1,5 @@
 <?php
-namespace Cumula\Components;
+namespace Cumula\Components\Templater;
 use \Cumula\Component\BaseComponent as BaseComponent;
 use \Cumula\Templater\TemplaterInterface as CumulaTemplater;
 use \Cumula\Application as Application;

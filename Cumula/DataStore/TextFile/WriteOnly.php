@@ -1,6 +1,6 @@
 <?php
-namespace Logger;
-use Cumula\BaseDataStore as BaseDataStore;
+namespace \Cumula\DataStore\TextFile;
+use Cumula\DataStore\Base as BaseDataStore;
 //TODO: Figure out what todo with this, whether to keep it.
 /**
  * Cumula
@@ -24,7 +24,7 @@ use Cumula\BaseDataStore as BaseDataStore;
  * @subpackage	Logger
  * @author     Seabourne Consulting
  */
-class WriteOnlyTextDataStore extends BaseDataStore {
+class WriteOnly extends BaseDataStore {
 	private $_logFile;
 
 	public function __construct($schema, $configValues) {

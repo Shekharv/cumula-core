@@ -1,5 +1,5 @@
 <?php
-namespace Cumula\Components;
+namespace Cumula\Components\Cache;
 
 /**
  * Cache Component
@@ -29,22 +29,8 @@ class Cache extends \Cumula\Component\BaseComponent
 	 **/
 	public function startup() 
 	{
-		A('Autoloader')->bind('EventAutoload', array($this, 'populateAutoloader'));
 		$this->configureDataStore();
 	} // end function startup
-
-	/**
-	 * Populate the Autoloader
-	 * @param string $event Name of the event being dispatched
-	 * @param EventDispatcher $dispatcher Object that dispatched the event
-	 * @return void
-	 **/
-	public function populateAutoloader($event, $dispatcher, $className) 
-	{
-		return array(
-			'Cache\\Schema' => dirname(__FILE__) .'/lib/Schema.class.php',
-		);
-	} // end function populateAutoloader
 
 	/**
 	 * Configure the data store

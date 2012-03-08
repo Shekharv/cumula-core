@@ -1,5 +1,5 @@
 <?php
-namespace AdminInterface;
+namespace Cumula\Components\AdminInterface;
 /**
  * Cumula
  *

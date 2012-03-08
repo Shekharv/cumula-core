@@ -1,9 +1,10 @@
 <?php
-namespace Cumula\Components;
+namespace Cumula\Components\Logger;
 use \Cumula\Component\BaseComponent as BaseComponent;
 use \Cumula\Config\System as SystemConfig;
 use \Cumula\Schema\Simple as SimpleSchema;
 use \Cumula\Component\Manager as ComponentManager;
+use \Cumula\DataStore\TextFile\WriteOnly as WriteOnlyTextDataStore
 use \A as A;
 
 /**
@@ -19,7 +20,6 @@ use \A as A;
  * @link       http://cumula.org
  */
 
-require_once dirname(__FILE__).'/includes/WriteOnlyTextDataStore.class.php';
 
 /**
  * Logger Component

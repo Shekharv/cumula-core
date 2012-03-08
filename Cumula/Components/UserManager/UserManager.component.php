@@ -1,5 +1,5 @@
 <?php
-namespace Cumula\Components
+namespace Cumula\Components\UserManager;
 use \Cumula\Component\BaseComponent as BaseComponent;
 use UserManager\Schema as BasicUserSchema;
 

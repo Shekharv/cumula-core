@@ -1,7 +1,9 @@
 <?php
-namespace Cumula\Components;
+namespace Cumula\Components\MenuManager;
 use \Cumula\Component\BaseComponent as BaseComponent;
 use \Cumula\Application as Application;
+use \Cumula\Render\ContentBlock as ContentBlock;
+
 /**
  * Cumula
  *
@@ -14,9 +16,6 @@ use \Cumula\Application as Application;
  * @copyright  2011 Seabourne Consulting
  * @link       http://cumula.org
  */
-
-require_once 'lib/MenuMenu.class.php';
-require_once 'lib/MenuItem.class.php';
 
 /**
  * MenuManager Component
@@ -54,7 +53,7 @@ class MenuManager extends BaseComponent {
 	public function renderMenus($event) {
 		$this->dispatch('MenuCollectMenus');
 		foreach($this->_menus as $menuId => $menu) {
-			$block = new \ContentBlock\ContentBlock();
+			$block = new ContentBlock();
 			$block->content = $this->_renderMenu($menu);
 			$block->data['variable_name'] = $menu->menuId;
 			$this->addOutputBlock($block);

@@ -1,7 +1,8 @@
 <?php
-namespace Cumula\Components;
+namespace Cumula\Components\Stash;
 use \Cumula\Component\BaseComponent as BaseComponent;
 use \Cumula\Autoloader as Autoloader;
+use \Cumula\Components\Cache\Cache as Cache
 
 /**
  * Stash Component
@@ -150,7 +151,7 @@ class Stash extends BaseComponent
 			'name' => 'Stash Component',
 			'description' => 'Provide a proxy for caching outbound requests',
 			'version' => '0.1',
-			'dependencies' => array('Cache\\Cache'),
+			'dependencies' => array('Cumula\\Components\\Cache'),
 		);
 	} // end function getInfo
 

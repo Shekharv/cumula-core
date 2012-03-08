@@ -1,5 +1,5 @@
 <?php
-namespace MenuManager;
+namespace Cumula\Components\MenuManager;
 /**
  * Cumula
  *

@@ -42,15 +42,16 @@ final class Manager extends BaseComponent {
 	private $componentFiles = array();
 	private $_dependencies = array();
 	
-	private $_installList = array("Install\\Install", 
-		'FormHelper\\FormHelper', 
-		'UserManager\\UserManager', 
-		'Templater\\Templater', 
-		'Logger\\Logger', 
-		'MenuManager\\MenuManager', 
-		'Authentication\\Authentication',
-		'AdminInterface\\AdminInterface',
-		'CumulaTemplate\\CumulaTemplate'
+	private $_installList = array(
+		"Cumula\\Components\\Install\\Install", 
+		'Cumula\\Components\\FormHelper\\FormHelper', 
+		'Cumula\\Components\\UserManager\\UserManager', 
+		'Cumula\\Components\\Templater\\Templater', 
+		'Cumula\\Components\\Logger\\Logger', 
+		'Cumula\\Components\\MenuManager\\MenuManager', 
+		'Cumula\\Components\\Authentication\\Authentication',
+		'Cumula\\Components\\AdminInterface\\AdminInterface',
+		'Cumula\\Components\\CumulaTemplate\\CumulaTemplate'
 	);
 
 	/**

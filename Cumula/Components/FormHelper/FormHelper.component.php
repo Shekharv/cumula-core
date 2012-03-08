@@ -1,5 +1,5 @@
 <?php
-namespace FormHelper;
+namespace Cumula\Components\FormHelper;
 
 use Cumula\Component\BaseComponent as BaseComponent;
 use Cumula\Schema\Simple as SimpleSchema;

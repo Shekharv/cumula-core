@@ -1,5 +1,5 @@
 <?php
-namespace Cumula\Components;
+namespace Cumula\Components\AdminInterface;
 use \Cumula\Component\BaseComponent as BaseComponent;
 /**
  * Cumula
@@ -79,28 +79,12 @@ class AdminInterface extends BaseComponent {
 			$stats['installed_components'] = count(\A('ComponentManager')->getEnabledComponents());
 		});
 
-		A('Autoloader')->bind('EventAutoload', array($this, 'autoload'));
-
 		$this->bind('AdminCollectSettingsPages', array(A('SystemConfig'), 'setupAdminPages'));
 		
 		//$this->addEventListenerTo('UserManager', 'register_auth_domain', function($event, $dispatcher) {
 		//	$dispatcher->registerAuthDomain('admin_interface', array('paths' => array('/admin', '/admin/*')));
 		//});
 	}
-
-	/**
-	 * Event Handler for Autoloader::EVENT_AUTOLOAD
-	 * @param string $event Name of the event that was dispatched
-	 * @param Cumula\Autoloader $dispatcher Instance of the Object that dispatched the event
-	 * @param string $className Name of the class being loaded
-	 * @return void
-	 **/
-	public function autoload($event, $dispatcher, $className) 
-	{
-		return array(
-			'AdminInterface\\AdminPage' => realpath(dirname(__FILE__)) .'/lib/AdminPage.class.php',
-		);
-	} // end function autoload
 	
 	/**
 	 * Listener for ROUTER_COLLECT_ROUTES.  Parses through the list of admin pages and creates a new
