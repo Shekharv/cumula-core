@@ -60,9 +60,16 @@ class Autoloader extends EventDispatcher
 		{
 			$instance->dispatch('EventAutoload', array($className), 'registerClasses');
 		}
-		$loader = new \SplClassLoader();
-		$filename = $loader->loadClass($className);
-		$instance->registerClass($className, $filename);
+		$stdLoader = new \SplClassLoader();
+		$componentLoader = new \SplClassLoader();
+		$componentLoader->setFileExtension('.component.php');
+		foreach(array($stdLoader, $componentLoader) as $loader) {
+			$filename = $loader->loadClass($className);
+			if ($filename) {
+				$instance->registerClass($className, $filename);
+				break;
+			}
+		}
 		return $instance;
 	} // end function load
 

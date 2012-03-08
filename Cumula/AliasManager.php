@@ -16,28 +16,32 @@ class AliasManager extends EventDispatcher {
 			$this->config->setConfigValue('Templater', DEFAULT_TEMPLATER_CLASS);
 			
 		if(!$this->config->getConfigValue('Router', false))
-			$this->config->setConfigValue('Router', DEFAULT_ROUTER_CLASS);	
+			$this->config->setConfigValue('Router', DEFAULT_ROUTER_CLASS);
 		
 		if(!$this->config->getConfigValue('ComponentManager', false))
 			$this->config->setConfigValue('ComponentManager', DEFAULT_COMPONENT_MANAGER_CLASS);
 		
 		if(!$this->config->getConfigValue('Application', false))
-			$this->config->setConfigValue('Application', APPLICATION_CLASS);	
+			$this->config->setConfigValue('Application', APPLICATION_CLASS);
 			
 		if(!$this->config->getConfigValue('AliasManager', false))
-			$this->config->setConfigValue('AliasManager', DEFAULT_ALIAS_MANAGER_CLASS);		
+			$this->config->setConfigValue('AliasManager', DEFAULT_ALIAS_MANAGER_CLASS);
 			
 		if(!$this->config->getConfigValue('Response', false))
-			$this->config->setConfigValue('Response', DEFAULT_RESPONSE_MANAGER_CLASS);		
+			$this->config->setConfigValue('Response', DEFAULT_RESPONSE_MANAGER_CLASS);
 			
 		if(!$this->config->getConfigValue('Request', false))
 			$this->config->setConfigValue('Request', DEFAULT_REQUEST_MANAGER_CLASS);
 			
 		if(!$this->config->getConfigValue('SystemConfig', false))
-			$this->config->setConfigValue('SystemConfig', DEFAULT_SYSTEM_CONFIG_CLASS);	
+			$this->config->setConfigValue('SystemConfig', DEFAULT_SYSTEM_CONFIG_CLASS);
 	
 		if(!$this->config->getConfigValue('Autoloader', false))
-			$this->config->setConfigValue('Autoloader', DEFAULT_AUTOLOADER_CLASS);				
+			$this->config->setConfigValue('Autoloader', DEFAULT_AUTOLOADER_CLASS);
+
+		if(!$this->config->getConfigValue('AdminInterface', false))
+			$this->config->setConfigValue('AdminInterface', DEFAULT_ADMIN_INTERFACE_CLASS);
+
 	}
 	
 	public function getClassName($alias) {

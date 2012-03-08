@@ -115,7 +115,8 @@ class SplClassLoader
      * Loads the given class or interface.
      *
      * @param string $className The name of the class to load.
-     * @return void
+     *
+     * @return string filename of class or null
      */
     public function loadClass($className)
     {
@@ -129,8 +130,13 @@ class SplClassLoader
             }
             $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . $this->_fileExtension;
             
-            require_once ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
-            return $fileName;
+            $unresolvedFilePath = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
+            
+            $filePath = stream_resolve_include_path($unresolvedFilePath);
+            if ($filePath) {
+                    require_once $filePath;
+                    return $fileName;
+            }
         }
     }
 }

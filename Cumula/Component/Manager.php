@@ -2,7 +2,7 @@
 namespace Cumula\Component;
 
 use \ReflectionClass as ReflectionClass;
-use \AdminInterface\AdminInterface as AdminInterface;
+use \Cumula\Components\AdminInterface\AdminInterface as AdminInterface;
 
 /**
  * Cumula
