@@ -1,5 +1,5 @@
 <?php
-namespace GDocsAPIDataStore;
+namespace Cumula\DataStore\API\GDocs;
 
 
 class GDocsZendStreamMediaSource extends \Zend_Gdata_App_BaseMediaSource

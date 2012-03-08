@@ -1,5 +1,6 @@
 <?php
-namespace Cumula;
+namespace Cumula\DataStore\API;
+use Cumula\DataStore\Base as BaseDataStore
 
 /**
  * Cumula
@@ -24,7 +25,7 @@ namespace Cumula;
  * @author     Seabourne Consulting
  */
 
-abstract class BaseAPIDataStore extends BaseDataStore {
+abstract class Base extends BaseDataStore {
 
 	public function __construct($schema, $config_values) {
 		parent::__construct($schema, $config_values);

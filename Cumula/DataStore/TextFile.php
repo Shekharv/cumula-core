@@ -1,5 +1,5 @@
 <?php
-namespace TextFileDataStore;
+namespace Cumula\DataStore\TextFile;
 /**
  * Cumula
  *
@@ -23,7 +23,7 @@ namespace TextFileDataStore;
  * @author     Seabourne Consulting
  */
 
-class TextFileDataStore extends \Cumula\BaseDataStore {
+class TextFile extends \Cumula\BaseDataStore {
 	
 	private $_logFile;
 	

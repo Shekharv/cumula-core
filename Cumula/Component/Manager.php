@@ -286,6 +286,7 @@ final class Manager extends BaseComponent {
 		{
 			$this->startupComponent($class_name);
 		}
+		var_dump($this->_availableClasses);
 		$this->dispatch('ComponentStartupComplete');
 	}
 

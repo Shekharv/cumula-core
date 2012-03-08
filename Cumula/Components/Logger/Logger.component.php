@@ -4,7 +4,7 @@ use \Cumula\Component\BaseComponent as BaseComponent;
 use \Cumula\Config\System as SystemConfig;
 use \Cumula\Schema\Simple as SimpleSchema;
 use \Cumula\Component\Manager as ComponentManager;
-use \Cumula\DataStore\TextFile\WriteOnly as WriteOnlyTextDataStore
+use \Cumula\DataStore\TextFile\WriteOnly as WriteOnlyTextDataStore;
 use \A as A;
 
 /**

@@ -1,5 +1,5 @@
 <?php
-
+namespace Cumula\DataStore
 /**
  * DataStoreException
  * @package Cumula

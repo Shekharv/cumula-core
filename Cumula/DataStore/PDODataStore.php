@@ -1,5 +1,6 @@
 <?php
-namespace Cumula;
+namespace Cumula\DataStore;
+use Sql\Base as BaseSqlDataStore;
 use \PDO as PDO;
 
 require_once realpath(dirname(__FILE__) .'/BaseSqlDataStore.class.php');
@@ -8,7 +9,7 @@ require_once realpath(dirname(__FILE__) .'/BaseSqlDataStore.class.php');
  * @package Cumula
  * @author Craig Gardner <craig@seabourneconsulting.com>
  **/
-abstract class PDODataStore extends BaseSqlDataStore 
+abstract class PDODataStore extends BaseSqlDataStore
 {
 	/**
 	 * Driver Constants

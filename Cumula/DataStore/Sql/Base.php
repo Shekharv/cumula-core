@@ -1,5 +1,6 @@
 <?php
-namespace Cumula;
+namespace Cumula\DataStore\Sql;
+use \Cumula\DataStore\Base as BaseDataStore;
 /**
  * Cumula
  *
@@ -23,7 +24,7 @@ namespace Cumula;
  * @author     Seabourne Consulting
  */
 
-abstract class BaseSqlDataStore extends BaseDataStore {
+abstract class Base extends BaseDataStore {
 	protected $_db;
 	/**
 	 * Schema Object Used for this DataStore

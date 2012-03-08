@@ -142,7 +142,7 @@ final class Application extends EventDispatcher {
 
         //TODO: rewrite the part to support passing in arbitrary paths
         defined('APPROOT') ||
-            define('APPROOT', ROOT . DIRECTORY_SEPARATOR . 'app');
+            define('APPROOT', realpath(ROOT."/..") . DIRECTORY_SEPARATOR . 'app');
 
 		if(count($paths) < 1) {
 			$core_path	= ROOT . DIRECTORY_SEPARATOR . 'Cumula';

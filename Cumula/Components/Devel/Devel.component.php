@@ -1,5 +1,5 @@
 <?php
-namespace Cumula\Components;
+namespace Cumula\Components\Devel;
 Use \Cumula\Component\BaseComponent as BaseComponent;
 use \Cumula\Component\Manager as ComponentManager;
 use \A as A;
