@@ -1,0 +1,17 @@
+<?php
+namespace Cumula\Components\SQLiteDataStoreFactory;
+
+use \Cumula\Component\BaseComponent as BaseComponent;
+use \Cumula\Interface\CumulaDataStoreFactory as CumulaDataStoreFactory;
+
+require_once 'lib'.DIRECTORY_SEPARATOR.'SQLiteDataStore.class.php';
+
+class SQLiteDataStoreFactory extends BaseComponent implements CumulaDataStoreFactory {
+	public function __construct() {
+		parent::__construct();
+	}
+	
+	public function create() {
+		return new SQLiteDataStore();
+	}
+}

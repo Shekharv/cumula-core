@@ -33,39 +33,21 @@
 					<equals arg1="${test.buildreport}" arg2="y" casesensitive="false" />
 				</and>
 				<then>
-					<property name="test.coverage" value="true" />
+					<property name="test.coverage" value="false" />
 				</then>
 				<else>
-					<property name="test.coverage" value="false" />
+					<property name="test.coverage" value="true" />
 				</else>
 			</if>
 
-			<if>
-				<equals arg1="${test.buildreport}" arg2="y" casesensitive="false" />
-				<then>
-					<!-- Prepare the coverage report -->
-					<coverage-setup database="${coverage.db}">
-							<fileset dir="${project.basedir}">
-									<include name="**/*.php" />
-									<include name="**/*.inc" />
-									<include name="**/*.component" />
-									<exclude name="interfaces/*" />
-									<exclude name="**/templates/*" />
-									<exclude name="test/**/*" />
-									<exclude name="**/views/**/*.php" />
-									<exclude name="**/template/*" />
-									<exclude name="**/components/**/libraries/**" />
-							</fileset>
-					</coverage-setup>
-				</then>
-			</if>
+
 			<!-- Run the automated tests -->
-			<phpunit haltonerror="false" haltonfailure="false" codecoverage="${test.coverage}"
-					haltonskipped="false" bootstrap="${project.basedir}/test/bootstrap.php">
+			<phpunit haltonerror="false" haltonfailure="false" codecoverage="false"
+					haltonskipped="false" bootstrap="${project.basedir}/Cumula/Test/bootstrap.php">
 					<formatter type="xml" usefile="true" todir="${tests.reportdir}" />
 					<formatter type="plain" usefile="false" />
 					<batchtest name="Cumula Automated Tests">
-							<fileset dir="${project.basedir}/test">
+							<fileset dir="${project.basedir}/Cumula/Test">
 									<include name="**/${test.class}.php" />
 									<exclude name="base/*.php" />
 									<exclude name="bootstrap.php" />
@@ -73,23 +55,19 @@
 					</batchtest>
 			</phpunit>
 
-			<if>
-				<equals arg1="${test.buildreport}" arg2="y" casesensitive="false" />
-				<then>
-					<!-- Build the report -->
-					<phpunitreport infile="${tests.reportdir}/testsuites.xml" todir="${tests.reportdir}" />
-					<coverage-report outfile="${coverage.reportdir}/coverage.xml">
-							<report todir="${coverage.reportdir}" />
-					</coverage-report>
-				</then>
-			</if>
+
 		</target>
 
     <!-- Perform Automated Tests -->
     <target name="test" depends="test.prepare" description="Run the Automated Tests and generate reports">
+      <if>
+        <not><isset property="test.class"/></not>
+        <then>
+          <property name="test.class" value="*" />
+        </then>
+      </if>
 				<phingCall target="test.execute">
 					<property name="test.coverage" value="true" />
-					<property name="test.class" value="*" />
 					<property name="test.buildreport" value="y" />
 				</phingCall>
     </target>
@@ -177,5 +155,14 @@
 
 		<target name="build.clean" description="Clean the build directory in preparation for a new build">
 			<delete dir="${project.builddir}" />
+		</target>
+
+		<target name="build.docs" description="Build DocBlox Documentation">
+			<docblox title="Cumula API Documentation" destdir="docs">
+				<fileset dir="${project.basedir}">
+					<exclude name="**/.inc"/>
+					<exclude name="**/components/**/libraries/**" />
+				</fileset>
+			</docblox>
 		</target>
 </project>
