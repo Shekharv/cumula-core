@@ -115,10 +115,7 @@ final class Manager extends BaseComponent {
 	 */
 	public function startup()
 	{
-		$admin = A('AdminInterface');
-		if ($admin) {
-			$admin->bind('AdminCollectSettingsPages', array($this, 'setupAdminPages'));
-		}
+		A('AdminInterface')->bind('AdminCollectSettingsPages', array($this, 'setupAdminPages'));
 	}
 
 	/**
@@ -364,15 +361,20 @@ final class Manager extends BaseComponent {
 		return $this->componentFiles;
 	} // end function getComponentFiles
 	
-	protected function recurseCompDirectory($source) {
+	protected function recurseCompDirectory($root, $source = null) {
+		if ($source === null) {
+			$source = $root;
+		}
+		$suffix = '.component.php';
 		$ret = array();
-		foreach(glob(sprintf('{%s*/*,%s*/*.component}', $source, $source), GLOB_BRACE) as $file)
+		foreach(glob(sprintf('{%s*/*,%s*/*%s}', $source, $source, $suffix), GLOB_BRACE) as $file)
 		{
 			if(is_dir($file)) {
-				$ret = array_merge($ret, $this->recurseCompDirectory($file));
-			} else if(str_replace(basename($file, '.component'), '', basename($file)) == '.component') {
-				$basename = basename($file, '.component');
-				$ret[sprintf('%s\\%s', $basename, $basename)] = $file;
+				$ret = array_merge($ret, $this->recurseCompDirectory($root, $file));
+			} else if(str_replace(basename($file, $suffix), '', basename($file)) == $suffix) {
+				$relativeFile = substr($file, strlen($root));
+				$componentName = substr($relativeFile, 0, strlen($relativeFile)-strlen($suffix));
+				$ret[$componentName] = $file;
 			}
 		}
 		return $ret;

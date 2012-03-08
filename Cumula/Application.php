@@ -145,8 +145,8 @@ final class Application extends EventDispatcher {
             define('APPROOT', ROOT . DIRECTORY_SEPARATOR . 'app');
 
 		if(count($paths) < 1) {
-			$core_path	= ROOT . DIRECTORY_SEPARATOR . 'cumula';
-			$core_component_path = $core_path . DIRECTORY_SEPARATOR . 'components';
+			$core_path	= ROOT . DIRECTORY_SEPARATOR . 'Cumula';
+			$core_component_path = $core_path; # need the full namespace
 			$contrib_component_path = APPROOT . DIRECTORY_SEPARATOR . 'components';
 			$config_path = APPROOT . DIRECTORY_SEPARATOR . 'config';
 			$data_path = APPROOT . DIRECTORY_SEPARATOR . 'data';

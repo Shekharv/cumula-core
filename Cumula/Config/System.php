@@ -68,10 +68,7 @@ class System extends \Cumula\Component\BaseComponent {
 	 */
 
 	public function startup() {
-		$admin = A('AdminInterface');
-		if ($admin) {
-			$admin->bind('AdminCollectSettingsPages', array($this, 'setupAdminPages'));
-		}
+		A('AdminInterface')->bind('AdminCollectSettingsPages', array($this, 'setupAdminPages'));
 	}
 	
 	/**
