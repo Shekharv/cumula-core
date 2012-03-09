@@ -204,7 +204,6 @@ final class Manager extends BaseComponent {
 	protected function _writeConfig() {
 		$this->config->setConfigValue('installed_components', $this->_installedClasses);
 		$this->config->setConfigValue('enabled_components', $this->_enabledClasses);
-		var_dump($this->_startupClasses);
 		$this->config->setConfigValue('startup_components', $this->_startupClasses);
 	}
 
@@ -358,7 +357,7 @@ final class Manager extends BaseComponent {
 		if (is_null($this->componentFiles) || count($this->componentFiles) == 0)
 		{
 			$files = array();//$this->recurseCompDirectory(APPROOT);
-			$coreFiles = $this->recurseCompDirectory(COMPROOT);
+			$coreFiles = $this->recurseCompDirectory(COMPROOT.DIRECTORY_SEPARATOR);
 			$this->componentFiles = array_merge($this->componentFiles, $files);
 			$this->componentFiles = array_merge($this->componentFiles, $coreFiles);
 		}
@@ -378,7 +377,7 @@ final class Manager extends BaseComponent {
 			} else if(str_replace(basename($file, $suffix), '', basename($file)) == $suffix) {
 				$relativeFile = substr($file, strlen($root));
 				$componentPath = substr($relativeFile, 0, strlen($relativeFile)-strlen($suffix));
-				$componentName = "\\".preg_replace("/\//", "\\", $componentPath);
+				$componentName = preg_replace("/\//", "\\", $componentPath);
 				$ret[$componentName] = $file;
 			}
 		}
