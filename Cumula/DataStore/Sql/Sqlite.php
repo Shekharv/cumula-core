@@ -1,4 +1,5 @@
 <?php
+
 namespace Cumula\DataStore\Sql;
 /**
  * Cumula
@@ -22,6 +23,7 @@ namespace Cumula\DataStore\Sql;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
+
 class Sqlite extends Base {
 	protected $_db;
 	
