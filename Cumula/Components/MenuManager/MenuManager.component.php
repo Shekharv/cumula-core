@@ -1,5 +1,6 @@
 <?php
 namespace Cumula\Components\MenuManager;
+
 use \Cumula\Component\BaseComponent as BaseComponent;
 use \Cumula\Application as Application;
 use \Cumula\Render\ContentBlock as ContentBlock;
@@ -33,7 +34,6 @@ class MenuManager extends BaseComponent {
 		parent::__construct();
 		
 		$this->_menus = array();
-		
 		A('Application')->bind('BootPreprocess', array($this, 'renderMenus'));
 	}
 
@@ -57,7 +57,7 @@ class MenuManager extends BaseComponent {
 		}
 	}
 	
-	protected function _renderMenu(MenuMenu $menu) {
+	protected function _renderMenu(Menu $menu) {
 		$items = $menu->getItems();
 		$output = '<ul>';
 		if(count($items) > 0) {
@@ -83,7 +83,7 @@ class MenuManager extends BaseComponent {
 	}
 	
 	public function newMenu($id) {
-		$menu = new MenuMenu($id);
+		$menu = new Menu($id);
 		$this->_menus[] =& $menu;
 		return $menu;
 	}	

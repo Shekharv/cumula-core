@@ -1,13 +1,13 @@
 <?php
 
-namespace Cache;
+namespace Cumula\Components\Cache;
 
 /**
  * Cache Schema
  * @package Cumula
  * @author Craig Gardner <craig@seabourneconsulting.com>
  **/
-class Schema extends \Cumula\BaseSchema 
+class Schema extends \Cumula\Schema\Simple 
 {
 	/**
 	 * Constructor

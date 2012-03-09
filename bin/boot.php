@@ -1,10 +1,10 @@
 <?php
 
-define('ROOT', realpath(__DIR__ .'/../'));
+define('ROOT', realpath(__DIR__ .'/../../'));
 define('CUMULAVERSION', "0.4.0");
 
 call_user_func(function() {
-	require_once(implode(DIRECTORY_SEPARATOR, array(ROOT, 'Cumula', 'Autoloader.php')));
+	require_once(implode(DIRECTORY_SEPARATOR, array(ROOT, 'cumula', 'Cumula', 'Autoloader.php')));
 	Cumula\Autoloader::setup();
 	new Cumula\Application(function() {
 		new Cumula\AliasManager();

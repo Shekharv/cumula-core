@@ -73,7 +73,7 @@ class Error extends EventDispatcher {
 	public static function processError($error, $message, $file, $line) {
 		global $argv;
 		if(!isset($argv)) {
-		$view = ROOT.DIRECTORY_SEPARATOR.'cumula'.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR.'error.tpl.php';
+		$view = ROOT.DIRECTORY_SEPARATOR.'cumula'.DIRECTORY_SEPARATOR."Cumula".DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR.'error.tpl.php';
 		echo static::renderFile($view, array('error' => static::$levels[$error], 
 											'message' => $message, 
 											'file' => $file, 

@@ -1,5 +1,5 @@
 <?php
-namespace Cumula\Components;
+namespace Cumula\Components\Devel;
 Use \Cumula\Component\BaseComponent as BaseComponent;
 use \Cumula\Component\Manager as ComponentManager;
 use \A as A;
@@ -211,7 +211,7 @@ class Devel extends BaseComponent {
 	 * @param void
 	 * @return void
 	 **/
-	public function registerPreAndPost($event, $dispatcher, $registeredClass, $registeredEvent) 
+	public function registerPreAndPost($event, $dispatcher, $registeredEvent, $callback) 
 	{
 		$notAllowed = array(
 			$event,
@@ -229,7 +229,7 @@ class Devel extends BaseComponent {
 			}
 		}
 		// Don't register a before and after listener for EventListenerRegistered or event_dispatcher_event_dispatched
-		if ($allowRegistration && $registeredClass !== __CLASS__)
+		if ($allowRegistration)
 		{
 			$beforeEvent = sprintf('Before%s', $registeredEvent);
 			$afterEvent = sprintf('After%s', $registeredEvent);

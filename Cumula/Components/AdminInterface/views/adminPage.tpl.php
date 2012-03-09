@@ -25,7 +25,6 @@
 ?>
 <h1><?php echo $cm->page->title ?></h1>
 <p><?php if($cm->page->description) echo $cm->page->description; ?></p>
-<?php $cm->fh = A('FormHelper'); ?>
 <?php echo $cm->fh->formTag('/admin/save_settings', "setting-form-".str_replace(" ", "-", $cm->page->title)) ?>
 <fieldset>
 <?php 

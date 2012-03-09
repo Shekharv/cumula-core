@@ -48,7 +48,8 @@ class FormHelper extends BaseComponent {
 		A('Application')->bind('BootPreprocess', array($this, 'formCheck'));
 	}
 	
-	public function formCheck($event, $dispatcher, $request, $response) {
+	public function formCheck($event, $dispatcher) {
+		$request = A('Request');
 		if(array_key_exists('validate_id', $request->params)) {
 			$this->_logInfo("params is ", $request->params);
 			$id = $request->params['validate_id'];

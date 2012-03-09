@@ -1,7 +1,7 @@
 <?php
 
 namespace Cumula\Components\UserManager;
-use \Cumula\Schema\Base as BaseSchema;
+use \Cumula\Schema\Simple as BaseSchema;
 
 class Schema extends BaseSchema {
 

@@ -14,7 +14,7 @@ namespace Cumula\Components\MenuManager;
  */
 
 /**
- * MenuMenu Class
+ * Menu Class
  *
  * Describes a menu of items.
  *
@@ -22,7 +22,7 @@ namespace Cumula\Components\MenuManager;
  * @subpackage	MenuManager
  * @author     Seabourne Consulting
  */
-class MenuMenu {
+class Menu {
 	public $menuId;
 	protected $_items;
 	

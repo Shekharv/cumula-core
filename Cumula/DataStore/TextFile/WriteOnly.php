@@ -1,5 +1,5 @@
 <?php
-namespace \Cumula\DataStore\TextFile;
+namespace Cumula\DataStore\TextFile;
 use Cumula\DataStore\Base as BaseDataStore;
 //TODO: Figure out what todo with this, whether to keep it.
 /**

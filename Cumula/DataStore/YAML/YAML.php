@@ -1,5 +1,5 @@
 <?php
-namespace Cumula\DataStore;
+namespace Cumula\DataStore\YAML;
 /**
  * Cumula
  *
@@ -13,8 +13,8 @@ namespace Cumula\DataStore;
  * @link       http://cumula.org
  */
 
-require_once dirname(__FILE__) . '/YAML/lib/sfYamlDumper.php';
-require_once dirname(__FILE__) . '/YAML/lib/sfYamlParser.php';
+require_once dirname(__FILE__) . '/lib/sfYamlDumper.php';
+require_once dirname(__FILE__) . '/lib/sfYamlParser.php';
 
 
 /**
@@ -27,7 +27,7 @@ require_once dirname(__FILE__) . '/YAML/lib/sfYamlParser.php';
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class YAML extends Base {
+class YAML extends \Cumula\DataStore\Base {
 	private $_storage;
 	private $_sourceDirectory;
 	private $_filename;

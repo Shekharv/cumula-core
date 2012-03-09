@@ -38,7 +38,7 @@ class Standard implements \Cumula\Config\ConfigInterface {
 					 					 'value' => 'string'), 
 								   'id', 
 								   'config');
-		$this->_dataStore = new \Cumula\DataStore\YAML($schema, array('source_directory' => $source_directory, 'filename' => $source_file));
+		$this->_dataStore = new \Cumula\DataStore\YAML\YAML($schema, array('source_directory' => $source_directory, 'filename' => $source_file));
 		$this->_dataStore->connect();
 	}
 	

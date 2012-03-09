@@ -2,7 +2,7 @@
 namespace Cumula\Components\Stash;
 use \Cumula\Component\BaseComponent as BaseComponent;
 use \Cumula\Autoloader as Autoloader;
-use \Cumula\Components\Cache\Cache as Cache
+use \Cumula\Components\Cache\Cache as Cache;
 
 /**
  * Stash Component

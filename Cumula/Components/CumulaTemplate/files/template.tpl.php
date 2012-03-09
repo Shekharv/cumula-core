@@ -97,8 +97,8 @@
 	
 	<div id="container">
 		<div class="bucket">
-			<?php echo \A('Session')->warning; ?>
-			<?php echo \A('Session')->notice; ?>
+			<?php echo \A("\\Cumula\\Components\\Session\\Session")->warning; ?>
+			<?php echo \A('\\Cumula\\Components\\Session\\Session')->notice; ?>
 			<?php echo $content; ?>
 		</div>
 	</div>

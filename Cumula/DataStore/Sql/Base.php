@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\DataStore\Sql;
 /**
  * Cumula
  *
@@ -23,7 +23,7 @@ namespace Cumula;
  * @author     Seabourne Consulting
  */
 
-abstract class BaseSqlDataStore extends BaseDataStore {
+abstract class Base extends \Cumula\DataStore\Base {
 	protected $_db;
 	/**
 	 * Schema Object Used for this DataStore
@@ -230,9 +230,9 @@ abstract class BaseSqlDataStore extends BaseDataStore {
 	 **/
 	public function setSchema(\Cumula\Schema\Simple $arg0) 
 	{
-		if (($arg0 instanceOf BaseSchema) === FALSE)
+		if (($arg0 instanceOf \Cumula\Schema\Base) === FALSE)
 		{
-			throw new DataStoreException('Schema is not an instance of BaseSchema');
+			throw new \Exception('Schema is not an instance of BaseSchema');
 		}
 		$this->schema = $arg0;
 		return $this;

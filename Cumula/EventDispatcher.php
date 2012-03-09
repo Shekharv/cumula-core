@@ -87,7 +87,7 @@ class EventDispatcher {
 	 */
 	public function addEvent($event) 
 	{
-		$calledClass = Autoloader::absoluteClassName(get_called_class());
+		$calledClass = get_called_class();
 		$eventHash = static::getEventHash();
 
 		// See if the event exists.  If not, set it up in the eventHash
@@ -105,7 +105,7 @@ class EventDispatcher {
 	 */
 	public function removeEvent($event) 
 	{
-		$calledClass = Autoloader::absoluteClassName(get_called_class());
+		$calledClass = get_called_class();
 		$eventHash = static::getEventHash();
 		if (isset($eventHash[$calledClass][$event])) 
 		{
@@ -115,10 +115,8 @@ class EventDispatcher {
 	}
 	
 	public function bind($event, $callback) {
-		$myClass = get_class($this);
-		$absClass = Autoloader::absoluteClassName($myClass);
-		$myClass::addClassListenerHash($absClass, $event, $callback);
-		$myClass::instance()->dispatch('EventListenerRegistered', array($absClass, $event));
+		static::addClassListenerHash(get_called_class(), $event, $callback);
+		$this->dispatch('EventListenerRegistered', array($event, $callback));
 	}
 	
 	public function chain($startEvent, $dispatchEvent, $callback) {
@@ -160,7 +158,7 @@ class EventDispatcher {
 	 **/
 	public static function eventHashExists($eventName) 
 	{
-		$class = Autoloader::absoluteClassName(get_called_class());
+		$class = get_called_class();
 		$eventHash = static::getEventHash();
 		return isset($eventHash[$class][$eventName]) ? $eventHash[$class][$eventName] : FALSE;
 	} // end function eventHashExists
@@ -173,7 +171,7 @@ class EventDispatcher {
 	 */
 	public function unbind($event, $handler) 
 	{
-		$class = Autoloader::absoluteClassName(get_called_class());
+		$class = get_called_class();
 		$eventHash = static::getEventHash();
 		if (isset($eventHash[$class][$event]))
 		{
@@ -191,7 +189,7 @@ class EventDispatcher {
 	
 	public function unbindAll($event) 
 	{
-		$class = Autoloader::absoluteClassName(get_called_class());
+		$class = get_called_class();
 		$eventHash = static::getEventHash();
 		if (isset($eventHash[$class][$event])) 
 		{
@@ -209,7 +207,7 @@ class EventDispatcher {
 	 */
 	public function dispatch($event, $data = array(), $callback = false) 
 	{
-		$class = Autoloader::absoluteClassName(get_called_class());
+		$class = get_called_class();
 		$fireBeforeAndAfter = (stripos($event, 'Before') === FALSE) && (stripos($event, 'After') === FALSE);
 		$beforeEvent = sprintf('Before%s', $event);
 		$afterEvent = sprintf('After%s', $event);
@@ -293,7 +291,7 @@ class EventDispatcher {
 	public function getEvents() 
 	{
 		$class = __CLASS__;
-		$calledClass = Autoloader::absoluteClassName(get_called_class());
+		$calledClass = get_called_class();
 		$eventHash = $class::getEventHash();
 		return isset($eventHash[$calledClass]) ? $eventHash[$calledClass] : FALSE;
 	} // end function getEvents
@@ -301,7 +299,7 @@ class EventDispatcher {
 	public function eventIsRegistered($event) 
 	{
 		$class = __CLASS__;
-		$calledClass = Autoloader::absoluteClassName(get_called_class());
+		$calledClass = get_called_class();
 		$eventHash = $class::getEventHash();
 		return (isset($eventHash[$calledClass]) && isset($eventHash[$calledClass][$event]));
 	}
@@ -309,7 +307,7 @@ class EventDispatcher {
 	public function getEventListeners($event) 
 	{
 		$class = __CLASS__;
-		$calledClass = Autoloader::absoluteClassName(get_called_class());
+		$calledClass = get_called_class();
 		$eventHash = $class::getEventHash();
 		return (isset($eventHash[$calledClass]) && isset($eventHash[$calledClass][$event])) ? $eventHash[$calledClass][$event] : FALSE;
 	}

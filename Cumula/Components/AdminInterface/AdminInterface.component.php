@@ -36,6 +36,10 @@ use \Cumula\Component\BaseComponent as BaseComponent;
  * @subpackage	AdminInterface
  * @author     Seabourne Consulting
  */
+
+define('MenuManager', "\\Cumula\\Components\\MenuManager\\MenuManager");
+define('FormHelper', "\\Cumula\\Components\\FormHelper\\FormHelper");
+
 class AdminInterface extends BaseComponent {
 	protected $_pages;
 	protected $_menuItems;
@@ -71,7 +75,7 @@ class AdminInterface extends BaseComponent {
 		A('Router')->bind('GatherRoutes', array($this, 'collectAdminPages'));
 		
 		// bind to the menu collector event
-		A('MenuManager')->bind('MenuCollectMenus', array($this, 'sendMenus'));
+		A(MenuManager)->bind('MenuCollectMenus', array($this, 'sendMenus'));
 		
 		//Initialize stats for display on homepage.
 		$stats = &$this->stats;
@@ -175,7 +179,7 @@ class AdminInterface extends BaseComponent {
 		foreach($this->_pages as $page) {
 			//If the route matches, render a form based on the passed settings.
 			if($page->route == $route) {
-				$this->fh = A('FormHelper');
+				$this->fh = A(FormHelper);
 				$this->page = $page;
 				$title = $page->title;
 				$this->render();

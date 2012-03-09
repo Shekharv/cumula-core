@@ -1,6 +1,5 @@
 <?php
-
-namespace CumulaTemplate;
+namespace Cumula\Components\CumulaTemplate;
 
 use \Cumula\BaseTemplate as BaseTemplate;
 

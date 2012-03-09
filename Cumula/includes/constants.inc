@@ -29,7 +29,7 @@ const DEFAULT_RENDERER_CLASS = 'Cumula\\Renderer';
 const DEFAULT_ADMIN_INTERFACE_CLASS = 'Cumula\\Components\\AdminInterface\\AdminInterface';
 
 const SETTING_DEFAULT_DATASTORE = 'default_datastore';
-const DEFAULT_DATASTORE_CLASS = '\\Cumula\\DataStore\\YAML';
+const DEFAULT_DATASTORE_CLASS = '\\Cumula\\DataStore\\YAML\\YAML';
 
 const SETTING_DEFAULT_CONFIG = 'default_config';
 const DEFAULT_CONFIG_CLASS = 'Cumula\\Config\\Standard';

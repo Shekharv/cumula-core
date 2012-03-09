@@ -53,6 +53,8 @@ final class Manager extends BaseComponent {
 		'Cumula\\Components\\AdminInterface\\AdminInterface',
 		'Cumula\\Components\\CumulaTemplate\\CumulaTemplate'
 	);
+	
+	private $_loadSuccess;
 
 	/**
 	 * Constructor.
@@ -79,6 +81,7 @@ final class Manager extends BaseComponent {
 
 		// Set output
 		$this->_output = array();
+		$this->_loadSuccess = false;
 	}
 	
 	/**
@@ -98,8 +101,8 @@ final class Manager extends BaseComponent {
 	} // end function getInfo
 	
 	public function getComponentDependencies($component) {
-		if(isset($this->_dependencies[Autoloader::absoluteClassName($component)]))
-			return $this->_dependencies[Autoloader::absoluteClassName($component)];
+		if(isset($this->_dependencies[$component]))
+			return $this->_dependencies[$component];
 		else
 			return array();
 	}
@@ -201,6 +204,7 @@ final class Manager extends BaseComponent {
 	protected function _writeConfig() {
 		$this->config->setConfigValue('installed_components', $this->_installedClasses);
 		$this->config->setConfigValue('enabled_components', $this->_enabledClasses);
+		var_dump($this->_startupClasses);
 		$this->config->setConfigValue('startup_components', $this->_startupClasses);
 	}
 
@@ -287,6 +291,7 @@ final class Manager extends BaseComponent {
 			$this->startupComponent($class_name);
 		}
 		$this->dispatch('ComponentStartupComplete');
+		$this->_loadSuccess = true;
 	}
 
 	/**
@@ -303,11 +308,11 @@ final class Manager extends BaseComponent {
 			{
 				$instance = new $component_class();
 				$this->_components[$component_class] = $instance;
-				if(method_exists($component_class,'getInfo') && ($info = $component_class::getInfo()) && isset($info['dependencies'])) {
+				/*if(method_exists($component_class,'getInfo') && ($info = $component_class::getInfo()) && isset($info['dependencies'])) {
 					$vals = $info['dependencies'];
-					array_walk($vals, function(&$a) {$a = Autoloader::absoluteClassName($a);});
+					array_walk($vals, function(&$a) {var_dump($a);});
 					$this->_dependencies[$component_class] = $vals;
-				}
+				}*/
 				
 			}
 			else
@@ -352,7 +357,7 @@ final class Manager extends BaseComponent {
 	{
 		if (is_null($this->componentFiles) || count($this->componentFiles) == 0)
 		{
-			$files = $this->recurseCompDirectory(APPROOT);
+			$files = array();//$this->recurseCompDirectory(APPROOT);
 			$coreFiles = $this->recurseCompDirectory(COMPROOT);
 			$this->componentFiles = array_merge($this->componentFiles, $files);
 			$this->componentFiles = array_merge($this->componentFiles, $coreFiles);
@@ -402,14 +407,9 @@ final class Manager extends BaseComponent {
 		}
 
 		$this->_installedClasses[] = $component;
-		$this->_writeConfig();
 		$this->startupComponent($component, TRUE);
-		$instance = $this->getComponentInstance($component);
-
-		if ($instance) 
-		{
-			$instance->install();
-		}
+		$instance = A($component);
+		$instance->install();
 
 		return $component;
 	}

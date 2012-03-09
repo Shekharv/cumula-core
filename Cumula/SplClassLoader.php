@@ -82,7 +82,9 @@ class SplClassLoader
      */
     public function setFileExtension($fileExtension)
     {
-        $this->_fileExtension = $fileExtension;
+		if(!is_array($this->_fileExtension))
+			$this->_fileExtension = array();
+        $this->_fileExtension[] = $fileExtension;
     }
 
     /**
@@ -90,7 +92,7 @@ class SplClassLoader
      *
      * @return string $fileExtension
      */
-    public function getFileExtension()
+    public function getFileExtensions()
     {
         return $this->_fileExtension;
     }
@@ -128,14 +130,16 @@ class SplClassLoader
                 $className = substr($className, $lastNsPos + 1);
                 $fileName = str_replace($this->_namespaceSeparator, DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
             }
-            $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . $this->_fileExtension;
-            
-            $unresolvedFilePath = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
-            $filePath = stream_resolve_include_path($unresolvedFilePath);
-            if ($filePath) {
-                    require_once $filePath;
-                    return $fileName;
-            }
+			foreach($this->_fileExtension as $fileExtension) {
+				$fn = $fileName.str_replace('_', DIRECTORY_SEPARATOR, $className) . $fileExtension;
+				$unresolvedFilePath = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fn;
+				$filePath = stream_resolve_include_path($unresolvedFilePath);
+				if ($filePath) {
+				        require_once $filePath;
+				        return $fn;
+				}
+			}
+
         }
     }
 }

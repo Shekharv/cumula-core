@@ -3,7 +3,7 @@ namespace Cumula;
 
 use \A as A;
 
-class BaseTemplate extends BaseComponent {
+class BaseTemplate extends \Cumula\Component\BaseComponent {
 	
 	protected $_overrides_dir;
 	protected $_overrides;
