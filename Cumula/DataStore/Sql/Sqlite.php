@@ -1,5 +1,4 @@
 <?php
-
 namespace Cumula\DataStore\Sql;
 /**
  * Cumula
