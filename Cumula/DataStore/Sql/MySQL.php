@@ -1,5 +1,7 @@
 <?php
-namespace Cumula\DataStore\Sql;
+namespace Cumula\DataStore\Sql
+use \Cumula\DataStore\PDODataStore as PDODataStore;
+use \Cumula\DataStore\DataStoreException as DataStoreException;
 
 /**
  * MySQL Data Store
@@ -10,7 +12,7 @@ namespace Cumula\DataStore\Sql;
  * @subpackage CoreData
  * @author Seabourne Consulting
  **/
-class MySQL extends PDO
+class MySQL extends PDODataStore 
 {
 	/**
 	 * Properties

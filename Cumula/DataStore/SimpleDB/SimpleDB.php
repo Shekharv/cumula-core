@@ -1,10 +1,10 @@
 <?php
-namespace SimpleDBDataStore;
-use \Cumula\BaseDataStore as BaseDataStore;
+namespace Cumula\DataStore;
+use \Cumula\DataStore\Base as BaseDataStore;
 
-require_once("lib/sdb.php");
+require_once("SimpleDB/lib/sdb.php");
 
-class SimpleDBDataStore extends BaseDataStore {
+class SimpleDB extends BaseDataStore {
 	
 	protected $_service;
 	protected $_domain;

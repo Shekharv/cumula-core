@@ -1,7 +1,7 @@
 <?php
 namespace Cumula\Components\UserManager;
 use \Cumula\Component\BaseComponent as BaseComponent;
-use Cumula\Components\UserManager\Schema as BasicUserSchema;
+use \Cumula\Components\UserManager\Schema as BasicUserSchema;
 
 class UserManager extends BaseComponent {
 	protected $_domains;

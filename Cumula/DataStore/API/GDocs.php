@@ -1,11 +1,13 @@
 <?php
-namespace GDocsAPIDataStore;
+namespace Cumula\DataStore\API;
 
-use \Cumula\BaseAPIDataStore as BaseAPIDataStore;
+use GDocs\Schema as GDocsSchema;
+use GDocs\ZendStreamMediaSource as GDocsZendStreamMediaSource;
+use Base as BaseAPIDataStore;
 
-require_once(__DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Zend'.DIRECTORY_SEPARATOR.'Loader.php');
+require_once(__DIR__.DIRECTORY_SEPARATOR.'GDocs'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Zend'.DIRECTORY_SEPARATOR.'Loader.php');
 
-set_include_path(__DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR);
+set_include_path(__DIR__.DIRECTORY_SEPARATOR.'GDocs'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR);
 
 \Zend_Loader::loadClass('Zend_Gdata');
 
@@ -17,11 +19,7 @@ set_include_path(__DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR);
 
 \Zend_Loader::loadClass('Zend_Gdata_App_MediaFileSource');
 
-require_once('GDocsZendStreamMediaSource.class.php');
-
-require_once('GDocsSchema.class.php');
-
-class GDocsAPIDataStore extends BaseAPIDataStore {
+class GDocs extends BaseAPIDataStore {
 	protected $_username = null;
 	protected $_password = null;
 	

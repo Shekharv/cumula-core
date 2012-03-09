@@ -1,6 +1,7 @@
 <?php
-namespace GDocsAPIDataStore;
-use \Cumula\BaseSchema as BaseSchema;
+namespace Cumula\DataStore\API\GDocs;
+
+use \Cumula\Schema\Base as BaseSchema;
 
 /**
  * Simple Schema Class
