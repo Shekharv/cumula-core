@@ -6,7 +6,7 @@ namespace Cumula\Schema;
  * @package Cumula
  * @subpackage Core
  */
-class Simple extends Base {
+class Simple extends \Cumula\Base\Schema {
     /**
      * Constructor
      * @param string $name

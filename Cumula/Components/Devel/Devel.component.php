@@ -1,7 +1,7 @@
 <?php
 namespace Cumula\Components\Devel;
-Use \Cumula\Component\BaseComponent as BaseComponent;
-use \Cumula\Component\Manager as ComponentManager;
+Use \Cumula\Base\Component as BaseComponent;
+use \Cumula\Application\ComponentManager as ComponentManager;
 use \A as A;
 /**
  * Cumula

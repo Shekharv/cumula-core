@@ -1,7 +1,7 @@
 <?php
 namespace Cumula\Components\CumulaTemplate;
 
-use \Cumula\BaseTemplate as BaseTemplate;
+use \Cumula\Base\Template as BaseTemplate;
 
 class CumulaTemplate extends BaseTemplate {
 	

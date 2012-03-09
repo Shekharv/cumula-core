@@ -1,7 +1,7 @@
 <?php
 namespace Cumula\Components\MenuManager;
 
-use \Cumula\Component\BaseComponent as BaseComponent;
+use \Cumula\Base\Component as BaseComponent;
 use \Cumula\Application as Application;
 use \Cumula\Render\ContentBlock as ContentBlock;
 

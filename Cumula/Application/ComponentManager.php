@@ -1,8 +1,7 @@
 <?php
-namespace Cumula\Component;
+namespace Cumula\Application;
 
 use \ReflectionClass as ReflectionClass;
-use \Cumula\Autoloader as Autoloader;
 
 /**
  * Cumula
@@ -33,7 +32,7 @@ use \Cumula\Autoloader as Autoloader;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-final class Manager extends BaseComponent {
+final class ComponentManager extends \Cumula\Base\Component {
 	private $_components = array();
 	private $_enabledClasses = array();
 	private $_installedClasses = array();
@@ -76,7 +75,7 @@ final class Manager extends BaseComponent {
 		A('Application')->bind('BootShutdown', array($this, 'shutdown'));
 		
 		// Initialize config and settings
-		$this->config = new \Cumula\Config\Standard(CONFIGROOT, 'components.yaml');
+		$this->config = new \Cumula\Application\StandardConfig(CONFIGROOT, 'components.yaml');
 		$this->loadSettings();
 
 		// Set output

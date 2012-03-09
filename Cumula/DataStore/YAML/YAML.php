@@ -27,7 +27,7 @@ require_once dirname(__FILE__) . '/lib/sfYamlParser.php';
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class YAML extends \Cumula\DataStore\Base {
+class YAML extends \Cumula\Base\DataStore {
 	private $_storage;
 	private $_sourceDirectory;
 	private $_filename;

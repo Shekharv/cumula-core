@@ -1,7 +1,5 @@
 <?php
-namespace Cumula;
-
-use \A as A;
+namespace Cumula\Application;
 
 /**
  * Cumula

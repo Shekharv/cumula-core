@@ -1,5 +1,5 @@
 <?php
-namespace Cumula\Config;
+namespace Cumula\Application;
 /**
  * Cumula
  *
@@ -22,10 +22,10 @@ namespace Cumula\Config;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-class System extends \Cumula\Component\BaseComponent {
+class SystemConfig extends \Cumula\Base\Component {
 	public function __construct() {
 		parent::__construct();
-		$this->config = new \Cumula\Config\Standard(CONFIGROOT, 'system.yaml');
+		$this->config = new \Cumula\Application\StandardConfig(CONFIGROOT, 'system.yaml');
 		
 		$this->addEvent('SystemConfigSetValue');
 		$this->addEvent('SystemConfigGetValue');

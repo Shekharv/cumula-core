@@ -55,7 +55,7 @@ function initialComponents()
 	new Cumula\Request();
 	new Cumula\Response();
 	
-	$cm = new Cumula\Component\Manager();
+	$cm = new Cumula\Application\ComponentManager();
 	$config = new Cumula\Config\System();
 	$router = new Cumula\Router();
 }

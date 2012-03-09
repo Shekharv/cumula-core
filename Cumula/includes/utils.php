@@ -134,9 +134,9 @@ class ComponentProxy {
 
 
 function A($component) {
-	$am = \Cumula\AliasManager::instance();
+	$am = \Cumula\Application\AliasManager::instance();
 	if($class = $am->getClassName($component)) {
-		$app = \Cumula\Application::instance();
+		$app = \Cumula\Application\Application::instance();
 		if($app)
 			$app->dispatch('InstanceAccessed', array($class));
 		return $class::instance();

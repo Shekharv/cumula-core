@@ -1,6 +1,6 @@
 <?php
-namespace Cumula\DataStore;
-use \Cumula\Schema\Simple as SimpleSchema;
+namespace Cumula\Base;
+use \Cumula\Schema\SimpleSchema as SimpleSchema;
 
 /**
  * Cumula
@@ -28,7 +28,7 @@ use \Cumula\Schema\Simple as SimpleSchema;
  * @subpackage	Core
  * @author     Seabourne Consulting
  */
-abstract class Base extends \Cumula\EventDispatcher {
+abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	protected $_schema;
 	protected $_connected = false;
 

@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\Application;
 
 class AliasManager extends EventDispatcher {	
 	public $config;
@@ -7,7 +7,7 @@ class AliasManager extends EventDispatcher {
 	public function __construct() {
 		parent::__construct();
 		$config_name = preg_replace('/\\\/', "_", get_class($this));
-		$this->config = new Config\Standard(CONFIGROOT, $config_name.'.yaml');
+		$this->config = new StandardConfig(CONFIGROOT, $config_name.'.yaml');
 		$this->setup();
 	}
 	

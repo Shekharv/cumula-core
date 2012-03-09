@@ -1,6 +1,6 @@
 <?php
 
-namespace Cumula;
+namespace Cumula\Application;
 
 class Renderer extends EventDispatcher {
 	protected $_renderers;

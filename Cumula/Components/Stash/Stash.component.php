@@ -1,6 +1,6 @@
 <?php
 namespace Cumula\Components\Stash;
-use \Cumula\Component\BaseComponent as BaseComponent;
+use \Cumula\Base\Component as BaseComponent;
 use \Cumula\Autoloader as Autoloader;
 use \Cumula\Components\Cache\Cache as Cache;
 

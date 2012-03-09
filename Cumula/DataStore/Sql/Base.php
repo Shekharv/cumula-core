@@ -1,6 +1,6 @@
 <?php
 namespace Cumula\DataStore\Sql;
-use \Cumula\DataStore\Base as BaseDataStore;
+use \Cumula\Base\DataStore as BaseDataStore;
 
 /**
  * Cumula
@@ -232,7 +232,7 @@ abstract class Base extends BaseDataStore {
 	 **/
 	public function setSchema(\Cumula\Schema\Simple $arg0) 
 	{
-		if (($arg0 instanceOf \Cumula\Schema\Base) === FALSE)
+		if (($arg0 instanceOf \Cumula\Base\Schema) === FALSE)
 		{
 			throw new \Exception('Schema is not an instance of BaseSchema');
 		}

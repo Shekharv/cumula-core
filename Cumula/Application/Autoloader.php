@@ -1,39 +1,55 @@
 <?php
+namespace Cumula\Application;
+
+require_once 'EventDispatcher.php';
+
+use \A as A;
+
 /**
- * SplClassLoader implementation that implements the technical interoperability
- * standards for PHP 5.3 namespaces and class names.
- *
- * http://groups.google.com/group/php-standards/web/final-proposal
- *
- *     // Example which loads classes for the Doctrine Common package in the
- *     // Doctrine\Common namespace.
- *     $classLoader = new SplClassLoader('Doctrine\Common', '/path/to/doctrine');
- *     $classLoader->register();
- *
- * @author Jonathan H. Wage <jonwage@gmail.com>
- * @author Roman S. Borschel <roman@code-factory.org>
- * @author Matthew Weier O'Phinney <matthew@zend.com>
- * @author Kris Wallsmith <kris.wallsmith@gmail.com>
- * @author Fabien Potencier <fabien.potencier@symfony-project.org>
- */
-class SplClassLoader
+ * Cumula Autoloader
+ * @package Cumula
+ * @author Craig Gardner <craig@seabourneconsulting.com>
+ **/
+class Autoloader extends EventDispatcher
 {
+	/**
+	 * Properties
+	 */
+	/**
+	 * Instance Variable
+	 * @var Cumula\Autoloader
+	 **/
+	private static $instance;
+	
+	private static $className_cache;
+	
+	private static $loader;
+	
+	/**
+	 * Cached Class map
+	 * @var array
+	 **/
+	private $cache;
+	
+	/**
+	 * Set up the autoloader
+	 * @param void
+	 * @return void
+	 **/
+	public function __construct($ns = null, $includePath = null)
+    {
+		parent::__construct();
+        $this->_namespace = $ns;
+        $this->_includePath = $includePath;
+		spl_autoload_register(array($this, 'load'));
+		$this->addEvent('EventAutoload');
+	} // end function setup
+
     private $_fileExtension = '.php';
     private $_namespace;
     private $_includePath;
     private $_namespaceSeparator = '\\';
 
-    /**
-     * Creates a new <tt>SplClassLoader</tt> that loads classes of the
-     * specified namespace.
-     * 
-     * @param string $ns The namespace to use.
-     */
-    public function __construct($ns = null, $includePath = null)
-    {
-        $this->_namespace = $ns;
-        $this->_includePath = $includePath;
-    }
 
     /**
      * Sets the namespace separator used by classes in the namespace of this class loader.
@@ -142,4 +158,18 @@ class SplClassLoader
 
         }
     }
-}
+
+	/**
+	 * Load a Autoload a class
+	 * @param string $className Name of the class being loaded
+	 * @return Cumula\Autoloader
+	 **/
+	public function load($className) 
+	{
+		$this->setFileExtension('.component.php');
+		$this->setFileExtension('.php');
+		$this->setIncludePath(realpath(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR.".."));
+		$filename = $this->loadClass($className);
+	} // end function load
+
+} // end class Autoloader extends EventDispatcher

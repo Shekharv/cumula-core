@@ -1,5 +1,5 @@
 <?php
-namespace Cumula;
+namespace Cumula\Application;
 /**
  * Cumula
  *
@@ -12,11 +12,12 @@ namespace Cumula;
  * @copyright  2011 Seabourne Consulting
  * @link       http://cumula.org
  */
-require_once(implode(DIRECTORY_SEPARATOR, array(
-	dirname(__FILE__),
+require_once(realpath(implode(DIRECTORY_SEPARATOR, array(
+	__DIR__,
+	"..",
 	'includes',
 	'core.inc',
-)));
+))));
 
 /**
  * EventDispatcher Class

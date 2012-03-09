@@ -1,7 +1,7 @@
 <?php
 namespace Cumula\Components\HTTPStream;
 
-use \Cumula\Component\BaseComponent  as BaseComponent;
+use \Cumula\Base\Component  as BaseComponent;
 
 class HTTPStream extends BaseComponent {
 	

@@ -34,9 +34,9 @@ class Test_BaseComponent extends Test_BaseTest {
 		if (!$this->app) {
 			$this->app = new \Cumula\Application();
 		}
-		$this->cm = \Cumula\Component\Manager::instance();
+		$this->cm = \Cumula\Application\ComponentManager::instance();
 		if (!$this->cm) {
-			$this->cm = new \Cumula\Component\Manager();
+			$this->cm = new \Cumula\Application\ComponentManager();
 		}
     }
 
@@ -58,7 +58,7 @@ class Test_BaseComponent extends Test_BaseTest {
 	}
 }
 
-class TestBaseComponent extends \Cumula\Component\BaseComponent {
+class TestBaseComponent extends \Cumula\Base\Component {
 	public function startup() {
 		
 	}

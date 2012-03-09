@@ -2,7 +2,7 @@
 namespace Cumula\Components\CommandLine;
 
 use \A as A;
-use \Cumula\Component\BaseComponent as BaseComponent;
+use \Cumula\Base\Component as BaseComponent;
 
 class CommandLine extends BaseComponent {
 	public function startup() {

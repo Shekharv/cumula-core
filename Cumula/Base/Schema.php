@@ -1,7 +1,7 @@
 <?php
-namespace Cumula\Schema;
+namespace Cumula\Base;
 
-abstract class Base extends \Cumula\EventDispatcher implements SchemaInterface {
+abstract class Schema extends \Cumula\Application\EventDispatcher implements \Cumula\Interfaces\SchemaInterface {
 	protected $_fields;
 	protected $_idField;
 	protected $_name;

@@ -1,5 +1,5 @@
 <?php
-namespace Cumula\Config;
+namespace Cumula\Interfaces;
 /**
  * Cumula
  *

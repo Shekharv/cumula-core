@@ -1,7 +1,7 @@
 <?php
 namespace Cumula\Components\CLIStream;
 
-use \Cumula\Component\BaseComponent  as BaseComponent;
+use \Cumula\Base\Component as BaseComponent;
 
 class CLIStream extends BaseComponent {
 	public function __construct() {
