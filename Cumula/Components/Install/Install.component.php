@@ -22,18 +22,14 @@ class Install extends BaseComponent {
 	}
 	
 	public function startInstall() {
-		$this->_setTemplate();
 		$this->render();
 	}
 	
 	public function setupUser() {
-		$this->_setTemplate();
 		$this->render();
 	}
 	
 	public function systemCheck() {
-		$this->_setTemplate();
-		
 		$this->perms = array();
 		$readable_files = array(CONFIGROOT, APPROOT, COMPROOT, DATAROOT, PUBLICROOT, ASSETROOT, CONTRIBCOMPROOT);
 		$writable_files = array(CONFIGROOT, DATAROOT, PUBLICROOT, ASSETROOT, CONTRIBCOMPROOT);
@@ -69,16 +65,7 @@ class Install extends BaseComponent {
 	}
 	
 	public function finished() {
-		$this->_setTemplate();
 		\A('ComponentManager')->uninstallComponent('Install');
 		$this->render();
 	}
-	
-	protected function _setTemplate() {
-		A('Templater')->bind('templater_prepare', function($event, $templater) {
-			$templater->setTemplateDir(COMPROOT.'Install/template/');
-		});
-	}
-	
-
 }
