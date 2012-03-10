@@ -28,7 +28,6 @@ final class Request extends EventDispatcher {
 	public $arguments;
 	public $requestIp;
 	public $params;
-	public $stream;
 
 	public function __construct() {
 		parent::__construct();
