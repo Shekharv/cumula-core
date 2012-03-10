@@ -1,27 +1,9 @@
 <?php
-namespace Cumula\Components\CLIStream;
+namespace Cumula\Application;
 
-use \Cumula\Base\Component as BaseComponent;
-
-class CLIStream extends BaseComponent {
-	public function __construct() {
-		parent::__construct();
-		A('Application')->bind('GatherStreams', array(
-			'cli' => $this,
-		));
-	}
-	
-	public function install() {
-		A('ComponentManager')->registerStartupComponent($this);
-	}
-	
-	public function startup() {
-		A('Router')->bind('GatherRouteTypes', array(
-			'>' => " ",
-		));
-	}
-	
+class CLIStream extends \Cumula\Base\Stream {
 	public function processRequest() {
+		parent::processRequest();
 		global $argv, $argc;
 		if(isset($argv)) {
 			A('Request')->fullPath = $argv[0];
@@ -39,7 +21,8 @@ class CLIStream extends BaseComponent {
 			
 			if(!isset(A('Renderer')->buffer['cli']))
 				A('Renderer')->buffer['cli'] = '';
-			return true;
+				
+			A('Application')->stream = $this->getStreamName();
 		}
 	}
 	
@@ -60,4 +43,4 @@ class CLIStream extends BaseComponent {
 	public function renderNotFound() {
 		A('Renderer')->buffer['cli'] .= "Command Not Found";
 	}
- }
+}

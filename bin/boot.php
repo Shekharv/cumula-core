@@ -20,5 +20,7 @@ call_user_func(function() {
 		$cm->startStartupComponents();
 	
 		$router = new Cumula\Application\Router();
+		new Cumula\Application\HTMLStream();
+		new Cumula\Application\CLIStream();
 	});
 });

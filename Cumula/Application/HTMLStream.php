@@ -1,36 +1,10 @@
 <?php
-namespace Cumula\Components\HTTPStream;
 
-use \Cumula\Base\Component  as BaseComponent;
+namespace Cumula\Application;
 
-class HTTPStream extends BaseComponent {
-	
-	public function __construct() {
-		parent::__construct();
-		A('Application')->bind('BeforeGatherStreams', array(
-			'http' => $this,
-		));
-	}
-	
-	public function install() {
-		A('ComponentManager')->registerStartupComponent($this);
-	}
-	
-	public function startup() {
-		A('Renderer')->bind('GatherRenderers', array(
-			"renderHTML" => array($this, 'renderHTML'),
-			"renderDefault" => array($this, 'renderHTML'),
-			"renderPlain" => array($this, 'renderPlain'),
-			"renderNotFound" => array($this, 'renderNotFound'),
-			"renderRedirect" => array($this, 'renderRedirect'),
-		));
-		
-		A('Router')->bind('GatherRouteTypes', array(
-			"/" => "/",
-		));
-	}	
-	
+class HTMLStream extends \Cumula\Base\Stream {
 	public function processRequest() {
+		parent::processRequest();
 		$request = A('Request');
 		$request->path = array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : '';
 		if(isset($_SERVER['REMOTE_ADDR']))
@@ -40,10 +14,11 @@ class HTTPStream extends BaseComponent {
 		$request->params = array_merge($_GET, $_POST);
 		array_walk_recursive($request->params, function(&$ele, $key) {$ele = str_replace("\\\\", "\\", $ele);});
 		A('Response')->data['headers'] = array();
-		return true;
+		A('Application')->stream = $this->getStreamName();
 	}
 	
 	public function processResponse() {
+		parent::processResponse();
 		$response = A('Response');
 		$content = '';
 		
@@ -56,10 +31,24 @@ class HTTPStream extends BaseComponent {
 				$content .= $block['data'];
 			}
 		}
-			
 		$response->content = $content;
 		A('Response')->bind('ResponseSend', array($this, 'sendHeaders'));
 	}
+	
+	public function startup() {
+		A('Renderer')->bind('GatherRenderers', array(
+			"renderHTML" => array($this, 'renderHTML'),
+			"renderDefault" => array($this, 'renderHTML'),
+			"renderPlain" => array($this, 'renderPlain'),
+			"renderNotFound" => array($this, 'renderNotFound'),
+			"renderRedirect" => array($this, 'renderRedirect'),
+			"renderNotAllowed" => array($this, 'renderNotAllowed')
+		));
+		
+		A('Router')->bind('GatherRouteTypes', array(
+			"/" => "/",
+		));
+	}	
 	
 	protected function _processBuffer($buffer) {
 		$args = array();
@@ -128,4 +117,5 @@ class HTTPStream extends BaseComponent {
 		$this->renderHTML($fileName);
 		A('Response')->data['code'] = 404;
 	}
+
 }

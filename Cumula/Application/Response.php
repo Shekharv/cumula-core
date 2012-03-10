@@ -51,7 +51,7 @@ class Response extends EventDispatcher {
 	 */
 	public function send() {
 		$streams = A('Application')->getStreams();
-		$this->dispatch('ResponsePrepare');
+		$this->dispatch('Prepare'.A('Application')->stream);
 		$this->dispatch('ResponseSend');
 		echo $this->content;
 	}

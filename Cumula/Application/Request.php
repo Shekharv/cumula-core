@@ -36,15 +36,6 @@ final class Request extends EventDispatcher {
 	}
 	
 	public function startup() {
-		$h = null;
-		$streams = A('Application')->getStreams();
-		foreach($streams as $stream => $handler) {
-			if(call_user_func(array($handler, 'processRequest'))) {
-				$this->stream = $stream;
-				$h = $handler;
-			}
-		}
-		if($h)
-			A('Response')->bind('ResponsePrepare', array($h, 'processResponse'));
+		$this->dispatch('ProcessRequest');		
 	}
 }

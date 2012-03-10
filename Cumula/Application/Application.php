@@ -113,6 +113,8 @@ final class Application extends EventDispatcher {
 			'BootShutdown',
 	);
 	
+	public $currentStream;
+	
 	protected $_streams;
 	
 	/**
@@ -141,7 +143,6 @@ final class Application extends EventDispatcher {
 			$streams = array_merge($streams, $stream);					
 		});
 		$this->_streams = $streams;
-
 	}
 	
 	public function getStreams() {

@@ -1,7 +1,7 @@
 <?php
 namespace Cumula\Base;
 
-class Template extends Component {
+abstract class Template extends Component {
 	
 	protected $_overrides_dir;
 	protected $_overrides;
