@@ -2,6 +2,8 @@
 namespace Cumula\Components\Install;
 use \Cumula\Base\Component as BaseComponent;
 
+define('UserManager', "\\Cumula\\Components\\UserManager\\UserManager");
+
 class Install extends BaseComponent {
 	public function __construct() {
 		parent::__construct();
@@ -54,7 +56,7 @@ class Install extends BaseComponent {
 	
 	
 	public function saveUser($route, $router, $args) {
-		$um = \A('UserManager');
+		$um = \A(UserManager);
 		if($args['password'] == $args['passconf']) {
 			$um->createUser('admin_interface', $args['username'], $args['password']);
 			$this->redirectTo('/install/finished');

@@ -335,7 +335,7 @@ abstract class Component extends \Cumula\Application\EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function redirectTo($url) {
-		A('Response')->send302($this->completeUrl($url));
+		$this->renderRedirect($this->completeUrl($url));
 	}
 	
 	/**
