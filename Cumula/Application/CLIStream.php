@@ -23,10 +23,15 @@ class CLIStream extends \Cumula\Base\Stream {
 				A('Renderer')->buffer['cli'] = '';
 				
 			A('Application')->stream = $this->getStreamName();
+			
+			A('Router')->bind('GatherRouteTypes', array(
+				">" => " ",
+			));
 		}
 	}
 	
 	public function processResponse() {
+		parent::processRequest();
 		$response = A('Response');
 		$response->content = A('Renderer')->buffer['cli']."\n";
 	}

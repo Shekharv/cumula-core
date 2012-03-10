@@ -1,7 +1,5 @@
 <?php
 
-require_once realpath(__DIR__."/../Cumula/includes/utils.php");
-
 if(isset($argv[2]) && strstr($argv[2], "-base-dir=")) {
 	$path = str_replace("-base-dir=", "", $argv[2]);
 	define('TMPROOT', realpath($path).DIRECTORY_SEPARATOR);
