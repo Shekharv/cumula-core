@@ -158,7 +158,7 @@ abstract class Component extends \Cumula\Application\EventDispatcher {
 		{
 			$assetDir = implode(DIRECTORY_SEPARATOR, array(APPROOT, 'public', 'assets'));
 			if (is_dir($assetDir) === FALSE) {
-				mkdir($assetDir);
+				mkdir($assetDir, 0777, true);
 			} else {
 				if($sc = \A('SystemConfig')){
 					if($sc->getValue('setting_environment', false) != 'development')

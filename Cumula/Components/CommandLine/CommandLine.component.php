@@ -45,7 +45,8 @@ class CommandLine extends BaseComponent {
 	
 	public function cumulaSetup() {
 		fwrite(STDOUT, "Setting Up Cumula...");
-		sleep(5);
+		$file = fopen(realpath(implode(DIRECTORY_SEPARATOR, array(ROOT, 'app', 'public')).DIRECTORY_SEPARATOR.'index.php'), "w");
+		fwrite($file, "<?php\n\ninclude(realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', '..', 'core', 'bin', 'boot.php'))));");
 		fwrite(STDOUT, "Done!");
 	}
 }
