@@ -48,16 +48,16 @@ setupVfs();
 define('ROOT', realpath(__DIR__ .'/../../'));
 function initialComponents()
 {
-	require_once(implode(DIRECTORY_SEPARATOR, array(ROOT, 'Cumula', 'Autoloader.php')));
-	Cumula\Autoloader::setup();
-	new Cumula\Application();
-	new Cumula\AliasManager();
-	new Cumula\Request();
-	new Cumula\Response();
+	require_once(implode(DIRECTORY_SEPARATOR, array(ROOT, 'Cumula', 'Application', 'Autoloader.php')));
+	new Cumula\Application\Autoloader();
+	new Cumula\Application\Application();
+	new Cumula\Application\AliasManager();
+	new Cumula\Application\Request();
+	new Cumula\Application\Response();
 	
 	$cm = new Cumula\Application\ComponentManager();
-	$config = new Cumula\Config\System();
-	$router = new Cumula\Router();
+	$config = new Cumula\Application\SystemConfig();
+	$router = new Cumula\Application\Router();
 }
 initialComponents();
 

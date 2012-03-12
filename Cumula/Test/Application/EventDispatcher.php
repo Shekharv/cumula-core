@@ -28,9 +28,9 @@ class Test_EventDispatcher extends Test_BaseTest {
      * @return void
      **/
     public function setUp() {
-		$this->app = \Cumula\Application::instance();
+		$this->app = \Cumula\Application\Application::instance();
 		if (!$this->app) {
-			$this->app = new \Cumula\Application();
+			$this->app = new \Cumula\Application\Application();
 		}
     }
 
@@ -41,18 +41,18 @@ class Test_EventDispatcher extends Test_BaseTest {
 	}
 
 	public function createInstance() {
-		return new \Cumula\EventDispatcher();
+		return new \Cumula\Application\EventDispatcher();
 	}
 
 	public function testConstructor() {
 		$app = $this->app;
 		
-		$this->assertInstance(\Cumula\Application::instance(), 'Cumula\\Application');
+		$this->assertInstance(\Cumula\Application\Application::instance(), 'Cumula\\Application\\Application');
 		
 		$that = $this;
 		$constructed = false;
 		$testFunction = function($event, $dispatcher) use ($that, &$constructed) {
-			$that->assertInstance($dispatcher, '\Cumula\EventDispatcher');
+			$that->assertInstance($dispatcher, '\Cumula\Application\EventDispatcher');
 			$constructed = true;
 		};
 		$app->bind('EventDispatcherCreated', $testFunction);

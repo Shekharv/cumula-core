@@ -1,6 +1,6 @@
 <?php
 
-use \Cumula\Response as Response;
+use \Cumula\Application\Response as Response;
 
 require_once 'Cumula/Test/Base.php';
 

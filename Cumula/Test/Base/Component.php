@@ -30,9 +30,9 @@ class Test_BaseComponent extends Test_BaseTest {
      **/
 
     public function setUp() {
-		$this->app = \Cumula\Application::instance();
+		$this->app = \Cumula\Application\Application::instance();
 		if (!$this->app) {
-			$this->app = new \Cumula\Application();
+			$this->app = new \Cumula\Application\Application();
 		}
 		$this->cm = \Cumula\Application\ComponentManager::instance();
 		if (!$this->cm) {
