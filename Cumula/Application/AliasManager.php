@@ -6,8 +6,7 @@ class AliasManager extends EventDispatcher {
 	
 	public function __construct() {
 		parent::__construct();
-		$config_name = preg_replace('/\\\/', "_", get_class($this));
-		$this->config = new StandardConfig(CONFIGROOT, $config_name.'.yaml');
+		$this->config = new StandardConfig(CONFIGROOT, 'system_aliases.yaml');
 		$this->setup();
 	}
 	
