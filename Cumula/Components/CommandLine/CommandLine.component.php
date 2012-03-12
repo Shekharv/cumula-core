@@ -20,6 +20,10 @@ class CommandLine extends BaseComponent {
 				'>setup' => array(
 					'callback' => array($this, 'cumulaSetup'),
 					'help' => 'Setup the Cumula Install.'
+				),
+				'>console' => array(
+					'callback' => array($this, 'console'),
+					'help' => 'Interactive Cumula console.'
 				)
 			)
 		);
@@ -41,6 +45,29 @@ class CommandLine extends BaseComponent {
 	
 	public function info() {
 		$this->render("Welcome to Cumula.\nVersion ".CUMULAVERSION);
+	}
+	
+	public function console($route, $router, $args) {
+		fwrite(STDOUT, "Entering Cumula Console.  Type 'exit' to quit.\n");
+		xdebug_disable();
+		while(true) {
+			fwrite(STDOUT, "\n> ");
+			$input = fgets(STDIN);
+			$input = trim($input);
+			if ($input == 'exit') {
+				break;
+			}
+			fwrite(STDOUT, "=> ");
+			if(substr($input, strlen($input)-2, strlen($input)-1) != ';')
+				$input .= ';';
+			ob_start();
+			eval($input);
+			$content = ob_get_contents();
+			ob_end_clean();
+			fwrite(STDOUT, $content);
+		}
+		fwrite(STDOUT, "Goodbye.\n");
+		
 	}
 	
 	public function cumulaSetup() {
