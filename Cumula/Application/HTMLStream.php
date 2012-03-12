@@ -14,6 +14,7 @@ class HTMLStream extends \Cumula\Base\Stream {
 		$request->params = array_merge($_GET, $_POST);
 		array_walk_recursive($request->params, function(&$ele, $key) {$ele = str_replace("\\\\", "\\", $ele);});
 		A('Response')->data['headers'] = array();
+		A('Response')->data['code'] = 200;
 		A('Application')->stream = $this->getStreamName();
 	}
 	
@@ -21,8 +22,9 @@ class HTMLStream extends \Cumula\Base\Stream {
 		parent::processResponse();
 		$response = A('Response');
 		$content = '';
-		
-		if(A('Renderer')->useTemplate)
+		if(A('Response')->data['code'] == 404) {
+			$content = A('Renderer')->buffer['404'];
+		} else if(A('Renderer')->useTemplate)
 			$content = A('Template')->renderTemplate(
 				$this->_processBuffer(A('Renderer')->buffer)
 			);
@@ -112,9 +114,8 @@ class HTMLStream extends \Cumula\Base\Stream {
 	}
 	
 	public function renderNotFound() {
-		A('Renderer')->useTemplate = false;
-		$fileName = ROOT."/includes/404.html";//A('Template')->getDirectory().'404.tpl.php';
-		$this->renderHTML($fileName);
+		$fileName = ROOT."/Cumula/includes/404.html";//A('Template')->getDirectory().'404.tpl.php';
+		A('Renderer')->buffer['404'] = $this->renderHTML($fileName, array(), false);
 		A('Response')->data['code'] = 404;
 	}
 

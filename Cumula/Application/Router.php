@@ -40,7 +40,7 @@ class Router extends \Cumula\Base\Component
 		$this->addEvent('GatherRoutes');
 		$this->addEvent('RouterFileNotFound');
 		$this->addEvent('RouterAddRoute');
-		$this->addEvnet('GatherRouteTypes');
+		$this->addEvent('GatherRouteTypes');
 
 		A('Application')->bind('BootPreprocess', array($this, 'collectRouteTypes'));
 		A('Application')->bind('BootPreprocess', array($this, 'collectRoutes'));
@@ -50,20 +50,7 @@ class Router extends \Cumula\Base\Component
 
 	public function fileNotFound($event, $dispatcher, $request, $response) 
 	{
-		A('Renderer')->renderNotFound();
-	}
-
-	public function addRoutes($routes) 
-	{
-		if(is_array($routes))
-		{
-			$this->_collectedRoutes = array_merge($this->_collectedRoutes, $routes);
-		}
-	}
-	
-	public function setRoutes($routes) 
-	{
-		
+		$this->renderNotFound();
 	}
 	
 	public function getRoutes() 
@@ -78,9 +65,13 @@ class Router extends \Cumula\Base\Component
 
 	public function collectRoutes($event) 
 	{
-		$this->dispatch('GatherRoutes', array(), 'addRoutes');
-		$routes = $this->_collectedRoutes;
-
+		$routes = array();
+		$this->dispatch('GatherRoutes', array(), function($route) use (&$routes) {
+			if(is_array($route))
+				$routes = array_merge($routes, $route);
+		});
+		$this->_collectedRoutes = $routes;
+		
 		if (!$routes)
 		{
 			return;
