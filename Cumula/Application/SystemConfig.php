@@ -69,7 +69,7 @@ class SystemConfig extends \Cumula\Base\Component {
 
 	public function startup() {
 		A('AdminInterface')->bind('GatherAdminPages', array(
-			'Site Settings' => array(
+			'Core Settings' => array(
 				'config' => $this->config,
 				'fields' => array(
 					SETTING_DEFAULT_BASE_PATH => array( 
@@ -79,11 +79,7 @@ class SystemConfig extends \Cumula\Base\Component {
 					SETTING_SITE_URL => array(
 						'title' => 'Base URL',
 						'type' => 'string',
-						'value' => $this->config->getConfigValue(SETTING_SITE_URL, '')),
-					SETTING_SITE_TITLE => array(
-						'title' => 'Site Title',
-						'type' => 'string',
-						'value' => $this->config->getConfigValue(SETTING_SITE_TITLE)),		
+						'value' => $this->config->getConfigValue(SETTING_SITE_URL, '')),	
 					SETTING_ENVIRONMENT => array(
 						'title' => 'Environment',
 						'type' => 'select',

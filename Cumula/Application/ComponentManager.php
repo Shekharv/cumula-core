@@ -145,7 +145,7 @@ final class ComponentManager extends \Cumula\Base\Component {
 		{
 			$labels = array();
 			foreach($uninstalled as $class) {
-				if(method_exisats($class, 'getInfo')) {
+				if(method_exists($class, 'getInfo')) {
 					$info = $class::getInfo();
 					$labels[] = $info['name'];
 				} else {

@@ -35,6 +35,6 @@ final class Request extends EventDispatcher {
 	}
 	
 	public function startup() {
-		$this->dispatch('ProcessRequest');		
+		$this->dispatch('ProcessRequest');	
 	}
 }
