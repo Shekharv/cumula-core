@@ -90,6 +90,21 @@ class HTMLStream extends \Cumula\Base\Stream {
 		
 	}
 	
+	public function renderView($fileName, $args = array()) {
+		global $cm;
+		return $cm->renderView($fileName, $args);
+	}
+	
+	public function __get($name) {
+		global $cm;
+		return $cm->$name;
+	}
+	
+	public function __call($name, $args) {
+		global $cm;
+		call_user_func_array(array($cm, $name), $args);
+	}
+	
 	public function renderPlain($content, $block = 'content', $useTemplate = false) {
 		A('Renderer')->useTemplate = $useTemplate;
 		A('Renderer')->buffer[$block] =  array('block' => $block, 'data' => $content, 'config' => array());

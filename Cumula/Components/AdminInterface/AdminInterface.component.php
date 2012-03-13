@@ -1,297 +1,136 @@
 <?php
 namespace Cumula\Components\AdminInterface;
-use \Cumula\Base\Component as BaseComponent;
-/**
- * Cumula
- *
- * Cumula — framework for the cloud.
- *
- * @package    Cumula
- * @version    0.1.0
- * @author     Seabourne Consulting
- * @license    MIT License
- * @copyright  2011 Seabourne Consulting
- * @link       http://cumula.org
- */
 
-/**
- * AdminInterface Component
- *
- * Provides a GUI interface for administering the Cumula framework.  Through the AdminPage class, components
- * can use the AdminInterface to quickly expose simple settings.  Settings are displayed to the user and automatically
- * saved back to the component config.
- *
- * ### Events
- * The Admin interface declares the following events:
- *
- * #### ADMIN_COLLECT_SETTINGS_PAGES
- * Dispatched when the AdminInterface is ready to receive admin pages.  Implementing listeners should 
- * then use either AdminInterface#addAdminPage or AdminInterface#addAdminMenuItem to register pages in the AdminInterface.
- *
- * **Args**:
- * None.
- *
- *
- * @package		Cumula
- * @subpackage	AdminInterface
- * @author     Seabourne Consulting
- */
-
-define('MenuManager', "\\Cumula\\Components\\MenuManager\\MenuManager");
-define('FormHelper', "\\Cumula\\Components\\FormHelper\\FormHelper");
-
-class AdminInterface extends BaseComponent {
-	protected $_pages;
-	protected $_menuItems;
+class AdminInterface extends \Cumula\Base\Component {
+	protected $_fields;
 	
-	/**
-	 * Constructor.  Initializes the protected properties _pages and _menuItems.
-	 *
-	 **/
 	public function __construct() {
 		parent::__construct();
-		$this->_pages = array();
-		$this->stats = array();
 		A('AliasManager')->setDefaultAlias('AdminInterface', get_called_class());
+		$this->addEvent('GatherAdminPages');
 	}
 	
-	/**
-	 * Startup function.  Called on COMPONENTMANAGER_STARTUP_COMPLETE.
-	 *
-	 * @param   string  The name of the event.
-	 * @param	ComponentManager	The ComponentManager instance.
-	 *
-	 **/
-	public function startup() {
-		/**
-		 * If we add parameters to the method, we get errors saying that the method definition
-		 * does not match that of BaseComponent::startup()
-		 */
-		//$args = func_get_args();
-		//$event = isset($args[0]) ? $args[0] : NULL;
-		//$dispatcher = isset($args[1]) ? $args[1] : NULL;
+	public function startup() {		
+		A('Application')->bind('BootPreprocess', array($this, 'gatherAdminPages'));
+		A('Router')->bind($this->getConfigValue('basePath', '/admin'), array($this, 'index'));
+		A('Router')->bind($this->getConfigValue('basePath', '/admin').'/save-settings', array($this, 'saveAdminPage'));
 		
-		// bind to the route collector event
-		A('Router')->bind('GatherRoutes', array($this, 'collectAdminPages'));
 		
-		// bind to the menu collector event
-		A(MenuManager)->bind('MenuCollectMenus', array($this, 'sendMenus'));
-		
-		//Initialize stats for display on homepage.
-		$stats = &$this->stats;
-		A('Application')->bind('AfterBootStartup', function() use(&$stats) {
-			$stats['installed_components'] = count(\A('ComponentManager')->getEnabledComponents());
+		$this->bind('GatherAdminPages', array(
+			'Admin Interface' => array(
+				'config' => $this->config,
+				'fields' => array(
+					'basePath' => array(
+						'type' => 'string',
+						'title' => 'Admin Interface Base Path',
+						'value' => $this->getConfigValue('basePath', '/admin')
+					)
+				)
+			)
+		));
+	}
+	
+	public function gatherAdminPages() {
+		$menus = array();
+		$pages = array();
+		$fields = array();
+		$this->dispatch('GatherAdminPages', function($page) use (&$pages) {
+			$pages = array_merge($pages, $page);
 		});
-
-		$this->bind('AdminCollectSettingsPages', array(A('SystemConfig'), 'setupAdminPages'));
-		
-		//$this->addEventListenerTo('UserManager', 'register_auth_domain', function($event, $dispatcher) {
-		//	$dispatcher->registerAuthDomain('admin_interface', array('paths' => array('/admin', '/admin/*')));
-		//});
-	}
-	
-	/**
-	 * Listener for ROUTER_COLLECT_ROUTES.  Parses through the list of admin pages and creates a new
-	 * route for each and sends to the Router.  Also sets up the default index route and the save_settings
-	 * handler.  
-	 *
-	 * @param   string  The name of the event.
-	 * @param	Router	The Router instance.
-	 *
-	 **/
-	public function collectAdminPages($event, $dispatcher) {
-		$this->dispatch('AdminCollectSettingsPages');
-		$routes = array();
-
-		foreach($this->_pages as $page) {
-			$this->addAdminMenuItem($page->route, $page->title);
-			$routes[$page->route] = array(&$this, 'adminPage');
+		foreach($pages as $page => $config) {
+			$url = $this->_buildUrl($page);
+			$title = isset($config['title']) ? $config['title'] : $page;
+			if(isset($config['parent'])) {
+				if(!isset($menus[$config['parent']]))
+					$menus[$config['parent']] = array();
+				$menus[$config['parent']][$title] = $this->completeUrl($url);
+			} else
+				$menus[$title] = $this->completeUrl($url);
+			A('Router')->bind($url, array($this, 'adminPage'));
+			$fields[$page] = $config;
 		}
+		$this->_fields = $fields;
 		
-		$routes['/admin/save_settings'] = array(&$this, 'saveSettings');
-		$routes['/admin'] = array(&$this, 'index');
-		return $routes;
-	}
-
-	/**
-	 * Adds an AdminPage instance to the internal pages list for processing.  
-	 *
-	 * @param   AdminPage  The AdminPage instance to add to the internal pages registry.
-	 *
-	 **/
-	public function addAdminPage(AdminPage $page) {
-		$this->_pages[] = $page;
-	}	
-	
-	/**
-	 * Adds a menu item to the admin menu for a specific route.  You can use this if you want to use your
-	 * own custom settings pages.  
-	 *
-	 * @param   string  The route of the menu item.
-	 * @param	string	The title to display for the menu item.
-	 *
-	 **/
-	public function addAdminMenuItem($route, $title) {
-		$this->_menuItems[$route] = $title;
+		$this->renderBlock($this->renderView('mainMenu.tpl.php', array('menus' => $menus)), 'adminMenu');
 	}
 	
-	/**
-	 * Returns a new AdminPage instance.
-	 *
-	 * @return AdminPage 
-	 *
-	 **/
-	public function newAdminPage() {
-		return new AdminPage();
+	public function adminPage($route, $router, $args) {
+		$page = $this->_buildPage($route);
+		$this->render(array(
+			'title' => $page, 
+			'page' => $this->_fields[$page],
+			'fh' => A('FormHelper'),
+			'savePath' => $this->getConfigValue('basePath', '/admin').'/save-settings',
+			'startPath' => $route
+		));
 	}
 	
-	/**
-	 * Listener for the MENUMANAGER_COLLECT_MENUS event. Creates a new Menu instance and save items
-	 * based on the internal _menuItems registry.
-	 *
-	 * @param   string  The name of the event.
-	 * @param	MenuManager	The MenuManager instance.
-	 *
-	 **/
-	public function sendMenus($event, $dispatcher) {
-		$menu = $dispatcher->newMenu('adminMenu');
-		if(count($this->_menuItems) > 0) {
-			foreach($this->_menuItems as $route => $title) {
-				$item = $menu->newItem($title, $route);
-				$menu->addItem($item);
+	public function saveAdminPage($route, $router, $args) {
+		$page = $this->_buildPage($args['setting-page']);
+		$fields = $this->_fields[$page]['fields'];
+		$config = $this->_fields[$page]['config'];
+		$vals = array();
+		foreach($fields as $field => $fieldConfig) {
+			if(isset($args[$field])) {
+				$config->setConfigValue($field, $args[$field]);
+				$vals[$field] = $args[$field];
+			} else if($fieldConfig['type'] == 'checkbox') {
+				$value = isset($args[$field]) ? $args[$field] : false;
+				$config->setConfigValue($field, $value);
+				$vals[$field] = $value;
 			}
 		}
+		if(isset($this->_fields[$page]['callback']))
+			call_user_func_array($this->_fields[$page]['callback'], $vals);
+		$this->renderRedirect($this->_buildUrl($page));
 	}
 	
-	/**
-	 * Handler for all settings pages.  Parses through the internal _pages array to find the matching AdminPage and renders the result.  
-	 *
-	 * @param   string  The route to handle.
-	 * @param	Router	The Router instance.
-	 * @param	array	The optional array of args parsed from the route.
-	 *
-	 **/
-	public function adminPage($route, $router, $args, $request) {
-		if(!$this->checkUser($request))
-			return;
-		
-		//Iterate through the pages.
-		foreach($this->_pages as $page) {
-			//If the route matches, render a form based on the passed settings.
-			if($page->route == $route) {
-				$this->fh = A(FormHelper);
-				$this->page = $page;
-				$title = $page->title;
-				$this->render();
-			}
-		}
+	protected function _buildPage($route) {
+		$basePath = $this->getConfigValue('basePath', '/admin');
+		return ucwords(str_replace('-', ' ', str_replace($basePath."/", '', $route)));
 	}
 	
-	/**
-	 * Displays a basic landing page for the /admin route.
-	 *
-	 **/
-	public function index($route, $router, $args, $request) {
-		if(!$this->checkUser($request))
-			return;
-		$this->pages = $this->_pages;
-		$this->_setPhpVersion();
-		$this->_checkPerms();
-		$this->render(array('perms' => $this->perms, 'stats' => $this->stats));
+	protected function _buildUrl($url) {
+		$basePath = $this->getConfigValue('basePath', '/admin');
+		return $basePath."/".strtolower(str_replace(" ", "-", $url));
 	}
 	
-	/**
-	 * Gets the PHP version to display on the admin index page.
-	 *
-	 **/
-	protected function _setPhpVersion() {
-		if (!defined('PHP_VERSION_ID')) {
-		    $version = explode('.', PHP_VERSION);
-		    define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
-		}
+	public function index() {
+		$installedComps = count(A('ComponentManager')->getEnabledComponents());
+		$this->render(array(
+			'installedComps' => $installedComps, 
+			'perms' => $this->_checkPerms()
+		));
 	}
 	
-	/**
-	 * Checks the permissions for the key directories.
-	 *
-	 **/
 	protected function _checkPerms() {
-		$this->perms = array();
+		$perms = array();
 		$readable_files = array(CONFIGROOT, APPROOT, COMPROOT, DATAROOT, PUBLICROOT, ASSETROOT, CONTRIBCOMPROOT);
 		$writable_files = array(CONFIGROOT, DATAROOT, PUBLICROOT, ASSETROOT, CONTRIBCOMPROOT);
 		foreach($readable_files as $file) {
-			if(!isset($this->perms[$file]))
-				$this->perms[$file] = TRUE;
-			$this->perms[$file] = (is_readable($file) && $this->perms[$file]);
+			if(!isset($perms[$file]))
+				$perms[$file] = TRUE;
+			$perms[$file] = (is_readable($file) && $perms[$file]);
 		}
 		foreach($writable_files as $file) {
-			if(!isset($this->perms[$file]))
-				$this->perms[$file] = TRUE;
-			$this->perms[$file] = (is_writable($file) && $this->perms[$file]);
+			if(!isset($perms[$file]))
+				$perms[$file] = TRUE;
+			$perms[$file] = (is_writable($file) && $perms[$file]);
 		}
+		return $perms;
 	}
 	
 	/**
-	 * Generic handler for the settings submission.  Saves the results by taking each incoming form field and 
-	 * setting the config value of the same name in the component.
-	 *
-	 * @param   string  The current request route.
-	 * @param	Router	The Router instance.
-	 * @param	array	The array of POST form values.
-	 *
-	 **/
-	public function saveSettings($route, $dispatcher, $args, $request) 
-	{
-		if (!$this->checkUser($request))
-		{
-			return;
-		}
-
-		foreach ($this->_pages as $page) 
-		{
-			if ($page->route == $args['setting-page'])
-			{
-				$component = $page->component;
-				foreach ($page->fields as $setting) 
-				{
-					$vals = $args[$setting['name']];
-					$component->config->setConfigValue($setting['name'], $vals);
-					$callback = $page->callback;
-					if (is_callable(array($component, $callback)))
-					{
-						$component->$callback($vals);
-					}
-				}
-				$this->renderRedirect($page->route);
-				return;
-			}
-		}
-	}
-	
-	protected function checkUser($request) {
-    // if session & user modules don't exist, we'll assume this admininterface
-    // isn't auth controlled
-    //if (class_exists('Session') && class_exists('UserManager')) {
-     // $session = Session::getInstance();
-      //if(!$session->getValue('user', false)) {
-      //  $this->redirectTo($this->completeUrl('/user/login?ref='.$request->path));
-       // return false;
-     // }
-    //}
-		return true;
-	}
-
-  /**
-   * Implementation of the getInfo method
-   * @param void
-   * @return array
-   **/
-  public static function getInfo() {
-    return array(
-      'name' => 'Administration Interface',
-      'description' => 'Default Administrative interface for Cumula',
-      'version' => '0.1.0',
-      'dependencies' => array('UserManager', 'MenuManager', 'FormHelper'),
-    );
-  } // end function getInfo
+	* Implementation of the getInfo method
+	* @param void
+	* @return array
+	**/
+	public static function getInfo() {
+		return array(
+			'name' => 'Administration Interface',
+			'description' => 'Default Administrative interface for Cumula',
+			'version' => '0.1.0',
+			'dependencies' => array('UserManager', 'MenuManager', 'FormHelper'),
+		);
+	} // end function getInfo
 }

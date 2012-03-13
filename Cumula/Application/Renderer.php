@@ -37,5 +37,6 @@ class Renderer extends EventDispatcher {
 		if(in_array($name, array_keys($this->_renderers))) {
 			return call_user_func_array($this->_renderers[$name], $args);
 		}
-	}	
+	}
+
 }

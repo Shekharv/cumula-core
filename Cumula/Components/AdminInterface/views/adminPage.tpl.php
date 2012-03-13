@@ -23,19 +23,21 @@
  */
 
 ?>
-<h1><?php echo $cm->page->title ?></h1>
-<p><?php if($cm->page->description) echo $cm->page->description; ?></p>
-<?php echo $cm->fh->formTag('/admin/save_settings', "setting-form-".str_replace(" ", "-", $cm->page->title)) ?>
+<h1><?php echo $title ?></h1>
+<p><?php if(isset($page['description'])) echo $page['description']; ?></p>
+<?php echo $fh->formTag($savePath, "setting-form-".str_replace(" ", "-", $title)) ?>
 <fieldset>
 <?php 
-foreach($cm->page->fields as $setting) {
+if(isset($page['fields'])) {
+foreach($page['fields'] as $name => $setting) {
 	?>
 	<?php
-		echo $cm->render($setting['type'].'SettingField.tpl.php', array('setting' => $setting));
+		echo $this->renderView($setting['type'].'SettingField.tpl.php', array('name' => $name, 'setting' => $setting));
 	?><?php
 }
-
-echo $cm->fh->hiddenFieldTag('setting-page', $cm->page->route);
-echo $cm->fh->submitTag('Save', array('class' => 'button'));
+}
+echo $fh->hiddenFieldTag('setting-page', $startPath);
+if(count($page['fields']) > 0)
+	echo $fh->submitTag('Save', array('class' => 'button'));
 echo '</fieldset>';
-echo $cm->fh->formEnd(); ?>
+echo $fh->formEnd(); ?>

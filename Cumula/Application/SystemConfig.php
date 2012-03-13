@@ -68,67 +68,30 @@ class SystemConfig extends \Cumula\Base\Component {
 	 */
 
 	public function startup() {
-		A('AdminInterface')->bind('AdminCollectSettingsPages', array($this, 'setupAdminPages'));
-	}
-	
-	/**
-	 * Sets the admin pages for the system settings.
-	 * 
-	 */
-
-	public function setupAdminPages($event, $am) {
-		$page = $am->newAdminPage();
-		$page->title = 'Site Settings';
-		$page->description = 'Basic Site Settings.';
-		$page->route = '/admin/site_settings';
-		$page->fields = array(array('name' => SETTING_DEFAULT_BASE_PATH, 
-									'title' => 'Base Path',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_DEFAULT_BASE_PATH)),
-							  array('name' => SETTING_SITE_URL, 
-									'title' => 'Base URL',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_SITE_URL, '')),
-							  array('name' => SETTING_SITE_TITLE, 
-										'title' => 'Site Title',
-										'type' => 'string',
-										'value' => $this->config->getConfigValue(SETTING_SITE_TITLE)),		
-							  array('name' => SETTING_ENVIRONMENT, 
-									'title' => 'Environment',
-									'type' => 'select',
-									'values' => array("Development" => ENV_DEVELOPMENT, "Test" => ENV_TEST, "Production" => ENV_PRODUCTION),
-									'selected' => $this->config->getConfigValue(SETTING_ENVIRONMENT)),
-							);		
-		$page->component = &$this;
-		$am->addAdminPage($page);
-		
-		/*$page = $am->newAdminPage();
-		$page->title = 'Component Defaults';
-		$page->route = '/admin/component_defaults';
-		$page->description = 'Set the default classes used in Cumula.  WARNING: only edit this page if you know what you are doing!';
-		$page->fields = array(array('name' => SETTING_COMPONENT_MANAGER, 
-									'title' => 'Component Manager Class',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_COMPONENT_MANAGER)),
-								array('name' => SETTING_TEMPLATER, 
-									'title' => 'Templater Class',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_TEMPLATER)),	
-								array('name' => SETTING_ROUTER, 
-									'title' => 'Router Class',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_ROUTER)),
-								array('name' => SETTING_DEFAULT_DATASTORE, 
-									'title' => 'Default DataStore Class',
-									'type' => 'string',
-									'value' => $this->config->getConfigValue(SETTING_DEFAULT_DATASTORE)),
-								array('name' => SETTING_DEFAULT_CONFIG, 
-										'title' => 'Default Config Class',
-										'type' => 'string',
-										'value' => $this->config->getConfigValue(SETTING_DEFAULT_CONFIG)),
-							);		
-		$page->component = &$this;
-		$am->addAdminPage($page);*/
+		A('AdminInterface')->bind('GatherAdminPages', array(
+			'Site Settings' => array(
+				'config' => $this->config,
+				'fields' => array(
+					SETTING_DEFAULT_BASE_PATH => array( 
+						'title' => 'Base Path',
+						'type' => 'string',
+						'value' => $this->config->getConfigValue(SETTING_DEFAULT_BASE_PATH)),
+					SETTING_SITE_URL => array(
+						'title' => 'Base URL',
+						'type' => 'string',
+						'value' => $this->config->getConfigValue(SETTING_SITE_URL, '')),
+					SETTING_SITE_TITLE => array(
+						'title' => 'Site Title',
+						'type' => 'string',
+						'value' => $this->config->getConfigValue(SETTING_SITE_TITLE)),		
+					SETTING_ENVIRONMENT => array(
+						'title' => 'Environment',
+						'type' => 'select',
+						'values' => array("Development" => ENV_DEVELOPMENT, "Test" => ENV_TEST, "Production" => ENV_PRODUCTION),
+						'selected' => $this->config->getConfigValue(SETTING_ENVIRONMENT)),
+				),
+			)
+		));
 	}
 	
 	/**

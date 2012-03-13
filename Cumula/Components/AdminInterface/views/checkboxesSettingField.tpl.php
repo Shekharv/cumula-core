@@ -9,8 +9,8 @@ foreach($setting['values'] as $key => $option) {
 	?>
 	<div class="formItem checkbox">
 	<?php 
-		echo $cm->fh->checkboxTag($setting['name']."[]", $option, $selected);
-		echo $cm->fh->labelFor($label, $setting['name'].'-'.$option, array('class' => 'checkbox'));
+		echo A('FormHelper')->checkboxTag($name."[]", $option, $selected);
+		echo A('FormHelper')->labelFor($label, $name.'-'.$option, array('class' => 'checkbox'));
 	?>
 	</div>
 	<?php } 
