@@ -121,8 +121,7 @@ final class Application extends EventDispatcher {
 	 * Constructor
 	 * 
 	 */
-	public function __construct($startupCallback = null, $paths = null) {		
-		$this->_setupConstants($paths);
+	public function __construct($startupCallback = null) {
 		$this->_setupBootstrap();
 		$this->addEvent('InstanceAccessed');
 		$this->addEvent('EventDispatcherCreated');
@@ -147,61 +146,6 @@ final class Application extends EventDispatcher {
 	
 	public function getStreams() {
 		return $this->_streams;
-	}
-	
-	private function _setupConstants($paths = array()) {
-        // Only define ROOT if it isn't already defined
-        //defined('ROOT') ||
-        //    define('ROOT', realpath(implode(DIRECTORY_SEPARATOR, array(__DIR__, '..', '..'))));
-
-        //TODO: rewrite the part to support passing in arbitrary paths
-        defined('APPROOT') ||
-            define('APPROOT', realpath(ROOT."/..") . DIRECTORY_SEPARATOR . 'app');
-
-		if(count($paths) < 1) {
-			$core_path	= ROOT . DIRECTORY_SEPARATOR . 'Cumula';
-			$core_component_path = ROOT . DIRECTORY_SEPARATOR; # need the full namespace
-			$contrib_component_path = APPROOT . DIRECTORY_SEPARATOR . 'components';
-			$config_path = APPROOT . DIRECTORY_SEPARATOR . 'config';
-			$data_path = APPROOT . DIRECTORY_SEPARATOR . 'data';
-			$template_path = APPROOT . DIRECTORY_SEPARATOR . 'templates';
-			$test_path = $core_path . DIRECTORY_SEPARATOR . 'test';
-		} else {
-			extract($paths);
-		}
-
-        defined('COMPROOT') ||
-            define('COMPROOT', $core_component_path . DIRECTORY_SEPARATOR);
-
-        defined('CONFIGROOT') ||
-            define('CONFIGROOT', $config_path . DIRECTORY_SEPARATOR);
-        if (!file_exists(CONFIGROOT)) {
-            mkdir(CONFIGROOT, 0775, true);
-        }
-
-        defined('DATAROOT') ||
-            define('DATAROOT', $data_path . DIRECTORY_SEPARATOR);
-        if (!file_exists(DATAROOT)) {
-            mkdir(DATAROOT, 0775, true);
-        }
-
-        defined('CONTRIBCOMPROOT') ||
-            define('CONTRIBCOMPROOT', $contrib_component_path . DIRECTORY_SEPARATOR);
-        if (!file_exists(CONTRIBCOMPROOT)) {
-            mkdir(CONTRIBCOMPROOT, 0775, true);
-        }
-
-        defined('TEMPLATEROOT') ||
-            define('TEMPLATEROOT', $template_path . DIRECTORY_SEPARATOR);
-
-        defined('TESTROOT') ||
-            define('TESTROOT', $test_path . DIRECTORY_SEPARATOR);
-		
-		define('PUBLICROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR);
-		define('ASSETROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR);
-		define('LIBDIR', $core_path.DIRECTORY_SEPARATOR.'libraries');
-		define('INCDIR', $core_path.DIRECTORY_SEPARATOR.'includes');
-		define('BINDIR', $core_path.DIRECTORY_SEPARATOR.'bin');
 	}
 	
 	/**

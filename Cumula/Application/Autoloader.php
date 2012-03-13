@@ -40,9 +40,15 @@ class Autoloader extends EventDispatcher
     {
 		parent::__construct();
         $this->_namespace = $ns;
-        $this->_includePath = $includePath;
+        $this->_includePath = $includePath || array();
 		spl_autoload_register(array($this, 'load'));
 		$this->addEvent('EventAutoload');
+		$this->_setupConstants();
+
+		$this->setFileExtension('.component.php');
+		$this->setFileExtension('.php');
+		$this->setIncludePath(array(COMPROOT, CONTRIBCOMPROOT));
+		
 	} // end function setup
 
     private $_fileExtension = '.php';
@@ -50,6 +56,52 @@ class Autoloader extends EventDispatcher
     private $_includePath;
     private $_namespaceSeparator = '\\';
 
+	private function _setupConstants() {
+        defined('APPROOT') ||
+            define('APPROOT', realpath(ROOT."/..") . DIRECTORY_SEPARATOR . 'app');
+
+		$core_path	= ROOT . DIRECTORY_SEPARATOR . 'Cumula';
+		$core_component_path = ROOT . DIRECTORY_SEPARATOR; # need the full namespace
+		$contrib_component_path = APPROOT . DIRECTORY_SEPARATOR . 'components';
+		$config_path = APPROOT . DIRECTORY_SEPARATOR . 'config';
+		$data_path = APPROOT . DIRECTORY_SEPARATOR . 'data';
+		$template_path = APPROOT . DIRECTORY_SEPARATOR . 'templates';
+		$test_path = $core_path . DIRECTORY_SEPARATOR . 'Test';
+
+        defined('COMPROOT') ||
+            define('COMPROOT', $core_component_path . DIRECTORY_SEPARATOR);
+
+        defined('CONFIGROOT') ||
+            define('CONFIGROOT', $config_path . DIRECTORY_SEPARATOR);
+        if (!file_exists(CONFIGROOT)) {
+            mkdir(CONFIGROOT, 0775, true);
+        }
+
+        defined('DATAROOT') ||
+            define('DATAROOT', $data_path . DIRECTORY_SEPARATOR);
+        if (!file_exists(DATAROOT)) {
+            mkdir(DATAROOT, 0775, true);
+        }
+
+        defined('CONTRIBCOMPROOT') ||
+            define('CONTRIBCOMPROOT', $contrib_component_path . DIRECTORY_SEPARATOR);
+        if (!file_exists(CONTRIBCOMPROOT)) {
+            mkdir(CONTRIBCOMPROOT, 0775, true);
+        }
+		
+
+		defined('TEMPLATEROOT') ||
+            define('TEMPLATEROOT', $template_path . DIRECTORY_SEPARATOR);
+
+        defined('TESTROOT') ||
+            define('TESTROOT', $test_path . DIRECTORY_SEPARATOR);
+		
+		define('PUBLICROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR);
+		define('ASSETROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR);
+		define('LIBDIR', $core_path.DIRECTORY_SEPARATOR.'libraries');
+		define('INCDIR', $core_path.DIRECTORY_SEPARATOR.'includes');
+		define('BINDIR', $core_path.DIRECTORY_SEPARATOR.'bin');
+	}
 
     /**
      * Sets the namespace separator used by classes in the namespace of this class loader.
@@ -146,18 +198,27 @@ class Autoloader extends EventDispatcher
                 $className = substr($className, $lastNsPos + 1);
                 $fileName = str_replace($this->_namespaceSeparator, DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
             }
-			foreach($this->_fileExtension as $fileExtension) {
-				$fn = $fileName.str_replace('_', DIRECTORY_SEPARATOR, $className) . $fileExtension;
-				$unresolvedFilePath = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fn;
-				$filePath = stream_resolve_include_path($unresolvedFilePath);
-				if ($filePath) {
-				        require_once $filePath;
-				        return $fn;
+			$includePaths = $this->_includePath ?: array('');
+			foreach ($includePaths as $includePath) {
+				$fn = $this->tryLoadClassByPath($fileName, $className, $includePath);
+				if ($fn) {
+					return $fn;
 				}
 			}
-
         }
     }
+
+	public function tryLoadClassByPath($fileName, $className, $path) {
+		foreach($this->_fileExtension as $fileExtension) {
+			$fn = $fileName.str_replace('_', DIRECTORY_SEPARATOR, $className) . $fileExtension;
+			$unresolvedFilePath = $path . DIRECTORY_SEPARATOR . $fn;
+			$filePath = stream_resolve_include_path($unresolvedFilePath);
+			if ($filePath) {
+				require_once $filePath;
+				return $fn;
+			}
+		}
+	}
 
 	/**
 	 * Load a Autoload a class
@@ -166,9 +227,6 @@ class Autoloader extends EventDispatcher
 	 **/
 	public function load($className) 
 	{
-		$this->setFileExtension('.component.php');
-		$this->setFileExtension('.php');
-		$this->setIncludePath(realpath(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR.".."));
 		$filename = $this->loadClass($className);
 	} // end function load
 
