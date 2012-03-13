@@ -355,10 +355,12 @@ final class ComponentManager extends \Cumula\Base\Component {
 	{
 		if (is_null($this->componentFiles) || count($this->componentFiles) == 0)
 		{
-			$files = array();//$this->recurseCompDirectory(APPROOT);
+			$files = array();
 			$coreFiles = $this->recurseCompDirectory(COMPROOT.DIRECTORY_SEPARATOR);
+			$contribFiles = $this->recurseCompDirectory(CONTRIBCOMPROOT.DIRECTORY_SEPARATOR);
 			$this->componentFiles = array_merge($this->componentFiles, $files);
 			$this->componentFiles = array_merge($this->componentFiles, $coreFiles);
+			$this->componentFiles = array_merge($this->componentFiles, $contribFiles);
 		}
 		return $this->componentFiles;
 	} // end function getComponentFiles
