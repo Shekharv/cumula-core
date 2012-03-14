@@ -17,6 +17,8 @@ class HTMLStream extends \Cumula\Base\Stream {
 			$request->requestIp = $_SERVER['REMOTE_ADDR'];
 		if(isset($_SERVER['REQUEST_URI']))
 			$request->fullPath = $_SERVER['REQUEST_URI'];
+		if(isset($_SERVER['REQUEST_METHOD']))
+			$request->method = $_SERVER['REQUEST_METHOD'];
 		$request->params = array_merge($_GET, $_POST);
 		array_walk_recursive($request->params, function(&$ele, $key) {$ele = str_replace("\\\\", "\\", $ele);});
 		A('Response')->data['headers'] = array();
