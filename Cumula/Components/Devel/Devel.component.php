@@ -87,8 +87,9 @@ class Devel extends BaseComponent {
 		//die;
 		$this->addBenchmark('app_shutdown');
 		$time = $this->compareBenchmarks('app_boot', 'app_shutdown');
+		$content = '';
 		if($this->config->getConfigValue('show_render', true)) {
-			$content = '<div>Rendering the page took '.(number_format($time, 4)*1000).' ms</div>';
+			$content .= '<div>Rendering the page took '.(number_format($time, 4)*1000).' ms</div>';
 			$content .= '<div>Rendering the page used '.(memory_get_usage()/1000).' KB of memory</div>'; 
 			$content .= '<div>Rendering the page used a maximum '.(memory_get_peak_usage()/1000).' KB of memory</div>';
 			$comps = ComponentManager::instance()->getEnabledComponents();
@@ -96,8 +97,12 @@ class Devel extends BaseComponent {
 			$content .= '<div>Rendering the page triggered '.$this->_eventCount.' events</div>';
 			
 		    $content .= '<div>Call Stack</div><pre>'.$this->_logEventStack.'</pre>';
-			$response->content = str_replace('<!-- $debugOutput -->', $content, $response->content);
+			$content .= '<div>Response data</div><pre>'.var_export($response->data, true).'</pre>';
 		}
+		if ($response->data['code'] == 404) {
+			$content .= '<div>Routes</div><pre>'.var_export(A('Router')->getRoutes(), true)."</pre>";
+		}
+		$response->content = str_replace('<!-- $debugOutput -->', $content, $response->content);
 	}
 	
 	/* (non-PHPdoc)
