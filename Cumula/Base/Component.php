@@ -138,7 +138,8 @@ abstract class Component extends \Cumula\Application\EventDispatcher {
 	 * Load a config based on this class
 	 **/
 	public function constructConfig() {
-		return new \Cumula\Application\StandardConfig(CONFIGROOT, get_class($this).'.yaml');
+		$config_name = preg_replace('/\\\/', "_", get_class($this));
+		return new \Cumula\Application\StandardConfig(CONFIGROOT, $config_name.'.yaml');
 	}
 	/**
 	 * Install the assets for the module in the public directory
