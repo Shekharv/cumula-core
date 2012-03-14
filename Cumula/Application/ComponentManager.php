@@ -110,29 +110,12 @@ final class ComponentManager extends \Cumula\Base\Component {
 		return $this->_dependencies;
 	}
 	
-	/**
-	 * Implementation of the basecomponent startup function.
-	 * 
-	 */
-	public function startup()
-	{
-		A('AdminInterface')->bind('AdminCollectSettingsPages', array($this, 'setupAdminPages'));
-	}
-
-	/**
-	 * Defines and adds the admin pages to the admin interface, exposing the installed/enabled class lists.
-	 * 
-	 */
-	public function setupAdminPages($event, $dispatcher) {
-		$uninstalled = array_diff($this->_availableClasses, $this->_installedClasses);
-		$page = $dispatcher->newAdminPage();
-		$page->title = 'Components';
-		$page->description = 'Below are the installed and enabled components in the system.';
-		$page->route = '/admin/installed_components';
-		$page->component = &$this;
-		$page->callback = 'loadSettings';
+	protected function _generateLabels($type = '_installedClasses') {
 		$labels = array();
-		foreach($this->_installedClasses as $class) {
+		if(!isset($this->$type)) 
+			return $labels;
+			
+		foreach($this->$type as $class) {
 			if(method_exists($class, 'getInfo')) {
 				$info = $class::getInfo();
 				$labels[] = $info['name'];
@@ -140,33 +123,24 @@ final class ComponentManager extends \Cumula\Base\Component {
 				$labels[] = $class;
 			}
 		}
-		$page->fields = array(array('name' => 'enabled_components', 
-			'title' => 'Enabled Components',
-			'type' => 'checkboxes',
-			'values' => $this->_installedClasses,
-			'selected' => $this->_enabledClasses,
-			'labels' => $labels),
-		);
-		$dispatcher->addAdminPage($page);
-		
-		/**
-		 * If there are uninstalled components, show a menu item for those with the number of components in the title 
-		 */
-
-		$page = $dispatcher->newAdminPage();
-		$page->title = 'New Components';
-
-		if(count($uninstalled) > 0) 
-		{
-			$componentNumber = ' <strong>'.count($uninstalled).'</strong>';
-			$page->title .= $componentNumber;
-		}
-
-		$page->description = 'Below are the components available for installation.';
-		$page->route = '/admin/new_components';				
-		$page->component = &$this;
-		$page->callback = 'installComponents';
-
+		return $labels;
+	}
+	
+	/**
+	 * Implementation of the basecomponent startup function.
+	 * 
+	 */
+	public function startup()
+	{
+		A('AdminInterface')->bind('GatherAdminPages', $this->_installedAdminConfig());
+		A('AdminInterface')->bind('GatherAdminPages', $this->_uninstalledAdminConfig());
+	}
+	
+	protected function _uninstalledAdminConfig() {
+		$uninstalled = array_diff($this->_availableClasses, $this->_installedClasses);
+		$componentNumber = count($uninstalled) > 0 ? ' <strong>'.count($uninstalled).'</strong>' : '';
+		$fields = array();
+		$description = 'No uninstalled components.  Go to the <a href="'.A('AdminInterface')->getConfigValue('basePath', '/admin').'/installed-components">Installed Components</a> page to manage current components.';
 		if (count($uninstalled) > 0)
 		{
 			$labels = array();
@@ -178,20 +152,45 @@ final class ComponentManager extends \Cumula\Base\Component {
 					$labels[] = $class;
 				}
 			}
-			$page->fields = array(array('name' => 'installed_components',
+			$fields = array('installed_components' => array(
 				'title' => 'Uninstalled Components',
 				'type' => 'checkboxes',
 				'values' => array_merge($uninstalled),
 				'labels' => array_merge($labels)
-				));
-		} 
-		else 
-		{
-			$page->fields = array();
+			));
+			$description = null;
 		}
-		$dispatcher->addAdminPage($page);
+		return array(
+			'New Components' => array(
+				'title' => 'New Components'.$componentNumber,
+				'description' => $description,
+				'parent' => 'Components',
+				'config' => $this->config,
+				'callback' => array($this, 'installComponents'),
+				'fields' => $fields,
+			)
+		);
 	}
-	
+
+	protected function _installedAdminConfig() {
+		$labels = $this->_generateLabels();
+		return array(
+			'Installed Components' => array(
+				'parent' => 'Components',
+				'config' => $this->config,
+				'fields' => array(
+					'enabled_components' => array(
+						'type' => 'checkboxes',
+						'title' => 'Enabled Components',
+						'values' => $this->_installedClasses,
+						'selected' => $this->_enabledClasses,
+						'labels' => $labels
+					),
+				)
+			)
+		);
+	}
+
 	/**
 	 * Ensures that the installed and enabled components are saved on shutdown.
 	 */

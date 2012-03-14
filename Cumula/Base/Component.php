@@ -147,13 +147,13 @@ abstract class Component extends \Cumula\Application\EventDispatcher {
 	 * @return void
 	 **/
 	public function installAssets() {
-		$class = get_class($this);
+		$class = get_called_class();
 		if (stripos($class, '\\'))
 		{
 			$classExploded = explode('\\', $class);
-			$class = $classExploded[1];
+			$class = $classExploded[count($classExploded)-1];
 		}
-
+		
 		$files = glob(sprintf('{%s/assets,%s/assets}', $this->rootDirectory(), $this->rootDirectory()), GLOB_BRACE | GLOB_NOSORT);
 		if (is_array($files) && count($files) > 0)
 		{
@@ -204,6 +204,12 @@ abstract class Component extends \Cumula\Application\EventDispatcher {
 		return $this->renderBlock($this->renderDefault($fileName, $args), $blockName);
 	}
 	
+	public function renderView($fileName, $args = array()) {
+		if(!file_exists($fileName))
+			$fileName = $this->rootDirectory().DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR.$fileName;
+		return $this->renderHTML($fileName, $args);
+	}
+	
 	public function __call($name, $args) {
 		if(strstr($name,'render')) {
 			global $cm;
@@ -250,7 +256,7 @@ abstract class Component extends \Cumula\Application\EventDispatcher {
 	 * @return unknown_type
 	 */
 	public function completeUrl($url) {
-		$base = A('SystemConfig')->getValue(SETTING_DEFAULT_BASE_PATH);
+		$base = A('SystemConfig')->getValue(SETTING_DEFAULT_BASE_PATH, '/index.php');
 		return ($base == '/') ? $url : $base.$url;
 	}
 	

@@ -88,8 +88,8 @@ class Devel extends BaseComponent {
 		$this->addBenchmark('app_shutdown');
 		$time = $this->compareBenchmarks('app_boot', 'app_shutdown');
 		$content = '';
-		if($this->config->getConfigValue('show_render', true)) {
-			$content .= '<div>Rendering the page took '.(number_format($time, 4)*1000).' ms</div>';
+		if($this->config->getConfigValue('displayFooter', true)) {
+			$content .= '<h1>Debug Output</h1><div>Rendering the page took '.(number_format($time, 4)*1000).' ms</div>';
 			$content .= '<div>Rendering the page used '.(memory_get_usage()/1000).' KB of memory</div>'; 
 			$content .= '<div>Rendering the page used a maximum '.(memory_get_peak_usage()/1000).' KB of memory</div>';
 			$comps = ComponentManager::instance()->getEnabledComponents();
@@ -137,6 +137,20 @@ class Devel extends BaseComponent {
 		A('Application')->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch')); 
 		A('SystemConfig')->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch'));
 		A('Router')->bind('EventDispatcherEventDispatched', array($this, 'logEventDispatch'));
+		A('AdminInterface')->bind('GatherAdminPages', array(
+			'Devel Settings' => array(
+				'parent' => 'Development',
+				'config' => $this->config,
+				'fields' => array(
+					'displayFooter' => array(
+						'title' => 'Display Devel Footer?',
+						'type' => 'checkbox',
+						'label' => 'Display the Devel Footer',
+						'selected' => $this->getConfigValue('displayFooter', true)
+					)
+				)
+			)
+		));
 	}
 	
 	/**
