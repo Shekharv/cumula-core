@@ -145,4 +145,3 @@ function A($component) {
 	} 
 	throw new Exception('You tried to get an alias or class which doesn\'t exist: '.$component);
 }
-

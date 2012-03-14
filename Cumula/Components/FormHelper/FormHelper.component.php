@@ -34,6 +34,7 @@ class FormHelper extends BaseComponent {
 	public function __construct() {
 		parent::__construct();
 		$ds = $this->defaultDataStore();
+		A('AliasManager')->setDefaultAlias('FormHelper', get_called_class());
 		$schema = new SimpleSchema(array('id' => 'string',
 									 'value' => 'string'), 
 								   'id', 

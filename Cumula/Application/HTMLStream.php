@@ -3,6 +3,12 @@
 namespace Cumula\Application;
 
 class HTMLStream extends \Cumula\Base\Stream {
+	public function __construct() {
+		parent::__construct();
+		A('Request')->unbind('ProcessRequest', array($this, 'processRequest'));
+		A('Request')->bind('BeforeProcessRequest', array($this, 'processRequest'));
+	}
+	
 	public function processRequest() {
 		parent::processRequest();
 		$request = A('Request');
@@ -33,7 +39,7 @@ class HTMLStream extends \Cumula\Base\Stream {
 				$content .= $block['data'];
 			}
 		}
-		$response->content = $content;
+		$response->content = ($response->content == '' || !$response->content) ? $content : $response->content;
 		A('Response')->bind('ResponseSend', array($this, 'sendHeaders'));
 	}
 	
@@ -88,6 +94,21 @@ class HTMLStream extends \Cumula\Base\Stream {
 	
 	public function renderString($string, $args) {
 		
+	}
+	
+	public function renderView($fileName, $args = array()) {
+		global $cm;
+		return $cm->renderView($fileName, $args);
+	}
+	
+	public function __get($name) {
+		global $cm;
+		return $cm->$name;
+	}
+	
+	public function __call($name, $args) {
+		global $cm;
+		call_user_func_array(array($cm, $name), $args);
 	}
 	
 	public function renderPlain($content, $block = 'content', $useTemplate = false) {
