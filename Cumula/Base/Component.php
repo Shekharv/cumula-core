@@ -56,7 +56,12 @@ abstract class Component extends \Cumula\Application\EventDispatcher {
 		$this->installAssets();
 	}
 	
-	public function getConfigValue($name, $default) {
+	public function getConfigValue($name, $default = null) {
+		if (is_null($default)
+			&& isset($this->defaultConfig)
+			&& array_key_exists($name, $this->defaultConfig)) {
+			$default = $this->defaultConfig[$name];
+		}
 		return $this->config->getConfigValue($name, $default);
 	}
 	

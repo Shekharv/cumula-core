@@ -56,6 +56,20 @@ class Test_BaseComponent extends Test_BaseTest {
 		// constructConfig was called
 		$this->assertEquals($component->config, 5);
 	}
+
+	public function testGetConfigValue() {
+		$component = new TestConfigComponent();
+
+		$component->setConfigValue('test', 'space');
+		$this->assertEquals('space',
+							$component->getConfigValue('test'));
+		$this->assertEquals('passed_default',
+							$component->getConfigValue('notset', 'passed_default'));
+		$this->assertEquals('class_default',
+							$component->getConfigValue('defaultset'));
+		$this->assertEquals('passed_default',
+							$component->getConfigValue('defaultset', 'passed_default'));
+	}
 }
 
 class TestBaseComponent extends \Cumula\Base\Component {
@@ -65,5 +79,14 @@ class TestBaseComponent extends \Cumula\Base\Component {
 	public function constructConfig() {
 		// Skip this for testing
 		return 5;
+	}
+}
+
+class TestConfigComponent extends \Cumula\Base\Component {
+	public $defaultConfig = array(
+		'defaultset' => 'class_default',
+		);
+	public function startup() {
+		
 	}
 }
