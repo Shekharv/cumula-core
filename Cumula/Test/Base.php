@@ -32,9 +32,39 @@ abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
 		self::assertTrue(isset($instance), 'Class not set');
 		self::assertTrue(get_class($instance) == $class, 'Instance not equal to class: '.get_class($instance));
 	}
+
+	public function assertDispatches($obj, $event, $executor, $dispatchType) {
+		$that = $this;
+		$called = false;
+		$testFunction = function($e, $dispatcher) use ($that, &$called, $dispatchType) {
+			$that->assertInstance($dispatcher, $dispatchType);
+			$called = true;
+		};
+		$obj->bind($event, $testFunction);
+		call_user_func($executor, $this);
+		$this->assertTrue($called);
+	}
+
+	public function assertBound($handler, $obj, $event) {
+		$listeners = $obj->getEventListeners($event);
+		$this->assertContains($handler, $listeners, 'Listener not in listeners array'. var_export($listeners, true));
+
+	}
 	
+	public function assertIsBound($obj, $event, $that) {
+		$found = false;
+		$listeners = array_values($obj->getEventListeners($event));
+		foreach($listeners as $handler) {
+			if (is_array($handler)) {
+				if ($handler[0] = $that) {
+					$found = true;
+				}
+			}
+		}
+		$this->assertTrue($found, get_class($that)." is not bound to ".get_class($obj)." for ".$event);
+	}
 	/**
-     * setUp
+	 * setUp
      * @param void
      * @return void
      **/

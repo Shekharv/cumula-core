@@ -38,5 +38,4 @@ class Test_Response extends Test_BaseTest {
         $this->assertEquals('', $this->response->content);
     } 
 
-
 } 

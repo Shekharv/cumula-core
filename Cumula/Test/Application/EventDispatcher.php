@@ -56,8 +56,8 @@ class Test_EventDispatcher extends Test_BaseTest {
 			$constructed = true;
 		};
 		$app->bind('EventDispatcherCreated', $testFunction);
-		
-		$this->assertTrue(in_array($testFunction, $app->getEventListeners('EventDispatcherCreated')), 'Listener not in listeners array.');
+
+		$this->assertBound($testFunction, $app, 'EventDispatcherCreated');
 		
 		$eventDispatcher = $this->createInstance();
 		
