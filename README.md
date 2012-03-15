@@ -2,7 +2,7 @@
 
 ## Web development for the cloud. Made easy.
 
-Cumula is an open-source framework that creates scalable cloud-based applications.  It’s makes using cloud services simple, elegant and lightweight.  In other words, code less to create applications that do more. 
+Cumula is an open-source framework that creates scalable cloud-based applications.  It makes using cloud services simple, elegant and lightweight.  In other words, code less to create applications that do more. 
 
 At its core, Cumula is a lightweight framework of pre-built components.  These components simplify the process of working with web services, meaning that it takes less code to write complicated applications.  Because of its modular architecture, Cumula provides a scalable base upon which you can grow your next web app.  As you outgrow a particular component, you can replace it without having to rewrite the entire application.
 
@@ -47,6 +47,6 @@ Finally, navigate to your web server (usually, http://localhost) and follow the 
 
 ## Resources
 
-1) *Project Page*: http://cumula.org/
-2) *Github*: https://github.com/Cumula/cumula-core
-3) *Documentation Wiki*: https://github.com/Cumula/cumula-core/wiki
+1. *Project Page*: http://cumula.org/
+2. *Github*: https://github.com/Cumula/cumula-core
+3. *Documentation Wiki*: https://github.com/Cumula/cumula-core/wiki
