@@ -79,7 +79,7 @@ class Router extends \Cumula\Base\Component
 
 		foreach ($routes as $route => $return) 
 		{
-			if (isset($return['callback'])) 
+			if (is_array($return) && isset($return['callback']))
 			{
 				$handler = $return['callback'];
 				unset($return['callback']);

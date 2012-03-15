@@ -16,6 +16,12 @@ class Test_Router extends Test_BaseTest {
 		$this->assertIsBound(A('Application'),
 							 'BootPreprocess',
 							 $this->router);
-		$this->router;
+		$testFunction = function() {};
+		$this->router->bind('GatherRoutes', array(
+								'/test' => $testFunction,
+								'/test/other' => $testFunction,
+								));
+		$this->router->collectRoutes(1);
+		$this->assertContains('/test/other', array_keys($this->router->getRoutes()));
 	}
 } 
