@@ -87,7 +87,7 @@ class YAML extends \Cumula\Base\DataStore {
 			}
 		} else {
 			unset($obj->$idField);
-			$this->_storage[$key] = $obj;
+			$this->_storage[$key] = (array)$obj;
 		}
 		return $this->_save();
 	}
