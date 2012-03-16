@@ -197,7 +197,14 @@ abstract class Base extends BaseDataStore {
 		$sql .= ';';
 		return $this->doQuery($sql);
 	}
-  
+
+	public function get($args) {
+		$obj = $this->query($args);
+		if ($obj) {
+			$obj = $this->newObj($obj[0]);
+		}
+		return $obj;
+	}
   
   /**
    * Execute raw SQL.  CAUTION: this function does zero escaping or other work.

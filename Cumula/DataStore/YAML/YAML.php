@@ -75,9 +75,6 @@ class YAML extends \Cumula\Base\DataStore {
 		$this->_createOrUpdate($obj);
 	}
 	
-	/* (non-PHPdoc)
-	 * @see core/interfaces/DataStore#create($obj)
-	 */
 	protected function _createOrUpdate($obj) {
 		$idField = $this->_schema->getIdField();
 		$key = $this->_getIdValue($obj);
@@ -93,26 +90,14 @@ class YAML extends \Cumula\Base\DataStore {
 		return $this->_save();
 	}
 	
-	/* (non-PHPdoc)
-	 * @see core/interfaces/DataStore#update($obj)
-	 */
 	public function update($obj) {
 		$this->_createOrUpdate($obj);
 	}
 	
-	/**
-	 * Creates or Updates an object depending on whether it exists already.
-	 * 
-	 * @param $obj
-	 * @return unknown_type
-	 */
 	public function createOrUpdate($obj) {
 		return $this->_createOrUpdate($obj);
 	}
 	
-	/* (non-PHPdoc)
-	 * @see core/interfaces/DataStore#delete($obj)
-	 */
 	public function destroy($obj) {
 		if(is_string($obj)) {
 			//if Obj is an ID (string), unset the entire record
@@ -126,10 +111,7 @@ class YAML extends \Cumula\Base\DataStore {
 			$this->_save();
 		}
 	}
-	
-	/* (non-PHPdoc)
-	 * @see core/interfaces/DataStore#query($args, $order, $limit)
-	 */
+
 	public function query($args, $order = null, $limit = null) {
 		$idField = $this->getSchema()->getIdField();
 		if (is_array($args) && isset($args[$idField])) {
@@ -140,6 +122,14 @@ class YAML extends \Cumula\Base\DataStore {
 			$obj = array($this->_storage[$args]);
 		} else {
 			$obj = null;
+		}
+		return $obj;
+	}
+
+	public function get($args) {
+		$obj = $this->query($args);
+		if ($obj) {
+			$obj = $this->newObj($obj[0]);
 		}
 		return $obj;
 	}

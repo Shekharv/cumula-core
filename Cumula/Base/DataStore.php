@@ -67,6 +67,8 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	
 	abstract public function destroy($obj);
 	
+	abstract public function get($args);
+	
 	abstract public function query($args, $order = array(), $limit = array());
 	
 	abstract public function install();
@@ -84,7 +86,13 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	abstract public function lastRowId();
 	
 	public function newObj($fields = null) {
-		return $this->getSchema()->getObjInstance();
+		$obj = $this->getSchema()->getObjInstance();
+		if ($fields) {
+			foreach($fields as $name => $value) {
+				$obj->$name = $value;
+			}
+		}
+		return $obj;
 	}
 	
 	/**

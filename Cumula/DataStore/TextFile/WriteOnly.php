@@ -77,6 +77,10 @@ class WriteOnly extends BaseDataStore {
 		return false;
 	}
 
+	public function get($args) {
+		return false;
+	}
+
 	public function recordExists($id) {
 		return false;
 	}

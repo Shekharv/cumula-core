@@ -59,7 +59,10 @@ class TextFile extends \Cumula\BaseDataStore {
 	public function query($args, $order = null, $limit = null) {
 
 	}
-	
+	public function get($args) {
+		
+	}
+
 	public function recordExists($id) {
 		
 	}
