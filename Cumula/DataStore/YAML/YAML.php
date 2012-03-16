@@ -42,13 +42,19 @@ class YAML extends \Cumula\Base\DataStore {
 	 * @param $config_values
 	 * @return unknown_type
 	 */
-	public function __construct(\Cumula\Schema\Simple $schema, $configValues) {
-		parent::__construct($schema, $configValues);
-		$this->_schema = $schema;
+	public function __construct() {
+		parent::__construct();
 		$this->_storage = array();
+	}
+	 
+	public function setup($fields, $id, $name, $configValues) {
+		parent::setup($fields, $id, $name, $configValues);
+		$this->setConfig($configValues);
+	}
+
+	public function setConfig($configValues) {
 		$this->_sourceDirectory = $configValues['source_directory'];
 		$this->_filename = $configValues['filename'];
-		$this->connect();
 	}
 	
 	/* (non-PHPdoc)
@@ -56,10 +62,6 @@ class YAML extends \Cumula\Base\DataStore {
 	 */
 	public function connect() {
 		$this->_load();
-	}
-	
-	public function setup($fields, $id, $domain, $config) {
-		
 	}
 	
 	/* (non-PHPdoc)
@@ -86,7 +88,6 @@ class YAML extends \Cumula\Base\DataStore {
 					$this->_storage[$key] = $value;
 			}
 		} else {
-			unset($obj->$idField);
 			$this->_storage[$key] = (array)$obj;
 		}
 		return $this->_save();

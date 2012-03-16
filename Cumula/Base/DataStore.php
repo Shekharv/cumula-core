@@ -1,6 +1,6 @@
 <?php
 namespace Cumula\Base;
-use \Cumula\Schema\SimpleSchema as SimpleSchema;
+use \Cumula\Schema\Simple as SimpleSchema;
 
 /**
  * Cumula
@@ -83,7 +83,7 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	
 	abstract public function lastRowId();
 	
-	public function newObj() {
+	public function newObj($fields = null) {
 		return $this->getSchema()->getObjInstance();
 	}
 	

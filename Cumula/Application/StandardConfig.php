@@ -34,11 +34,14 @@ class StandardConfig implements \Cumula\Interfaces\ConfigInterface {
 	 */
 	public function __construct($source_directory, $source_file) {
 		global $App;
-		$schema = new \Cumula\Schema\Simple(array('id' => 'string',
-					 					 'value' => 'string'), 
-								   'id', 
-								   'config');
-		$this->_dataStore = new \Cumula\DataStore\YAML\YAML($schema, array('source_directory' => $source_directory, 'filename' => $source_file));
+		$this->_dataStore = new \Cumula\DataStore\YAML\YAML();
+		$this->_dataStore->setup(
+			array('id' => 'string',
+				  'value' => 'string'), 
+			'id', 
+			'config',
+			array('source_directory' => $source_directory,
+				  'filename' => $source_file));
 		$this->_dataStore->connect();
 	}
 	
