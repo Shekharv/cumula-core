@@ -189,7 +189,8 @@ class YAML extends \Cumula\Base\DataStore {
 	protected function _load() {
 		if (file_exists($this->_dataStoreFile())) {
 			if (extension_loaded('yaml')) {
-				$this->_storage = yaml_parse(file_get_contents($this->_dataStoreFile()));
+				if($contents = file_get_contents($this->_dataStoreFile()))
+					$this->_storage = yaml_parse($contents);
 			} else {
 				$yaml = new \sfYamlParser();
 				$this->_storage = $yaml->parse(file_get_contents($this->_dataStoreFile()));

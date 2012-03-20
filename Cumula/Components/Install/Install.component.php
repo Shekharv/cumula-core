@@ -14,13 +14,13 @@ class Install extends BaseComponent {
 	}
 	
 	public function handleRoutes($route, $router) {
-		$router->addRoutes(array('/install' => array(&$this, 'startInstall'),
+		return array('/install' => array(&$this, 'startInstall'),
 								'/' => array(&$this, 'startInstall'),
 								'/install/setup_user' => array(&$this, 'setupUser'),
 								'/install/system_check' => array(&$this, 'systemCheck'),
 								'/install/save_user' => array(&$this, 'saveUser'),
 								'/install/finished' => array(&$this, 'finished'),
-								'/install/complete' => array(&$this, 'complete')));
+								'/install/complete' => array(&$this, 'complete'));
 	}
 	
 	public function startInstall() {

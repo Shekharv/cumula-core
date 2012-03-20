@@ -36,10 +36,22 @@ class FormHelper extends BaseComponent {
 		$ds = $this->defaultDataStore();
 		A('AliasManager')->setDefaultAlias('FormHelper', get_called_class());
 		$schema = new SimpleSchema(array('id' => 'string',
-									 'value' => 'string'), 
-								   'id', 
-								   'config');
-		$this->_dataStore = new $ds($schema, array('source_directory' => DATAROOT, 'filename' => 'data.yaml'));
+										'value' => 'string'), 
+										'id', 
+										'config');
+		$this->_dataStore = new $ds();
+		$this->_dataStore->setup(
+			array(
+				'id' => 'string',
+				'value' => 'string'
+			), 
+			'id', 
+			'config',
+			array(
+				'source_directory' => DATAROOT, 
+				'filename' => 'data.yaml'
+			)
+		);
 		self::$_formId = '';
 	}
 	
