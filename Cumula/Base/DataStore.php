@@ -43,13 +43,14 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	const FIELD_TYPE_DATETIME = 'datetime';
 	const FIELD_TYPE_BLOB = 'blob';
 
-	
 	/**
 	 * Constructor
 	 * 
 	 * @return unknown_type
 	 */
 	public function __construct() {
+		$this->addEvent('Load');
+		$this->addEvent('Save');
 		parent::__construct();
 	}
 	

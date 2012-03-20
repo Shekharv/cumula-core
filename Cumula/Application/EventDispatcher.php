@@ -253,13 +253,12 @@ class EventDispatcher {
 						$new_data = array_slice($data, 2);
 						$this->dispatch('EventDispatcherEventDispatched', array($event, $this, $event_handler, $level, $new_data));
 					}
+					//If event handler is a callback, save the result of the callback
+					if(is_callable($event_handler))
+						$result = call_user_func_array($event_handler, $data);
+					else //otherwise, the callback is a value, and just use that
+						$result = $event_handler;
 
-				//If event handler is a callback, save the result of the callback
-				if(is_callable($event_handler))
-					$result = call_user_func_array($event_handler, $data);
-				else //otherwise, the callback is a value, and just use that
-					$result = $event_handler;
-				
 					if($callback)
 					{
 						call_user_func($callback, $result);
