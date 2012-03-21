@@ -3,5 +3,5 @@
 namespace Cumula\Interfaces;
 
 interface CumulaDataStoreFactory {
-	public function create();
+	public function get();
 }

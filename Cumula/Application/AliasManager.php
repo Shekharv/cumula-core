@@ -3,10 +3,12 @@ namespace Cumula\Application;
 
 class AliasManager extends EventDispatcher {	
 	public $config;
+	protected $_cache;
 	
 	public function __construct() {
 		parent::__construct();
 		$this->config = new StandardConfig(CONFIGROOT, 'system_aliases.yaml');
+		$this->_cache = array();
 		$this->setup();
 	}
 	
@@ -47,11 +49,16 @@ class AliasManager extends EventDispatcher {
 	}
 	
 	public function getClassName($alias) {
+		if(isset($this->_cache[$alias]))
+			return $this->_cache[$alias];
 		return $this->config->getConfigValue($alias, false);
 	}
 	
-	public function setAlias($alias, $class) {
-		return $this->config->setConfigValue($alias, $class);
+	public function setAlias($alias, $class, $remember = true) {
+		if($remember)
+			return $this->config->setConfigValue($alias, $class);
+		else 
+			$this->_cache[$alias] = $class;
 	}
 	
 	public function setDefaultAlias($alias, $class) {

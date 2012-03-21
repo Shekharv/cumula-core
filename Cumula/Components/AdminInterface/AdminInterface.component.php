@@ -82,7 +82,7 @@ class AdminInterface extends \Cumula\Base\Component {
 		}
 		if(isset($this->_fields[$page]['callback']))
 			call_user_func_array($this->_fields[$page]['callback'], $vals);
-		$this->renderRedirect($this->_buildUrl($page));
+		$this->renderRedirect($this->completeUrl($this->_buildUrl($page)));
 	}
 	
 	protected function _buildPage($route) {

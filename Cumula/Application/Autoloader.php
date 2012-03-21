@@ -47,6 +47,7 @@ class Autoloader extends EventDispatcher
 
 		$this->setFileExtension('.component.php');
 		$this->setFileExtension('.php');
+		$this->setFileExtension('.interface.php');
 		$this->setIncludePath(array(COMPROOT, CONTRIBCOMPROOT));
 		
 	} // end function setup
