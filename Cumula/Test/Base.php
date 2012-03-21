@@ -49,7 +49,7 @@ abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
 			$event_args = array_slice(func_get_args(), 2);
 			if ($arg_check) {
 				$that->assertEquals($arg_check, $event_args,
-									"arg_check: ".var_export($event_args, true). " not equal to \n ".var_export($arg_check, true));
+									"arg_check: ".var_export($event_args, true). " not equal to expected \n ".var_export($arg_check, true));
 			}
 			if ($callback) {
 				$ret = call_user_func($callback, $that, $event_args);

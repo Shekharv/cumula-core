@@ -61,6 +61,24 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	public function isConnected() {
 		return $this->_connected;
 	}
+
+	public function prepareSave($obj) {
+		$this->dispatch('Save', array($obj), function($new_obj) use (&$obj) {
+				if ($new_obj) {
+					$obj = $new_obj;
+				}
+			});
+		return $obj;
+	}
+
+	public function prepareLoad($obj) {
+		$this->dispatch('Load', array($obj), function($new_obj) use (&$obj) {
+				if ($new_obj) {
+					$obj = $new_obj;
+				}
+			});
+		return $obj;
+	}
 	
 	abstract public function create($obj);
 	

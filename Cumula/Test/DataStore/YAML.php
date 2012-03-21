@@ -69,7 +69,7 @@ class Test_YAML extends Test_BaseTest {
 			function ($that) use ($ds, $obj) {
 				$ds->create($obj);
 			},
-			array($obj),
+			null,
 			$callback
 			);
 		$new_obj = $ds->get($obj->id);
