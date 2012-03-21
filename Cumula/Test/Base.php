@@ -33,23 +33,34 @@ abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
 		self::assertTrue(get_class($instance) == $class, 'Instance not equal to class: '.get_class($instance));
 	}
 
-	public function assertDispatches($obj, $event, $executor, $arg_check=null, $dispatchType=null) {
+	public function assertDispatches($obj, $event,
+									$executor,
+									$arg_check = null,
+									$callback = null,
+									$dispatchType = null) {
 		$that = $this;
 		$called = false;
-		$testFunction = function($e, $dispatcher) use ($that, &$called, $arg_check, $dispatchType) {
+		$ret = null;
+		
+		$testFunction = function($e, $dispatcher) use ($that, &$called, $arg_check, $callback, $dispatchType) {
 			if ($dispatchType) {
 				$that->assertInstance($dispatcher, $dispatchType);
 			}
+			$event_args = array_slice(func_get_args(), 2);
 			if ($arg_check) {
-				$event_args = array_slice(func_get_args(), 2);
 				$that->assertEquals($arg_check, $event_args,
-									var_export($event_args, true));
+									"arg_check: ".var_export($event_args, true). " not equal to \n ".var_export($arg_check, true));
+			}
+			if ($callback) {
+				$ret = call_user_func($callback, $that, $event_args);
 			}
 			$called = true;
 		};
 		$obj->bind($event, $testFunction);
 		call_user_func($executor, $this);
 		$this->assertTrue($called, "event listener not called for ".$event);
+		$obj->unbind($event, $testFunction);
+		return $ret;
 	}
 
 	public function assertBound($handler, $obj, $event) {

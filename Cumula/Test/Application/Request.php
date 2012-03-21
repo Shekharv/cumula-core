@@ -25,6 +25,7 @@ class Test_Request extends Test_BaseTest {
 				$that->request->startup();
 			},
 			array(),
+			null,
 			'Cumula\Application\Request'
 			);
 	}

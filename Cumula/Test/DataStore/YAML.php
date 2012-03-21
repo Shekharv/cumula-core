@@ -19,7 +19,7 @@ class Test_YAML extends Test_BaseTest {
 			array('id', 'value'), 'id', 'testyaml',
 			array(
 				'source_directory' => CONFIGROOT,
-				'filename' => 'testyaml.yaml')
+				'filename' => uniqid("testyaml"))
 			);
 		$ds->connect();
 		return $ds;
@@ -55,16 +55,25 @@ class Test_YAML extends Test_BaseTest {
 	public function testSaveEvent() {
 		$ds = $this->configuredInstance();
 		$obj = $ds->newObj(
-			array('id' => 'one', 'value' => 'set')
+			array('id' => 'two', 'value' => 'set')
 			);
+		$callback = function ($that, $args) {
+			$t_obj = $args[0];
+			$that->assertEquals($t_obj->value, 'set');
+			$t_obj->value = 'changed';
+			return $t_obj;
+		};
 		$this->assertDispatches(
 			$ds,
 			'Save',
 			function ($that) use ($ds, $obj) {
 				$ds->create($obj);
 			},
-			array($obj)
+			array($obj),
+			$callback
 			);
+		$new_obj = $ds->get($obj->id);
+		$this->assertEquals($new_obj->value, 'changed');
 	}
 
 }
