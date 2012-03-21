@@ -120,11 +120,11 @@ class YAML extends \Cumula\Base\DataStore {
 		}
 
 		if ($this->recordExists($args)) {
+			// TODO this should return newObj and prepareLoad each
 			$obj = array($this->_storage[$args]);
 		} else {
 			$obj = null;
 		}
-		return $this->prepareLoad($obj);
 	}
 
 	public function get($args) {
