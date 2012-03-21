@@ -118,21 +118,24 @@ class YAML extends \Cumula\Base\DataStore {
 		if (is_array($args) && isset($args[$idField])) {
 			$args = $args[$idField];
 		}
-
+		$ret = null;
 		if ($this->recordExists($args)) {
-			// TODO this should return newObj and prepareLoad each
-			$obj = array($this->_storage[$args]);
-		} else {
-			$obj = null;
+			$obj = $this->_storage[$args];
+			if (is_array($obj)) {
+				$obj = $this->newObj($obj);
+			}
+			$obj = $this->prepareLoad($obj);
+			$ret = array($obj);
 		}
+		return $ret;
 	}
 
 	public function get($args) {
 		$obj = $this->query($args);
 		if ($obj) {
-			$obj = $this->newObj($obj[0]);
+			$obj = $obj[0];
 		}
-		return $this->prepareLoad($obj);
+		return $obj;
 	}
 	
 	public function recordExists($id) {
