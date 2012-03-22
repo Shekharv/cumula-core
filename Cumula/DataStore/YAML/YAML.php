@@ -76,6 +76,7 @@ class YAML extends \Cumula\Base\DataStore {
 	}
 	
 	protected function _createOrUpdate($obj) {
+		$obj = $this->prepareSave($obj);
 		$idField = $this->_schema->getIdField();
 		$key = $this->_getIdValue($obj);
 		//If object is a simple key/value (count == 2), set the value to be the remaining attribute, otherwise set the object as the value
@@ -117,19 +118,22 @@ class YAML extends \Cumula\Base\DataStore {
 		if (is_array($args) && isset($args[$idField])) {
 			$args = $args[$idField];
 		}
-
+		$ret = null;
 		if ($this->recordExists($args)) {
-			$obj = array($this->_storage[$args]);
-		} else {
-			$obj = null;
+			$obj = $this->_storage[$args];
+			if (is_array($obj)) {
+				$obj = $this->newObj($obj);
+			}
+			$obj = $this->prepareLoad($obj);
+			$ret = array($obj);
 		}
-		return $obj;
+		return $ret;
 	}
 
 	public function get($args) {
 		$obj = $this->query($args);
 		if ($obj) {
-			$obj = $this->newObj($obj[0]);
+			$obj = $obj[0];
 		}
 		return $obj;
 	}
