@@ -212,9 +212,9 @@ final class ComponentManager extends \Cumula\Base\Component {
 	public function loadSettings() 
 	{
 		$this->_availableClasses = $this->_getAvailableComponents();
-		$this->_installedClasses = array_values(array_intersect($this->_availableClasses, $this->config->getConfigValue('installed_components', array())));
-		$this->_enabledClasses = array_values(array_intersect($this->_availableClasses, $this->config->getConfigValue('enabled_components', array())));
-		$this->_startupClasses = array_values(array_intersect($this->_availableClasses, $this->config->getConfigValue('startup_components', array())));
+		$this->_installedClasses = array_values(array_intersect($this->_availableClasses, (array)$this->config->getConfigValue('installed_components', array())));
+		$this->_enabledClasses = array_values(array_intersect($this->_availableClasses, (array)$this->config->getConfigValue('enabled_components', array())));
+		$this->_startupClasses = array_values(array_intersect($this->_availableClasses, (array)$this->config->getConfigValue('startup_components', array())));
 	}
 
 	/**
