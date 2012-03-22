@@ -66,7 +66,7 @@ class Sqlite extends Base {
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#query($args, $order, $limit)
 	 */
-	public function query($args, $order = null, $limit = null) 
+	public function query($args, $order = null, $limit = null, $start = null) 
 	{
 		$result = parent::query($args, $order, $limit);
 		$arr = array();

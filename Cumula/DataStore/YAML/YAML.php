@@ -112,7 +112,7 @@ class YAML extends \Cumula\Base\DataStore {
 		}
 	}
 
-	public function query($args, $order = null, $limit = null) {
+	public function query($args, $order = null, $limit = null, $start = null) {
 		$idField = $this->getSchema()->getIdField();
 		if (is_array($args) && isset($args[$idField])) {
 			$args = $args[$idField];

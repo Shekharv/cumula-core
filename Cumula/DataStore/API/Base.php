@@ -1,6 +1,6 @@
 <?php
 namespace Cumula\DataStore\API;
-use Cumula\DataStore\Base as BaseDataStore
+use Cumula\DataStore\Base as BaseDataStore;
 
 /**
  * Cumula
@@ -25,10 +25,10 @@ use Cumula\DataStore\Base as BaseDataStore
  * @author     Seabourne Consulting
  */
 
-abstract class Base extends BaseDataStore {
+abstract class Base extends \Cumula\Base\DataStore {
 
-	public function __construct($schema, $config_values) {
-		parent::__construct($schema, $config_values);
+	public function __construct() {
+		parent::__construct();
 	}
 
 	public function create($obj) {
@@ -43,7 +43,7 @@ abstract class Base extends BaseDataStore {
 		
 	}
 	
-	public function query($args, $order = array(), $limit = array()) {
+	public function query($args, $order = null, $limit = null, $start = null) {
 		
 	}
 	

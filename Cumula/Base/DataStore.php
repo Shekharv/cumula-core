@@ -69,7 +69,7 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	
 	abstract public function get($args);
 	
-	abstract public function query($args, $order = array(), $limit = array());
+	abstract public function query($args, $order = null, $limit = null, $start = null);
 	
 	abstract public function install();
 	

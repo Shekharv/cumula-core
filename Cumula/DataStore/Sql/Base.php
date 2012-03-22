@@ -154,7 +154,7 @@ abstract class Base extends BaseDataStore {
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#query($args, $order, $limit)
 	 */
-	public function query($args, $order = array(), $limit = array()) {
+	public function query($args, $order = null, $limit = null, $start = null) {
 		$sql = "SELECT * FROM {$this->getSchema()->getName()} ";
 		//Args is an id
 		if (is_numeric($args)) {

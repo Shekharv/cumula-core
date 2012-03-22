@@ -220,7 +220,8 @@ abstract class Component extends \Cumula\Application\EventDispatcher {
 			global $cm;
 			$cm = $this;
 			return call_user_func_array(array(A('Renderer'), $name), $args);
-		}
+		} 
+		throw new \Exception('Function doesn\'t exist: '.$name);
 	}
 
 	/**********************************************

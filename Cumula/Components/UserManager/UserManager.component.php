@@ -26,13 +26,12 @@ class UserManager extends BaseComponent {
 	}
 	
 	public function sendRoutes($route, $dispatcher) {
-		$routes = array(
+		return array(
 			'/user/login' => array(&$this, 'login'),
 			'/user/logout' => array(&$this, 'logout'),
 			'/user/register' => array(&$this, 'register'),
 			'/user/authenticate' => array(&$this, 'authenticate'),
 		);
-		$dispatcher->addRoutes($routes);
 	}
 	
 	public function registerAuthDomain($domain, $args) {

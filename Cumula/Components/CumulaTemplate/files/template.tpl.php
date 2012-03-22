@@ -103,7 +103,7 @@
 		<div class="bucket">
 			<?php echo \A("\\Cumula\\Components\\Session\\Session")->warning; ?>
 			<?php echo \A('\\Cumula\\Components\\Session\\Session')->notice; ?>
-			<?php echo $content; ?>
+			<?php if(isset($content)) echo $content; ?>
 		</div>
 	</div>
 	<!-- /container -->
