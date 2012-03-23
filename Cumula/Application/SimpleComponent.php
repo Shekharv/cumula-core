@@ -56,6 +56,9 @@ class SimpleComponent extends \Cumula\Base\Component {
 	}
 
 	public function stopDataStores() {
+		if (!this->dataStores) {
+			return;
+		}
 		foreach($this->dataStores as $name => $ds) {
 			$ds->disconnect();
 		}

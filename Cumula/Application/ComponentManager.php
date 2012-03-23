@@ -132,11 +132,11 @@ final class ComponentManager extends \Cumula\Base\Component {
 	 */
 	public function startup()
 	{
-		A('AdminInterface')->bind('GatherAdminPages', $this->_installedAdminConfig());
-		A('AdminInterface')->bind('GatherAdminPages', $this->_uninstalledAdminConfig());
+		A('AdminInterface')->bind('GatherAdminPages', array($this, '_installedAdminConfig'));
+		A('AdminInterface')->bind('GatherAdminPages', array($this, '_uninstalledAdminConfig'));
 	}
 	
-	protected function _uninstalledAdminConfig() {
+	public function _uninstalledAdminConfig() {
 		$uninstalled = array_diff($this->_availableClasses, $this->_installedClasses);
 		$componentNumber = count($uninstalled) > 0 ? ' <strong>'.count($uninstalled).'</strong>' : '';
 		$fields = array();
@@ -172,7 +172,7 @@ final class ComponentManager extends \Cumula\Base\Component {
 		);
 	}
 
-	protected function _installedAdminConfig() {
+	public function _installedAdminConfig() {
 		$labels = $this->_generateLabels();
 		return array(
 			'Installed Components' => array(

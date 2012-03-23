@@ -1,28 +1,26 @@
 <?php
 namespace Cumula\Components\Install;
-use \Cumula\Base\Component as BaseComponent;
 
-define('UserManager', "\\Cumula\\Components\\UserManager\\UserManager");
+const UserManager = "\\Cumula\\Components\\UserManager\\UserManager";
 
-class Install extends BaseComponent {
-	public function __construct() {
-		parent::__construct();
-	}
+class Install extends \Cumula\Application\SimpleComponent {
+	public $defaultConfig = array(
+		'basePath' => '/install'
+		);
+	public $routes = array(
+		'/' => 'startInstall',
+		'/setup_user' => 'setupUser',
+		'/system_check' => 'systemCheck',
+		'/save_user' => 'saveUser',
+		'/finished' => 'finished',
+		'/complete' => 'complete'
+		);
 	
 	public function startup() {
-		A('Router')->bind('GatherRoutes', array($this, 'handleRoutes'));
+		parent::startup();
+		A('Router')->bind('/', array($this, 'startInstall'));
 	}
-	
-	public function handleRoutes($route, $router) {
-		return array('/install' => array(&$this, 'startInstall'),
-								'/' => array(&$this, 'startInstall'),
-								'/install/setup_user' => array(&$this, 'setupUser'),
-								'/install/system_check' => array(&$this, 'systemCheck'),
-								'/install/save_user' => array(&$this, 'saveUser'),
-								'/install/finished' => array(&$this, 'finished'),
-								'/install/complete' => array(&$this, 'complete'));
-	}
-	
+		
 	public function startInstall() {
 		$this->render();
 	}
