@@ -25,6 +25,13 @@ class Test_SimpleComponent extends Test_BaseTest {
 			$this->yf = new \Cumula\DataStore\YAML\YAMLFactory();
 		}
 	}
+
+	public function testRegisterEvents() {
+		$sc = new TestEventsComponent();
+		$sc->startup();
+
+		$this->assertTrue($sc->eventIsRegistered('MyTestEvent'));
+	}
 	
 	public function testDataStoreStartup() {
 		$sc = new TestDataStoreComponent();
@@ -91,6 +98,13 @@ class Test_SimpleComponent extends Test_BaseTest {
 	}
 
 }
+
+class TestEventsComponent extends \Cumula\Application\SimpleComponent {
+	public $events = array(
+		'MyTestEvent'
+		);
+}
+
 
 class TestDataStoreComponent extends \Cumula\Application\SimpleComponent {
 	public $defaultConfig = array(

@@ -1,27 +1,27 @@
 <?php
 namespace Cumula\Components\DataStoreWebAPI;
 
-class DataStoreWebAPI extends \Cumula\Base\Component {
-	protected $_models;
-	
-	public function __construct() {
-		parent::__construct();
-		
-		$this->addEvent('GatherDataStores');
-	}
-	
-	public function startup() {
-		$prefix = $this->getConfigValue('prefix', '/api');
-		A('Router')->bind('GatherRoutes', 
-			array(
-				$prefix.'/$type/create' => this('create'),
-				$prefix.'/$type/update/$id' => this('update'),
-				$prefix.'/$type/delete/$id' => this('destroy'),
-				$prefix.'/$type/load/$id' => this('load'),
-				$prefix.'/$type/query' => this('query'),
-			)
+class DataStoreWebAPI extends \Cumula\Application\SimpleComponent {
+
+	public $defaultConfig = array(
+		'basePath' => '/api'
 		);
+	
+	public $routes = array(
+		'/$type/create' => 'create',
+		'/$type/update/$id' => 'update',
+		'/$type/delete/$id' => 'destroy',
+		'/$type/load/$id' => 'load',
+		'/$type/query' => 'query'
+		)
+	
+	public $events = array(
+		'GatherDataStores'
+		)
+
 		
+	public function startup() {
+		parent::startup();
 		A('Application')->bind('BootPrepare', array($this, 'gather'));
 	}
 	
@@ -32,19 +32,15 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 		});
 		
 		foreach($models as $model => $ds) {
-			$this->_processModel($model, $ds);
+			$this->dataStores[strtolower($model)] = $ds
 		}
-	}
-	
-	protected function _processModel($model, $ds) {
-		$this->_models[strtolower($model)] = $ds;
 	}
 	
 	public function create($route, $router, $args) {
 		if(!$this->_checkArgs($args))
 			$this->render404();
 		
-		$ds = $this->_models[strtolower($args['type'])];
+		$ds = $this->dataStores[strtolower($args['type'])];
 		if($ds->create((object)$args)) {
 			$this->_returnResult($this->load(null, null, array('id' => $ds->lastRowId())));
 		} else {
@@ -56,7 +52,7 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 		if(!$this->_checkArgs($args))
 			$this->render404();
 		
-		$ds = $this->_models[strtolower($args['type'])];
+		$ds = $this->dataStores[strtolower($args['type'])];
 		$r = $ds->query(array($ds->getSchema()->getIdField() => $args['id']));
 		if($r && !empty($r)) {
 			$this->_returnResult($r);
@@ -69,7 +65,7 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 		if(!$this->_checkArgs($args) && isset($args['id']))
 			$this->render404();
 		
-		$ds = $this->_models[strtolower($args['type'])];
+		$ds = $this->dataStores[strtolower($args['type'])];
 		$ds->update((object)$args) ? $this->_returnTrue() : $this->_returnFalse();
 	}
 	
@@ -77,7 +73,7 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 		if(!$this->_checkArgs($args) && isset($args['id']))
 			$this->render404();
 		
-		$ds = $this->_models[strtolower($args['type'])];
+		$ds = $this->dataStores[strtolower($args['type'])];
 		$ds->destroy((object)$args) ? $this->_returnTrue() : $this->_returnFalse();
 	}
 	
@@ -85,7 +81,7 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 		if(!$this->_checkArgs($args) && isset($args['id']))
 			$this->render404();
 		
-		$ds = $this->_models[strtolower($args['type'])];
+		$ds = $this->dataStores[strtolower($args['type'])];
 		unset($args['type']);
 		$this->_returnResult($ds->query($args));
 	}
@@ -93,7 +89,7 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 	protected function _checkArgs($args) {
 		return (isset($args) && 
 				isset($args['type']) && 
-				in_array(strtolower($args['type']), array_keys($this->_models)));
+				in_array(strtolower($args['type']), array_keys($this->dataStores)));
 	}
 	
 	protected function _returnTrue() {

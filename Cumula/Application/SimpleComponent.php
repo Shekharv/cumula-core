@@ -6,6 +6,7 @@ class SimpleComponent extends \Cumula\Base\Component {
     
 	public function startup() {
 		parent::startup();
+		$this->registerEvents();
 		$this->startDataStores();
 		$this->registerRoutes();
 	}
@@ -15,6 +16,15 @@ class SimpleComponent extends \Cumula\Base\Component {
 		$this->stopDataStores();
 	}
 
+	public function registerEvents() {
+		if (!property_exists($this, 'events')) {
+			return;
+		}
+		foreach($this->events as $event) {
+			$this->addEvent($event);
+		}
+	}
+	
 	public function registerRoutes() {
 		if (!property_exists($this, 'routes')) {
 			return;
