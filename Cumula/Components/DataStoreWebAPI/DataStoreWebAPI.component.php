@@ -13,11 +13,11 @@ class DataStoreWebAPI extends \Cumula\Application\SimpleComponent {
 		'/$type/delete/$id' => 'destroy',
 		'/$type/load/$id' => 'load',
 		'/$type/query' => 'query'
-		)
+		);
 	
 	public $events = array(
 		'GatherDataStores'
-		)
+		);
 
 		
 	public function startup() {
