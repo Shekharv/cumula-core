@@ -32,7 +32,7 @@ class DataStoreWebAPI extends \Cumula\Application\SimpleComponent {
 		});
 		
 		foreach($models as $model => $ds) {
-			$this->dataStores[strtolower($model)] = $ds
+			$this->dataStores[strtolower($model)] = $ds;
 		}
 	}
 	
