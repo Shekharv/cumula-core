@@ -36,6 +36,10 @@ class SimpleComponent extends \Cumula\Base\Component {
 		}
 		$router->bind('GatherRoutes', $routes);
 	}
+
+	public function routeSetup() {
+		$this->connectDataStores();
+	}
 	
 	public function startDataStores() {
 		$this->dataStores = array();
@@ -50,13 +54,20 @@ class SimpleComponent extends \Cumula\Base\Component {
 				$ds = new $engine();
 			}
 			$ds->setup($this->schemas[$name], 'id', $name, $params);
-			$ds->connect();
 			$this->dataStores[$name] = $ds;
 		}
 	}
-
+	public function connectDataStores() {
+		if (!$this->dataStores) {
+			return;
+		}
+		foreach($this->dataStores as $name => $ds) {
+			$ds->connect();
+		}
+	}
+	
 	public function stopDataStores() {
-		if (!this->dataStores) {
+		if (!$this->dataStores) {
 			return;
 		}
 		foreach($this->dataStores as $name => $ds) {

@@ -35,12 +35,16 @@ class Test_SimpleComponent extends Test_BaseTest {
 			'Cumula\\DataStore\\YAML\\YAML');
 		$this->assertEquals($sc->dataStores['factory']->getSchema()->getFields(),
 							$sc->schemas['factory']);
-		$this->assertTrue($sc->dataStores['factory']->isConnected());
 		$this->assertInstance(
 			$sc->dataStores['direct'],
 			'Cumula\\DataStore\\YAML\\YAML');
 		$this->assertEquals($sc->dataStores['direct']->getSchema()->getFields(),
 							$sc->schemas['direct']);
+
+		$this->assertFalse($sc->dataStores['factory']->isConnected());
+		$this->assertFalse($sc->dataStores['direct']->isConnected());
+		$sc->connectDataStores();
+		$this->assertTrue($sc->dataStores['factory']->isConnected());
 		$this->assertTrue($sc->dataStores['direct']->isConnected());
 	}
 
