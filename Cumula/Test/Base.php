@@ -30,7 +30,8 @@ abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
 
 	public function assertInstance($instance, $class) {
 		self::assertTrue(isset($instance), 'Class not set');
-		self::assertTrue(get_class($instance) == $class, 'Instance not equal to class: '.get_class($instance));
+		$instance_class = get_class($instance);
+		self::assertEquals($instance_class, $class, 'Instance '.$instance_class. ' not equal to class: '.$class);
 	}
 
 	public function assertDispatches($obj, $event,

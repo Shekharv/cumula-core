@@ -62,6 +62,7 @@ class YAML extends \Cumula\Base\DataStore {
 	 */
 	public function connect() {
 		$this->_load();
+		$this->_connected = true;
 	}
 	
 	/* (non-PHPdoc)
@@ -69,6 +70,7 @@ class YAML extends \Cumula\Base\DataStore {
 	 */
 	public function disconnect() {
 		$this->_save();
+		$this->_connected = false;
 	}
 	
 	public function create($obj) {
