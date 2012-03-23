@@ -59,6 +59,33 @@ class Test_SimpleComponent extends Test_BaseTest {
 			'/test/two'
 			);
 	}
+
+	public function testRegisterRoutesSetup() {
+		$sc = new TestRoutesSetupComponent();
+		$sc->startup();
+		A('Router')->collectRoutes(null);
+		$this->assertBound(
+			array($sc, 'routeSetup'),
+			A('Router'),
+			'Before/test/one'
+			);
+		$this->assertBound(
+			array($sc, 'routeSetup'),
+			A('Router'),
+			'Before/test/two'
+			);
+		$this->assertBound(
+			array($sc, 'routeTeardown'),
+			A('Router'),
+			'After/test/one'
+			);
+		$this->assertBound(
+			array($sc, 'routeTeardown'),
+			A('Router'),
+			'After/test/two'
+			);
+	}
+
 }
 
 class TestDataStoreComponent extends \Cumula\Application\SimpleComponent {
@@ -102,3 +129,8 @@ class TestRoutesComponent extends \Cumula\Application\SimpleComponent {
 	public function detail() {}
 }
 
+class TestRoutesSetupComponent extends TestRoutesComponent {
+	public function routeSetup() {}
+
+	public function routeTeardown() {}
+}
