@@ -53,6 +53,10 @@ class SimpleComponent extends \Cumula\Base\Component {
 	
 	public function startDataStores() {
 		$this->dataStores = array();
+		$schemas = array();
+		if (property_exists($this, 'schemas')) {
+			$schemas = $this->schemas;
+		}
 		foreach($this->getConfigValue('dataStores', array()) as $name => $params) {
 			if (array_key_exists('factory', $params)) {
 				$factory = $params['factory'];
@@ -63,7 +67,11 @@ class SimpleComponent extends \Cumula\Base\Component {
 				unset($params['engine']);
 				$ds = new $engine();
 			}
-			$ds->setup($this->schemas[$name], 'id', $name, $params);
+			$fields = array();
+			if (array_key_exists($name, $schemas)) {
+				$fields = $schemas[$name];
+			}
+			$ds->setup($fields, 'id', $name, $params);
 			$this->dataStores[$name] = $ds;
 		}
 	}
