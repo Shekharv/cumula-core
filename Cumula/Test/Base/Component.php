@@ -67,7 +67,7 @@ class Test_BaseComponent extends Test_BaseTest {
 							$component->getConfigValue('notset', 'passed_default'));
 		$this->assertEquals('class_default',
 							$component->getConfigValue('defaultset'));
-		$this->assertEquals('passed_default',
+		$this->assertEquals('class_default',
 							$component->getConfigValue('defaultset', 'passed_default'));
 	}
 }

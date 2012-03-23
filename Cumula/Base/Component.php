@@ -57,8 +57,7 @@ abstract class Component extends \Cumula\Application\EventDispatcher {
 	}
 	
 	public function getConfigValue($name, $default = null) {
-		if (is_null($default)
-			&& isset($this->defaultConfig)
+		if (isset($this->defaultConfig)
 			&& array_key_exists($name, $this->defaultConfig)) {
 			$default = $this->defaultConfig[$name];
 		}

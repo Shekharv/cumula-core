@@ -25,14 +25,11 @@ class Test_SimpleComponent extends Test_BaseTest {
 			$this->yf = new \Cumula\DataStore\YAML\YAMLFactory();
 		}
 	}
-	 
-	public function createInstance() {
-		return new TestSimpleComponent();
-	}
 	
 	public function testDataStoreStartup() {
-		$sc = $this->createInstance();
+		$sc = new TestDataStoreComponent();
 		$sc->startup();
+		$this->assertContains('factory', array_keys($sc->dataStores), var_export($sc->dataStores, true));
 		$this->assertInstance(
 			$sc->dataStores['factory'],
 			'Cumula\\DataStore\\YAML\\YAML');
@@ -47,9 +44,24 @@ class Test_SimpleComponent extends Test_BaseTest {
 		$this->assertTrue($sc->dataStores['direct']->isConnected());
 	}
 
+	public function testRegisterRoutes() {
+		$sc = new TestRoutesComponent();
+		$sc->startup();
+		A('Router')->collectRoutes(null);
+		$this->assertBound(
+			array($sc, 'index'),
+			A('Router'),
+			'/test/one'
+			);
+		$this->assertBound(
+			array($sc, 'detail'),
+			A('Router'),
+			'/test/two'
+			);
+	}
 }
 
-class TestSimpleComponent extends \Cumula\Application\SimpleComponent {
+class TestDataStoreComponent extends \Cumula\Application\SimpleComponent {
 	public $defaultConfig = array(
 		'dataStores' => array(
 			'factory' => array(
@@ -75,3 +87,18 @@ class TestSimpleComponent extends \Cumula\Application\SimpleComponent {
 			)
 		);
 }
+
+class TestRoutesComponent extends \Cumula\Application\SimpleComponent {
+	public $defaultConfig = array(
+		'basePath' => '/test'
+		);
+	public $routes = array(
+		'/one' => 'index',
+		'/two' => 'detail'
+		);
+
+	public function index() {}
+
+	public function detail() {}
+}
+

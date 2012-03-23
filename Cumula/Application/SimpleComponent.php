@@ -7,6 +7,7 @@ class SimpleComponent extends \Cumula\Base\Component {
 	public function startup() {
 		parent::startup();
 		$this->startDataStores();
+		$this->registerRoutes();
 	}
 
 	public function shutdown() {
@@ -14,10 +15,22 @@ class SimpleComponent extends \Cumula\Base\Component {
 		$this->stopDataStores();
 	}
 
+	public function registerRoutes() {
+		if (!property_exists($this, 'routes')) {
+			return;
+		}
+		$basePath = $this->getConfigValue('basePath', '');
+		$routes = array();
+		foreach($this->routes as $route => $method) {
+			$routes[$basePath.$route] = array($this, $method);
+		}
+		A('Router')->bind('GatherRoutes', $routes);
+	}
+	
 	public function startDataStores() {
 		$this->dataStores = array();
-		foreach($this->getConfigValue('dataStores') as $name => $params) {
-			if (isset($params['factory'])) {
+		foreach($this->getConfigValue('dataStores', array()) as $name => $params) {
+			if (array_key_exists('factory', $params)) {
 				$factory = $params['factory'];
 				unset($params['factory']);
 				$ds = A($factory)->get();
