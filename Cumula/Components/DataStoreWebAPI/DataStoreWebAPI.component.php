@@ -19,6 +19,7 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 				$prefix.'/$type/delete/$id' => this('destroy'),
 				$prefix.'/$type/load/$id' => this('load'),
 				$prefix.'/$type/query' => this('query'),
+				$prefix.'/$type/findByAnyFilter' => this('findByAnyFilter'),
 			)
 		);
 		
@@ -45,6 +46,7 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 			$this->render404();
 		
 		$ds = $this->_models[strtolower($args['type'])];
+		$ds->connect();
 		if($ds->create((object)$args)) {
 			$this->_returnResult($this->load(null, null, array('id' => $ds->lastRowId())));
 		} else {
@@ -57,6 +59,7 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 			$this->render404();
 		
 		$ds = $this->_models[strtolower($args['type'])];
+		$ds->connect();
 		$r = $ds->query(array($ds->getSchema()->getIdField() => $args['id']));
 		if($r && !empty($r)) {
 			$this->_returnResult($r);
@@ -70,6 +73,7 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 			$this->render404();
 		
 		$ds = $this->_models[strtolower($args['type'])];
+		$ds->connect();
 		$ds->update((object)$args) ? $this->_returnTrue() : $this->_returnFalse();
 	}
 	
@@ -78,6 +82,7 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 			$this->render404();
 		
 		$ds = $this->_models[strtolower($args['type'])];
+		$ds->connect();
 		$ds->destroy((object)$args) ? $this->_returnTrue() : $this->_returnFalse();
 	}
 	
@@ -87,7 +92,38 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 		
 		$ds = $this->_models[strtolower($args['type'])];
 		unset($args['type']);
+		$ds->connect();
 		$this->_returnResult($ds->query($args));
+	}
+	
+	public function findByAnyFilter($route, $router, $args) {
+		$order = null;
+		$start = 0;
+		$limit = 10;
+		$data = array();
+		if(!$this->_checkArgs($args) && isset($args['id']))
+			$this->render404();
+		
+		$ds = $this->_models[strtolower($args['type'])];
+		unset($args['type']);
+		if(isset($args['order'])) {
+			$order = $args['order'];
+			unset($args['order']);
+		}
+		if(isset($args['start'])) {
+			$start = $args['start'];
+			unset($args['start']);
+		}
+		if(isset($args['limit'])) {
+			$limit = $args['limit'];
+			unset($args['limit']);
+		}
+		if(isset($args['data'])) {
+			$data = $args['data'];
+			unset($args['data']);
+		}
+		$ds->connect();
+		$this->_returnResult($ds->findByAnyFilter($args, $limit, $start, $order, $data));
 	}
 	
 	protected function _checkArgs($args) {
@@ -109,10 +145,8 @@ class DataStoreWebAPI extends \Cumula\Base\Component {
 	}
 	
 	protected function _returnResult($result) {
-		$count = is_array($result) ? count($result) : 1;
 		$this->renderJSON(
-			array('success' => 'true', 
-				'count' => $count, 
+			array('success' => 'true',
 				'result' => $result
 			)
 		);
