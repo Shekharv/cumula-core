@@ -12,7 +12,8 @@ class DataStoreWebAPI extends \Cumula\Application\SimpleComponent {
 		'/$type/update/$id' => 'update',
 		'/$type/delete/$id' => 'destroy',
 		'/$type/load/$id' => 'load',
-		'/$type/query' => 'query'
+		'/$type/query' => 'query',
+		'/$type/findByAnyFilter' => 'findByAnyFilter'
 		);
 	
 	public $events = array(
@@ -86,6 +87,35 @@ class DataStoreWebAPI extends \Cumula\Application\SimpleComponent {
 		$this->_returnResult($ds->query($args));
 	}
 	
+	public function findByAnyFilter($route, $router, $args) {
+		$order = null;
+		$start = 0;
+		$limit = 10;
+		$data = array();
+		if(!$this->_checkArgs($args) && isset($args['id']))
+			$this->render404();
+		
+		$ds = $this->_models[strtolower($args['type'])];
+		unset($args['type']);
+		if(isset($args['order'])) {
+			$order = $args['order'];
+			unset($args['order']);
+		}
+		if(isset($args['start'])) {
+			$start = $args['start'];
+			unset($args['start']);
+		}
+		if(isset($args['limit'])) {
+			$limit = $args['limit'];
+			unset($args['limit']);
+		}
+		if(isset($args['data'])) {
+			$data = $args['data'];
+			unset($args['data']);
+		}
+		$this->_returnResult($ds->findByAnyFilter($args, $limit, $start, $order, $data));
+	}
+	
 	protected function _checkArgs($args) {
 		return (isset($args) && 
 				isset($args['type']) && 
@@ -105,10 +135,8 @@ class DataStoreWebAPI extends \Cumula\Application\SimpleComponent {
 	}
 	
 	protected function _returnResult($result) {
-		$count = is_array($result) ? count($result) : 1;
 		$this->renderJSON(
-			array('success' => 'true', 
-				'count' => $count, 
+			array('success' => 'true',
 				'result' => $result
 			)
 		);

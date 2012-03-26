@@ -13,6 +13,10 @@
  * @link       http://cumula.org
  */
 
+set_include_path(implode(PATH_SEPARATOR, array(
+	get_include_path(),
+	realpath(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR.".."))));
+
 //Utility function to format a string using camelcase
 function toCamelCase($str, $capitalise_first_char = false)
 {

@@ -174,13 +174,19 @@ class Router extends \Cumula\Base\Component
 
 			if (count($segments) != count($route_segments))
 			{
-				continue;
+				//continue;
 			}
 
 			//Iterate through all URL segments
 			foreach ($segments as $i => $segment)
 			{
 				$route_segment = $i < count($route_segments) ? $route_segments[$i] : false;
+				//If route is wildcard the rest of the url will match
+				if($route_segment == '*') 
+				{
+					$match = true;
+					break;
+				}
 
 				//If the route is shorter than the url, go to next route
 				if(!$route_segment) 
@@ -194,22 +200,17 @@ class Router extends \Cumula\Base\Component
 				{
 					$args[substr($route_segment, 1, strlen($route_segment))] = $segment;
 					$match = true;
+					continue;
 				} 
 				else if ($route_segment == $segment) 
 				{
 					//Route segment and segment match, go to next iterator
 					$match = true;
+					continue;
 				} 
 				else 
 				{
 					$match = false;
-					break;
-				}
-
-				//If route is wildcard the rest of the url will match
-				if($route_segment == '*') 
-				{
-					$match = true;
 					break;
 				}
 			}
