@@ -76,22 +76,22 @@ class Test_SimpleComponent extends Test_BaseTest {
 		$sc->startup();
 		A('Router')->collectRoutes(null);
 		$this->assertBound(
-			array($sc, 'routeSetup'),
+			array($sc, 'routeStartup'),
 			A('Router'),
 			'Before/test/one'
 			);
 		$this->assertBound(
-			array($sc, 'routeSetup'),
+			array($sc, 'routeStartup'),
 			A('Router'),
 			'Before/test/two'
 			);
 		$this->assertBound(
-			array($sc, 'routeTeardown'),
+			array($sc, 'routeShutdown'),
 			A('Router'),
 			'After/test/one'
 			);
 		$this->assertBound(
-			array($sc, 'routeTeardown'),
+			array($sc, 'routeShutdown'),
 			A('Router'),
 			'After/test/two'
 			);
@@ -148,7 +148,7 @@ class TestRoutesComponent extends \Cumula\Application\SimpleComponent {
 }
 
 class TestRoutesSetupComponent extends TestRoutesComponent {
-	public function routeSetup() {}
+	public function routeStartup() {}
 
-	public function routeTeardown() {}
+	public function routeShutdown() {}
 }

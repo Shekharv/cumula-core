@@ -29,25 +29,25 @@ class SimpleComponent extends \Cumula\Base\Component {
 		if (!property_exists($this, 'routes')) {
 			return;
 		}
-		$hasRouteSetup = method_exists($this, 'routeSetup');
-		$hasRouteTeardown = method_exists($this, 'routeTeardown');
+		$hasRouteStartup = method_exists($this, 'routeStartup');
+		$hasRouteShutdown = method_exists($this, 'routeShutdown');
 		$basePath = $this->getConfigValue('basePath', '');
 		$routes = array();
 		$router = A('Router');
 		foreach($this->routes as $route => $method) {
 			$full_route = $basePath.$route;
 			$routes[$full_route] = array($this, $method);
-			if ($hasRouteSetup) {
-				$router->bind('Before'.$full_route, array($this, 'routeSetup'));
+			if ($hasRouteStartup) {
+				$router->bind('Before'.$full_route, array($this, 'routeStartup'));
 			}
-			if ($hasRouteTeardown) {
-				$router->bind('After'.$full_route, array($this, 'routeTeardown'));
+			if ($hasRouteShutdown) {
+				$router->bind('After'.$full_route, array($this, 'routeShutdown'));
 			}
 		}
 		$router->bind('GatherRoutes', $routes);
 	}
 
-	public function routeSetup() {
+	public function routeStartup() {
 		$this->connectDataStores();
 	}
 	
