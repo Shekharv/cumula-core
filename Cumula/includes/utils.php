@@ -56,6 +56,14 @@ function this($methodName = false, $index = 1) {
 	return $newThis;
 }
 
+function array_get($key, $array, $default=null) {
+	if (array_key_exists($key, $array)) {
+		return $array[$key];
+	} else {
+		return $default;
+	}
+}
+
 function copyDir($source, $destination) {
 	if (is_dir($source)) {
 		// Find all of the files in the directory and create directories
