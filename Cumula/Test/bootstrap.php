@@ -1,12 +1,11 @@
 <?php
 
+
 if (!defined('BASE_DIR'))
 {
-	if (is_callable($this, 'getProject'))
-	{
-    define('BASE_DIR', $this->getProject()->getProperty('project.basedir'));
-	}
-	else {
+	if (is_callable($this, 'getProject')) {
+		define('BASE_DIR', $this->getProject()->getProperty('project.basedir'));
+	} else {
 		define('BASE_DIR', realpath(dirname(__FILE__) .'/../'));
 	}
 }
@@ -41,7 +40,9 @@ function setupVfs()
 		define('CONFIGROOT', vfsStream::url('app/config'));
 
 }
-setupVfs();
+// TODO this should really come from test runner parameter?
+if (file_exists(BASE_DIR . DIRECTORY_SEPARATOR . 'app'))
+	setupVfs();
 
 //require_once realpath(__DIR__."/../../bin/boot.php");
 

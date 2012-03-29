@@ -28,6 +28,11 @@ abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
      */
     protected $files = array();
 
+	public function assertEq($tested, $expected) {
+		$msg = var_export($tested, true) . "\n did not equal \n" . var_export($expected, true);
+		self::assertEquals($tested, $expected, $msg);
+	}
+	
 	public function assertInstance($instance, $class) {
 		self::assertTrue(isset($instance), 'Class not set');
 		$instance_class = get_class($instance);
