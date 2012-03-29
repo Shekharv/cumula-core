@@ -58,6 +58,9 @@ class SimpleComponent extends \Cumula\Base\Component {
 			$schemas = $this->schemas;
 		}
 		foreach($this->getConfigValue('dataStores', array()) as $name => $params) {
+			if (is_null($params)) {
+				continue;
+			}
 			$fields = array();
 			if (array_key_exists($name, $schemas)) {
 				$fields = $schemas[$name];
