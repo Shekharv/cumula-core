@@ -2,7 +2,7 @@
 namespace Cumula\Application;
 
 class SimpleComponent extends \Cumula\Base\Component {
-	public $dataStores;
+	public $dataStores = array();
     
 	public function startup() {
 		parent::startup();
@@ -51,13 +51,12 @@ class SimpleComponent extends \Cumula\Base\Component {
 		$this->connectDataStores();
 	}
 	
-	public function startDataStores() {
-		$this->dataStores = array();
+	public function startDataStores($config_key='dataStores') {
 		$schemas = array();
 		if (property_exists($this, 'schemas')) {
 			$schemas = $this->schemas;
 		}
-		foreach($this->getConfigValue('dataStores', array()) as $name => $params) {
+		foreach($this->getConfigValue($config_key, array()) as $name => $params) {
 			if (is_null($params)) {
 				continue;
 			}
