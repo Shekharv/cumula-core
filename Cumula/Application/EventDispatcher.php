@@ -262,8 +262,7 @@ class EventDispatcher {
 		$class = get_called_class();
 		if (!isset(self::$_instances[$class]) || is_null(self::$_instances[$class]))
 		{
-			//self::$_instances[$class] = new $class();
-			return false;
+			self::$_instances[$class] = new $class();
 		}
 		return self::$_instances[$class];
 	}

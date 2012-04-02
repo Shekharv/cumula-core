@@ -77,11 +77,14 @@ abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
 	
 	public function assertIsBound($obj, $event, $that) {
 		$found = false;
-		$listeners = array_values($obj->getEventListeners($event));
-		foreach($listeners as $handler) {
-			if (is_array($handler)) {
-				if ($handler[0] = $that) {
-					$found = true;
+		$listeners = $obj->getEventListeners($event);
+		if ($listeners) {
+			$listeners = array_values($listeners);
+			foreach($listeners as $handler) {
+				if (is_array($handler)) {
+					if ($handler[0] = $that) {
+						$found = true;
+					}
 				}
 			}
 		}
@@ -96,4 +99,22 @@ abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
 			$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
     } // end function setUp
 
+}
+
+class Test_AppBase extends Test_BaseTest {
+	public function setUp() {
+		$this->app = \Cumula\Application\Application::instance();
+		if (!$this->app) {
+			$this->app = new \Cumula\Application\Application();
+		}
+		$this->cm = \Cumula\Application\ComponentManager::instance();
+		if (!$this->cm) {
+			$this->cm = new \Cumula\Application\ComponentManager();
+		}
+		$this->router = \Cumula\Application\Router::instance();
+		if (!$this->router) {
+			$this->router = new \Cumula\Application\Router();
+		}
+	}
+	
 }
