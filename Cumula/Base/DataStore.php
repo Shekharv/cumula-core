@@ -181,4 +181,8 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 		}
 		return $ret;
 	}
+	
+	protected function _resultsObject($results, $total, $start, $numItems, $data = null) {
+		return array('totalItems' => $total, 'start' => $start, 'numItems' => $numItems, 'results' => $results, 'data' => $data);
+	}
 }

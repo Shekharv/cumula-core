@@ -13,7 +13,8 @@ class DataStoreWebAPI extends \Cumula\Application\SimpleComponent {
 		'/$type/delete/$id' => 'destroy',
 		'/$type/load/$id' => 'load',
 		'/$type/query' => 'query',
-		'/$type/findByAnyFilter' => 'findByAnyFilter'
+		'/$type/findByAnyFilter' => 'findByAnyFilter',
+		'/$type/findFullText' => 'findFullText'
 		);
 	
 	public $events = array(
@@ -87,6 +88,33 @@ class DataStoreWebAPI extends \Cumula\Application\SimpleComponent {
 		$this->_returnResult($ds->query($args));
 	}
 	
+	public function findFullText($route, $router, $args) {
+		$order = null;
+		$start = 0;
+		$limit = 10;
+		$data = array();
+		if(!$this->_checkArgs($args) && isset($args['q']))
+			$this->render404();
+		
+		$ds = $this->dataStores[strtolower($args['type'])];
+		if(isset($args['order'])) {
+			$order = $args['order'];
+		}
+		if(isset($args['start'])) {
+			$start = $args['start'];
+		}
+		if(isset($args['limit'])) {
+			$limit = $args['limit'];
+		}
+		if(isset($args['data'])) {
+			$data = $args['data'];
+		}
+		if(isset($args['q'])) {
+			$query = $args['q'];
+		}
+		$this->_returnResult($ds->findFullText($query, $limit, $start, $order, $data));
+	}
+	
 	public function findByAnyFilter($route, $router, $args) {
 		$order = null;
 		$start = 0;
@@ -95,7 +123,7 @@ class DataStoreWebAPI extends \Cumula\Application\SimpleComponent {
 		if(!$this->_checkArgs($args) && isset($args['id']))
 			$this->render404();
 		
-		$ds = $this->_models[strtolower($args['type'])];
+		$ds = $this->dataStores[strtolower($args['type'])];
 		unset($args['type']);
 		if(isset($args['order'])) {
 			$order = $args['order'];
