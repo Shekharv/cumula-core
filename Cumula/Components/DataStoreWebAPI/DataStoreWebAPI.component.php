@@ -95,7 +95,7 @@ class DataStoreWebAPI extends \Cumula\Application\SimpleComponent {
 		if(!$this->_checkArgs($args) && isset($args['id']))
 			$this->render404();
 		
-		$ds = $this->_models[strtolower($args['type'])];
+		$ds = $this->dataStores[strtolower($args['type'])];
 		unset($args['type']);
 		if(isset($args['order'])) {
 			$order = $args['order'];
