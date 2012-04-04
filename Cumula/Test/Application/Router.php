@@ -2,9 +2,7 @@
 
 use \Cumula\Application\Router as Router;
 
-require_once 'Cumula/Test/Base.php';
-
-class Test_Router extends Test_BaseTest {
+class Test_Router extends \Cumula\Test\Base {
     private $router;
     
     public function setUp() {

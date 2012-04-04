@@ -2,14 +2,12 @@
 
 use Cumula\Schema\Simple as SimpleSchema;
 
-require_once 'Cumula/Test/Base.php';
-
 /**
  * Test of the SimpleSchema Class
  * @package Cumula
  * @subpackage Core
  **/
-class Test_SimpleSchema extends Test_BaseTest {
+class Test_SimpleSchema extends \Cumula\Test\Base {
     /**
      * Store the Schema object
      * @var SimpleSchema
@@ -49,4 +47,4 @@ class Test_SimpleSchema extends Test_BaseTest {
         $this->assertEquals($this->schema->getFields(), $this->fields);
     } // end function testConstructor
 
-} // end class Test_SimpleSchema extends Test_BaseTest
+}

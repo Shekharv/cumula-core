@@ -1,14 +1,12 @@
 <?php
 
-require_once 'Cumula/Test/Base.php';
-
 /**
  * BaseComponent Test Class
  * @package Cumula
  * @subpackage Core
  **/
 
-class Test_SimpleComponent extends Test_BaseTest {
+class Test_SimpleComponent extends \Cumula\Test\Base {
 	
 	public function setUp() {
 		parent::setUp();
