@@ -172,9 +172,9 @@ class Router extends \Cumula\Base\Component
 			$match = false;
 			$args = array();
 
-			if (count($segments) != count($route_segments))
+			if ((count($segments) != count($route_segments) && !strstr($route, '*')))
 			{
-				//continue;
+				continue;
 			}
 
 			//Iterate through all URL segments
