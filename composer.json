@@ -1,4 +1,5 @@
 {
     "name": "cumula/core",
-    "description": "Cumula Core Framework"
+    "description": "Cumula Core Framework",
+    "cumula": true
 }
