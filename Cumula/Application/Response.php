@@ -51,7 +51,8 @@ class Response extends EventDispatcher {
 	 */
 	public function send() {
 		$streams = A('Application')->getStreams();
-		$this->dispatch('Prepare'.A('Application')->stream);
+		// FIXME is this supposed to be for each stream name?
+		// $this->dispatch('Prepare'.A('Application')->stream);
 		$this->dispatch('ResponseSend');
 		echo $this->content;
 	}
