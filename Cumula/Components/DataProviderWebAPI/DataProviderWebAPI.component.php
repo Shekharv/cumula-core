@@ -64,12 +64,6 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 		$this->_returnResult($ret);
 	}
 	
-	protected function _checkArgs($args) {
-		return (isset($args) && 
-				isset($args['type']) && 
-				in_array(strtolower($args['type']), array_keys($this->dataStores)));
-	}
-	
 	protected function _returnTrue() {
 		$this->renderJSON(
 			array('success' => 'true')
