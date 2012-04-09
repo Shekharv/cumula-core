@@ -39,19 +39,15 @@ class FormHelper extends BaseComponent {
 										'value' => 'string'), 
 										'id', 
 										'config');
-		$this->_dataStore = new $ds();
-		$this->_dataStore->setup(
-			array(
+		$this->_dataStore = new $ds(array(
+			'fields'=> array(
 				'id' => 'string',
 				'value' => 'string'
-			), 
-			'id', 
-			'config',
-			array(
-				'source_directory' => DATAROOT, 
-				'filename' => 'data.yaml'
-			)
-		);
+			),
+			'idField' => 'id',
+			'sourceDir' => DATAROOT, 
+			'filename' => 'data.yaml'
+		));
 		self::$_formId = '';
 	}
 	

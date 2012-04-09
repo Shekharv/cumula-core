@@ -1,5 +1,6 @@
 <?php
 namespace Cumula\DataStore\Sql;
+use \Cumula\Base\DataStore as BaseDataStore;
 
 /**
  * Cumula
@@ -24,7 +25,7 @@ namespace Cumula\DataStore\Sql;
  * @author     Seabourne Consulting
  */
 
-abstract class Base extends \Cumula\Base\DataStore {
+abstract class Base extends BaseDataStore {
 	private $_name;
 	
 	protected $_db;
@@ -35,11 +36,10 @@ abstract class Base extends \Cumula\Base\DataStore {
 	private $schema;
 
 	public function __construct($config) {
-		parent::__construct($config);
-		if(!isset($config['tableName']))
-			throw new \Exception("Must provide a 'tableName' config value.");
+		if(!isset($config['name']))
+			throw new \Exception("Must provide a 'name' config value.")
 			
-		$this->_name = $config['tableName'];
+		$this->_name = $config['name'];
 	}
 
 	abstract public function escapeString($dirtyString);
@@ -60,7 +60,7 @@ abstract class Base extends \Cumula\Base\DataStore {
 		$sql = "INSERT INTO {$this->_name} ";
 		$keys = array();
 		$values = array();
-		foreach($this->_fields as $field => $args) {
+		foreach($this->getSchema()->getFields() as $field => $args) {
 			if(!isset($obj->$field))
 				continue;
 			$keys[] = "`$field`";
@@ -72,9 +72,9 @@ abstract class Base extends \Cumula\Base\DataStore {
 	}
 	
 	public function install() {
-		$sql_output = "CREATE TABLE IF NOT EXISTS {$this->_name}(";
+		$sql_output = "CREATE TABLE IF NOT EXISTS {$this->getSchema()->getName()}(";
 		$fields = array();
-		foreach(static::translateFields($this->_fields) as $field => $attrs) {
+		foreach(static::translateFields($this->getSchema()->getFields()) as $field => $attrs) {
 			$field = "`$field` {$attrs['type']}";
 			if(array_key_exists('size', $attrs))
 				$field .= $attrs['size'];
@@ -91,7 +91,7 @@ abstract class Base extends \Cumula\Base\DataStore {
 	}
 	
 	public function uninstall() {
-		return "DROP TABLE {$this->_name}";
+		return "DROP TABLE {$this->getSchema()->getName()}";
 	}
 
 	/* (non-PHPdoc)
@@ -99,14 +99,14 @@ abstract class Base extends \Cumula\Base\DataStore {
 	 */
 	public function update($obj) {
 		$this->_log('BaseSQLDataStore::update called');
-		$idField = $this->_getIdField();
+		$idField = $this->getSchema()->getIdField();
 		if (!$this->recordExists($obj->$idField)) 
 		{
 			return false;
 		}
-		$sql = "UPDATE {$this->_name} SET ";
+		$sql = "UPDATE {$this->getSchema()->getName()} SET ";
 		$fields = array();
-		foreach ($this->_config['fields'] as $field => $args) 
+		foreach ($this->getSchema()->getFields() as $field => $args) 
 		{
 			if (property_exists($obj, $field)) 
 			{
@@ -127,8 +127,8 @@ abstract class Base extends \Cumula\Base\DataStore {
 	 */
 	public function createOrUpdate($obj) 
 	{
-		$idField = $this->_getIdField();
-		if (isset($obj->$idField) && $this->findByAnyFilter(array($idField => $obj->$idField))) 
+		$idField = $this->getSchema()->getIdField();
+		if (isset($obj->$idField) && $this->query(array($idField => $obj->$idField))) 
 		{
 			return $this->update($obj);
 		} 
@@ -137,7 +137,7 @@ abstract class Base extends \Cumula\Base\DataStore {
 			$create = $this->create($obj);
 			if ($create) 
 			{
-				$id = $this->lastObjectId();
+				$id = $this->lastRowId();
 				return $id;
 			}
 			else 
@@ -151,8 +151,8 @@ abstract class Base extends \Cumula\Base\DataStore {
 	 * @see core/interfaces/DataStore#delete($obj)
 	 */
 	public function destroy($obj) {
-		$idField = $this->_getIdField();
-		$sql = "DELETE FROM {$this->_name} WHERE ";
+		$idField = $this->getSchema()->getIdField();
+		$sql = "DELETE FROM {$this->getSchema()->getName()} WHERE ";
 		if(is_numeric($obj))
 			$sql .= $idField.' = '.$obj.';';
 		else
@@ -163,17 +163,22 @@ abstract class Base extends \Cumula\Base\DataStore {
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#query($args, $order, $limit)
 	 */
-	public function findByAnyFilter($filters, $order = null, $limit = null, $start = null, $data = null) {
-		$sql = "SELECT * FROM {$this->_name} ";
+	public function query($args, $order = null, $limit = null, $start = null) {
+		$sql = "SELECT * FROM {$this->getSchema()->getName()} ";
 		//Args is an id
-		if (is_array($filters) && !empty($filters)) {
+		if (is_numeric($args)) {
+			$sql .= "WHERE {$this->getSchema()->getIdField()}=$args";
+		// Args is an array
+		} else if (is_array($args) && !empty($args)) {
 			$conditions = array();
 			$sql .= 'WHERE ';
-			foreach($filters as $key => $val) {
+			foreach($args as $key => $val) {
 				$conditions[] = " ".$key."=" . (is_numeric($val) ? $val : $this->escapeString($val));
 			}
-			$sql .= implode(' OR ', $conditions);
+			$sql .= implode(' AND ', $conditions);
 		// Args is a string of sql that will be appended
+		} elseif (is_string($args)) {
+			$sql .= 'WHERE ' . $args . ' ';
 		} else {
 			// do nothing, no args passed
 		}
@@ -203,7 +208,7 @@ abstract class Base extends \Cumula\Base\DataStore {
 	}
 
 	public function get($args) {
-		$obj = $this->findByAnyFilter(array($this->_config['idField'] => $args));
+		$obj = $this->query($args);
 		if ($obj) {
 			$obj = $this->newObj($obj[0]);
 		}

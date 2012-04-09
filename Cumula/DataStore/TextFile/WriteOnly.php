@@ -1,6 +1,6 @@
 <?php
 namespace Cumula\DataStore\TextFile;
-use Cumula\Base\DataStore as BaseDataStore;
+use Cumula\Base\FileDataStore as BaseDataStore;
 //TODO: Figure out what todo with this, whether to keep it.
 /**
  * Cumula
@@ -25,13 +25,7 @@ use Cumula\Base\DataStore as BaseDataStore;
  * @author     Seabourne Consulting
  */
 class WriteOnly extends BaseDataStore {
-	private $_logFile;
-
-	public function __construct($schema, $configValues) {
-		parent::__construct($schema, $configValues);
-		$this->_storage = array();
-		$this->_logFile = $configValues['logfile'];
-	}
+	private $_storage = array();
 
 	public function connect() {
 		return true;
@@ -40,52 +34,12 @@ class WriteOnly extends BaseDataStore {
 	public function disconnect() {
 		return true;
 	}
-	
-	public function setup($fields, $id, $domain, $config) {
-		
-	}
 
 	public function create($obj) {
-		@file_put_contents($this->_logFile, $this->_arrayToString($this->_objToArray($obj))."\n", FILE_APPEND);
+		@file_put_contents($this->_dataStoreFile(), $this->_arrayToString($this->_objToArray($obj))."\n", FILE_APPEND);
 	}
 
-	public function update($obj) {
-		return false;
-	}
-
-	public function createOrUpdate($obj) {
-		$this->create($obj);
-	}
-
-	public function destroy($obj) {
-		return false;
-	}
-	
-	public function install() {
-		return false;
-	}
-	
-	public function uninstall() {
-		return false;
-	}
-	
-	public function translateFields($fields) {
-		return $fields;
-	}
-
-	public function query($args, $order = null, $limit = null, $start = null) {
-		return false;
-	}
-
-	public function get($args) {
-		return false;
-	}
-
-	public function recordExists($id) {
-		return false;
-	}
-	
-	public function lastRowId() {
+	public function recordExists($obj) {
 		return false;
 	}
 }

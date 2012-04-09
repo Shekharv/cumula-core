@@ -2,7 +2,7 @@
 namespace Cumula\Application;
 
 class SimpleComponent extends \Cumula\Base\Component {
-	public $dataStores = array();
+	public $dataProviders = array();
     
 	public function startup() {
 		parent::startup();
@@ -13,7 +13,7 @@ class SimpleComponent extends \Cumula\Base\Component {
 
 	public function shutdown() {
 		parent::shutdown();
-		$this->stopDataStores();
+		$this->stopDataProviders();
 	}
 
 	public function registerEvents() {
@@ -48,49 +48,38 @@ class SimpleComponent extends \Cumula\Base\Component {
 	}
 
 	public function routeStartup() {
-		$this->connectDataStores();
+		$this->connectDataProviders();
 	}
 	
-	public function startDataStores($config_key='dataStores') {
-		$schemas = array();
-		if (property_exists($this, 'schemas')) {
-			$schemas = $this->schemas;
-		}
+	public function startDataStores($config_key='dataProviders') {
 		foreach($this->getConfigValue($config_key, array()) as $name => $params) {
 			if (is_null($params)) {
 				continue;
 			}
-			$fields = array();
-			if (array_key_exists($name, $schemas)) {
-				$fields = $schemas[$name];
-			}
-			if (array_key_exists('factory', $params)) {
-				$factory = $params['factory'];
-				unset($params['factory']);
-				$ds = A($factory)->get($fields, 'id', $name, $params);
-			} else {
+			if (isset($params['engine'])) {
 				$engine = $params['engine'];
 				unset($params['engine']);
-				$ds = new $engine();
-				$ds->setup($fields, 'id', $name, $params);
+				$config = isset($params['config']) ? $params['config'] : array();
+				$ds = new $engine($config);
 			}
-			$this->dataStores[$name] = $ds;
+			$this->dataProviders[$name] = $ds;
 		}
 	}
-	public function connectDataStores() {
-		if (!$this->dataStores) {
+	
+	public function connectDataProviders() {
+		if (!$this->dataProviders) {
 			return;
 		}
-		foreach($this->dataStores as $name => $ds) {
+		foreach($this->dataProviders as $name => $ds) {
 			$ds->connect();
 		}
 	}
 	
-	public function stopDataStores() {
-		if (!$this->dataStores) {
+	public function stopDataProviders() {
+		if (!$this->dataProviders) {
 			return;
 		}
-		foreach($this->dataStores as $name => $ds) {
+		foreach($this->dataProviders as $name => $ds) {
 			$ds->disconnect();
 		}
 	}
