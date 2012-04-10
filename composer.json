@@ -4,5 +4,8 @@
 
     "bin": [
         "bin/cumula"
-    ]
+    ],
+    "autoload": {
+        "psr-0": {"Cumula": ""}
+    }
 }
