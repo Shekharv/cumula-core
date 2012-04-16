@@ -27,8 +27,43 @@ use Cumula\DataStore\Base as BaseDataStore;
 
 abstract class Base extends \Cumula\Base\DataStore {
 
-	public function __construct($config) {
-		parent::__construct($config);
+	public function __construct() {
+		parent::__construct();
 	}
 
+	public function create($obj) {
+		
+	}
+	
+	public function update($obj) {
+		
+	}
+	
+	public function destroy($obj) {
+		
+	}
+	
+	public function query($args, $order = null, $limit = null, $start = null) {
+		
+	}
+	
+	public function install() {
+		
+	}
+	
+	public function uninstall() {
+		
+	}
+	
+	public function translateFields($fields) {
+		
+	}
+	
+	public function recordExists($id) {
+		
+	}
+	
+	public function lastRowId() {
+		
+	}
 }

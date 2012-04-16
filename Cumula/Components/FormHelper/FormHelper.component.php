@@ -39,19 +39,15 @@ class FormHelper extends BaseComponent {
 										'value' => 'string'), 
 										'id', 
 										'config');
-		$this->_dataStore = new $ds();
-		$this->_dataStore->setup(
-			array(
+		$this->_dataStore = new $ds(array(
+			'fields'=> array(
 				'id' => 'string',
 				'value' => 'string'
-			), 
-			'id', 
-			'config',
-			array(
-				'source_directory' => DATAROOT, 
-				'filename' => 'data.yaml'
-			)
-		);
+			),
+			'idField' => 'id',
+			'sourceDir' => DATAROOT, 
+			'filename' => 'data.yaml'
+		));
 		self::$_formId = '';
 	}
 	
@@ -68,10 +64,10 @@ class FormHelper extends BaseComponent {
 			$id = $request->params['validate_id'];
 			$key = $request->params['validate_value'];
 			//Check id:key is valid and matches saved version
-			$check_key = $this->_dataStore->query(array('id' => $id));
+			$check_key = $this->_dataStore->get($id);
 			//If key is not valid, return 
-			if(is_null($check_key[0]) || $key != $check_key[0]) {
-				$response->send405();
+			if(is_null($check_key) || $key != $check_key) {
+				$this->renderNotAllowed();
 			} else {
 				$this->_dataStore->destroy($key);
 			}

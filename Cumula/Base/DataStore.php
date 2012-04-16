@@ -29,8 +29,11 @@ use \Cumula\Schema\Simple as SimpleSchema;
  * @author     Seabourne Consulting
  */
 abstract class DataStore extends \Cumula\Application\EventDispatcher {
-	protected $_schema;
 	protected $_connected = false;
+	protected $_config = array();
+	protected $_fields = false;
+	
+	static public $requiredConfig = array('fields', 'idField');
 
 	/**
 	 * Constants
@@ -48,14 +51,34 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	 * 
 	 * @return unknown_type
 	 */
-	public function __construct() {
+	public function __construct($config) {
+		parent::__construct();
+		$this->_config = $config;
+		
+		$ref = new \ReflectionObject(static::instance());
+		xdebug_disable();
+		
+		$keys = array();
+		do {
+			try {
+				$keys = array_merge($keys, $ref->getProperty('requiredConfig')->getValue());
+			} catch (\Exception $e) {
+				
+			} 
+			$ref = $ref->getParentClass();
+		} while ($ref);
+		
+		xdebug_enable();
+		foreach($keys as $key) {
+			if(!isset($config[$key])) 
+				throw new \Exception("Must provide a '$key' config value for ".get_called_class());
+		}
+
+		$this->_fields = $config['fields'];
+		
 		$this->addEvent('Load');
 		$this->addEvent('Save');
-		parent::__construct();
-	}
-	
-	public function setup($fields, $id, $domain, $configValues) {
-		$this->setSchema(new SimpleSchema($fields, $id, $domain));
+		
 	}
 	
 	public function isConnected() {
@@ -80,64 +103,89 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 		return $obj;
 	}
 	
-	abstract public function create($obj);
+	public function create($obj) {
+		throw new \Exception('Create is not implemented by this DataStore.');
+	}
 	
-	abstract public function update($obj);
+	public function update($obj) {
+		throw new \Exception('Update is not implemented by this DataStore.');
+	}
 	
-	abstract public function destroy($obj);
+	public function destroy($obj) {
+		throw new \Exception('Destroy is not implemented by this DataStore.');
+	}
 	
-	abstract public function get($args);
+	public function get($args) {
+		throw new \Exception('Get is not implemented by this DataStore.');
+	}
 	
-	abstract public function query($args, $order = null, $limit = null, $start = null);
+	public function findByFullText($query, $order = null, $limit = null, $start = null, $data = null) {
+		throw new \Exception('FindByFullText is not implemented by this DataStore.');
+	}
 	
-	abstract public function install();
+	public function findRecent($order = null, $limit = null, $start = null, $recentField = null, $pullFrom = null, $data = null) {
+		throw new \Exception('findRecent is not implemented by this DataStore.');
+	}
 	
-	abstract public function uninstall();
+	public function findByAnyFilter($filters, $order = null, $limit = null, $start = null, $data = null) {
+		throw new \Exception('findByAnyFilter is not implemented by this DataStore.');
+	}
 	
-	abstract public function translateFields($fields);
+	public function findByAllFilters($filters, $order = null, $limit = null, $start = null, $data = null) {
+		throw new \Exception('findByAllFilters is not implemented by this DataStore.');
+	}
 	
-	abstract public function recordExists($id);
+	public function lastObjId() {
+		throw new \Exception('LastObjId is not implemented by this DataStore.');
+	}
+	
+	public function translateFields($fields) {
+		return $fields;
+	}
+	
+	public function install() {
+		return true;
+	}
+	
+	public function uninstall() {
+		return true;
+	}
 	
 	abstract public function connect();
 	
 	abstract public function disconnect();
 	
-	abstract public function lastRowId();
+	abstract public function recordExists($id);
 	
 	public function newObj($fields = null) {
-		$obj = $this->getSchema()->getObjInstance();
-		if ($fields) {
-			foreach($fields as $name => $value) {
-				$obj->$name = $value;
-			}
+		$obj = new \stdClass();
+		foreach($this->_fields as $key => $value) {
+			if(isset($config['fieldMapping']) && isset($config['fieldMapping'][$key]) && is_callable($config['fieldMapping'][$key])) {
+				$val = call_user_func_array($config['fieldMapping'][$key], array($fields[$key]));
+			} else
+				$val = $fields[$key];
+			$obj->$key = $val;
 		}
+		
 		return $obj;
-	}
-	
-	/**
-	 * Sets the schema for use by the datastore.
-	 * 
-	 * @param $schema
-	 * @return unknown_type
-	 */
-	public function setSchema(\Cumula\Schema\Simple $schema) {
-		$this->_schema = $schema;
-	}
-	
-	/**
-	 * @return unknown_type
-	 */
-	public function getSchema() {
-		return $this->_schema;
-	}
-	
+	}	
 	
 	/**
 	 * Returns the field used as the unique id for records
 	 * @return unknown_type
 	 */
-	protected function _getId() {
-		return $this->_schema->getIdField();
+	protected function _getIdField() {
+		return $this->_config['idField'];
+	}
+	
+	protected function _getNonIdFields() {
+		$idField = $this->_getIdField();
+		$ret = array();
+		foreach($this->_fields as $key => $value) {
+			if($key != $idField)
+				$ret[] = $key;
+		}
+		return $ret;
 	}
 	
 	/**
@@ -168,12 +216,12 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	}
 	
 	protected function _getIdValue($obj) {
-		$idField = $this->getSchema()->getIdField();
+		$idField = $this->_getIdField();
 		return $obj->$idField;	
 	}
 	
 	protected function _getNonIdValues($obj) {
-		$idField = $this->_schema->getIdField();
+		$idField = $this->_getIdField();
 		$ret = array();
 		foreach((array)$obj as $key => $value) {
 			if($key != $idField)

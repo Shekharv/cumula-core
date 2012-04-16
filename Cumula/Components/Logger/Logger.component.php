@@ -42,15 +42,20 @@ class Logger extends BaseComponent
 		parent::__construct();
 		$this->_registered = array();
 		
-		$log_dir = A('SystemConfig')->getValue('log_directory', APPROOT.'/log');
-		$log_file = A('SystemConfig')->getValue('environment', ENV_DEVELOPMENT).'.log';
+		$logDir = A('SystemConfig')->getValue('logDirectory', APPROOT.'/log');
+		$logFile = A('SystemConfig')->getValue('environment', ENV_DEVELOPMENT).'.log';
 		$this->syslog = A('SystemConfig')->getValue('syslog', FALSE);
-		if (!file_exists($log_dir))
-		{
-			mkdir($log_dir);
-		}
-		$schema = new SimpleSchema(array('id' => 'string'), 'id', 'log');
-		$this->dataStore = new WriteOnlyTextDataStore($schema, array('logfile' => $log_dir .'/'.$log_file));
+		
+		if (!file_exists($logDir))
+			mkdir($logDir);
+			
+		$this->dataStore = new WriteOnlyTextDataStore(array(
+			'fields' => array('id' => 'string'),
+			'idField' => 'id',
+			'filename' => $logDir, 
+			'sourceDir' => $logFile
+		));
+		
 		A('Application')->bind('EventDispatcherCreated', array($this, 'registerForEvents'));
 	}
 	

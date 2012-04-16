@@ -14,9 +14,18 @@ class UserManager extends BaseComponent {
 		$this->addEvent('register_auth_domain');
 		$this->_domains = array();
 		$this->_paths = array();
-		
-		$schema = new BasicUserSchema(array(), null, null);
-		$this->_userStore = new \Cumula\DataStore\Sql\Sqlite($schema, array('source_directory' => DATAROOT, 'filename' => 'user_store'));
+		$this->_userStore = new \Cumula\DataStore\Sql\Sqlite(array(
+			'sourceDir' => DATAROOT, 
+			'filename' => 'user_store.sqlite',
+			'tableName' => 'user',
+			'fields' => array(
+				'id' => array('type' => 'integer', 'autoincrement' => true),
+				'domain' => array('type' => 'string'),
+				'username' => array('type' => 'string'),
+				'password' => array('type' => 'string')
+				),
+			'idField' => 'id'
+		));
 	}
 	
 	public function startup() {

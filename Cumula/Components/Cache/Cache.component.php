@@ -1,6 +1,8 @@
 <?php
 namespace Cumula\Components\Cache;
 
+const SQLite = '\\Cumula\\DataStore\\Sql\\Sqlite';
+
 /**
  * Cache Component
  * @package Cumula
@@ -40,11 +42,28 @@ class Cache extends \Cumula\Base\Component
 	private function configureDataStore() 
 	{
 		// By default, use the default data store for saving values in the cache
-		$dataStoreClass = $this->defaultDataStore();
-		$schema = new Schema();
-		$this->addDataStore('cache', new $dataStoreClass($schema, array(
-			'source_directory' => APPROOT . DIRECTORY_SEPARATOR . 'cache/',
-			'filename' => '.cache.db',
+		$dataStoreClass = SQLite;
+		$this->addDataStore('cache', new $dataStoreClass(array(
+			'fields' => array(
+				'cid' => array(
+					'type' => 'string',
+					'required' => TRUE,
+					'unique' => TRUE,
+				),
+				'data' => array(
+					'type' => 'text'
+				),
+				'expire' => array(
+					'type' => 'integer',
+				),
+				'created' => array(
+					'type' => 'integer',
+				),
+			),
+			'idField' => 'cid',
+			'sourceDir' => DATAROOT,
+			'filename' => 'cache.sqlite',
+			'tableName' => 'cache',
 		)));
 	} // end function configureDataStore
 
@@ -54,12 +73,16 @@ class Cache extends \Cumula\Base\Component
 	 * @param string $bin Name of the bin to fetch the cache from
 	 * @return mixed
 	 **/
-	public static function get($cacheName, $bin = 'cache') 
+	public function get($cacheName, $bin = 'cache') 
 	{
-		$instance = self::instance();
-		$instance->dispatch('cache_populate_datastores');
-		$cache = (array)$instance->getDataStore($bin)->query(array('cid' => $cacheName), array(), 1);
-		return isset($cache[0]['data']) ? unserialize($cache[0]['data']) : FALSE;
+		$this->dispatch('cache_populate_datastores');
+		$cache = $this->getDataStore($bin)->get($cacheName);
+		$return = false;
+		if($cache && isset($cache->data) && $cache->expire > time())
+			$return = unserialize($cache->data);
+		if($cache && $cache->expire < time())
+			$this->getDataStore($bin)->destroy($cache);
+		return $return;
 	} // end function get
 
 	/**
@@ -69,14 +92,14 @@ class Cache extends \Cumula\Base\Component
 	 * @param array $options Optional array of options
 	 * @return void
 	 **/
-	public static function set($cacheName, $value, array $options = array())
+	public function set($cacheName, $value, array $options = array())
 	{
 		$options += array(
 			'bin' => 'cache',
 			'expire' => '15 minutes',
 		);
-		$instance = self::instance();
-		$instance->dispatch('cache_populate_datastores');
+		
+		$this->dispatch('cache_populate_datastores');
 
 		if ($options['expire'] !== Cache::PERMANENT)
 		{
@@ -104,7 +127,7 @@ class Cache extends \Cumula\Base\Component
 			$expires = 0;
 		}
 
-		$dataStore = $instance->getDataStore($options['bin']);
+		$dataStore = $this->getDataStore($options['bin']);
 
 		$obj = $dataStore->newObj();
 		$obj->cid = $cacheName;
