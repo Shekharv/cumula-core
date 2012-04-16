@@ -2,9 +2,8 @@
 
 use \Cumula\DataStore\YAML\YAML as YAML;
 
-require_once 'Cumula/Test/Base.php';
 
-class Test_YAML extends Test_BaseTest {
+class Test_YAML extends \Cumula\Test\Base {
 
 	public function testConstructor() {
 		$ds = new YAML();

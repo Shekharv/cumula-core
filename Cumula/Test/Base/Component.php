@@ -1,19 +1,5 @@
 <?php
 
-/**
- * Cumula
- *
- * Cumula - Framework for the cloud.
- *
- * @package     Cumula
- * @version     0.1.0
- * @author      Seabourne Consulting
- * @license     MIT LIcense
- * @copyrigt    2011 Seabourne Consulting
- * @link        http://cumula.org
- */
-
-require_once 'Cumula/Test/Base.php';
 
 /**
  * BaseComponent Test Class
@@ -21,7 +7,7 @@ require_once 'Cumula/Test/Base.php';
  * @subpackage Core
  **/
 
-class Test_BaseComponent extends Test_BaseTest {
+class Test_BaseComponent extends \Cumula\Test\Base {
 
     /**
      * setUp

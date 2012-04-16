@@ -1,16 +1,5 @@
 <?php
-/**
- * Cumula
- *
- * Cumula - Framework for the cloud.
- *
- * @package     Cumula
- * @version     0.1.0
- * @author      Seabourne Consulting
- * @license     MIT LIcense
- * @copyrigt    2011 Seabourne Consulting
- * @link        http://cumula.org
- */
+namespace Cumula\Test;
 
 /**
  * BaseTest Class
@@ -21,7 +10,7 @@
  * @subpackage  Tests
  * @author      Seabourne Consulting
  */
-abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
+abstract class Base extends \PHPUnit_Framework_TestCase {
     /**
      * Files to delete on tearDown
      * @var array
@@ -101,7 +90,7 @@ abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
 
 }
 
-class Test_AppBase extends Test_BaseTest {
+abstract class AppBase extends Base {
 	public function setUp() {
 		$this->app = \Cumula\Application\Application::instance();
 		if (!$this->app) {
