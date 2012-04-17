@@ -71,7 +71,7 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 		xdebug_enable();
 		foreach($keys as $key) {
 			if(!isset($config[$key])) 
-				throw new \Exception("Must provide a '$key' config value for ".get_called_class());
+				throw new \Exception("Must provide a '$key' config value for ".get_called_class()." got ". array_keys($config));
 		}
 
 		$this->_fields = $config['fields'];

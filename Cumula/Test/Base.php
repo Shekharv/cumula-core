@@ -21,7 +21,12 @@ abstract class Base extends \PHPUnit_Framework_TestCase {
 		$msg = var_export($tested, true) . "\n did not equal \n" . var_export($expected, true);
 		self::assertEquals($tested, $expected, $msg);
 	}
-	
+
+	public function assertIn($needle, $haystack) {
+		$msg = var_export($needle, true) . "\n not in \n" . var_export($haystack, true);
+		self::assertContains($needle, $haystack, $msg);
+	}
+
 	public function assertInstance($instance, $class) {
 		self::assertTrue(isset($instance), 'Class not set');
 		$instance_class = get_class($instance);
