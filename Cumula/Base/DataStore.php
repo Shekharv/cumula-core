@@ -33,7 +33,9 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	protected $_config = array();
 	protected $_fields = false;
 	
-	static public $requiredConfig = array('fields', 'idField');
+	public function requiredConfig() {
+		return array('fields', 'idField');
+	} 
 
 	/**
 	 * Constants
@@ -54,21 +56,7 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	public function __construct($config) {
 		parent::__construct();
 		$this->_config = $config;
-		
-		$ref = new \ReflectionObject(static::instance());
-		xdebug_disable();
-		
-		$keys = array();
-		do {
-			try {
-				$keys = array_merge($keys, $ref->getProperty('requiredConfig')->getValue());
-			} catch (\Exception $e) {
-				
-			} 
-			$ref = $ref->getParentClass();
-		} while ($ref);
-		
-		xdebug_enable();
+		$keys = $this->requiredConfig();
 		foreach($keys as $key) {
 			if(!isset($config[$key])) 
 				throw new \Exception("Must provide a '$key' config value for ".get_called_class()." got ". array_keys($config));
