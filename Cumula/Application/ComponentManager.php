@@ -355,11 +355,23 @@ final class ComponentManager extends \Cumula\Base\Component {
 		if (is_null($this->componentFiles) || count($this->componentFiles) == 0)
 		{
 			$files = array();
-			$coreFiles = $this->recurseCompDirectory(COMPROOT.DIRECTORY_SEPARATOR);
-			$contribFiles = $this->recurseCompDirectory(CONTRIBCOMPROOT.DIRECTORY_SEPARATOR);
-			$this->componentFiles = array_merge($this->componentFiles, $files);
-			$this->componentFiles = array_merge($this->componentFiles, $coreFiles);
-			$this->componentFiles = array_merge($this->componentFiles, $contribFiles);
+			$component_dirs = array(
+				COMPROOT,
+				CONTRIBCOMPROOT
+				);
+			if (COMPDIRS) {
+				$component_dirs = array_merge(
+					$component_dirs,
+					explode("|",COMPDIRS)
+					);
+			}
+			foreach ($component_dirs as $dir) {
+				$files = array_merge(
+					$files,
+					$this->recurseCompDirectory($dir)
+					);
+			}
+			$this->componentFiles = $files;
 		}
 		return $this->componentFiles;
 	} // end function getComponentFiles
@@ -368,7 +380,7 @@ final class ComponentManager extends \Cumula\Base\Component {
 		if ($source === null) {
 			$source = $root;
 		}
-		$suffix = '.component.php';
+		$suffix = '.component';
 		$ret = array();
 		foreach(glob(sprintf('{%s*/*,%s*/*%s}', $source, $source, $suffix), GLOB_BRACE) as $file)
 		{
