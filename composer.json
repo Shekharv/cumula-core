@@ -1,0 +1,11 @@
+{
+    "name": "cumula/core",
+    "description": "Cumula Core Framework",
+
+    "bin": [
+        "bin/cumula"
+    ],
+    "autoload": {
+        "psr-0": {"Cumula": ""}
+    }
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="Cumula Application" default="test">
+
+    <!-- Perform Automated Tests -->
+    <target name="test" depends="test.prepare" description="Run the Automated Tests and generate reports">
+      <if>
+        <not><isset property="test.class"/></not>
+        <then>
+          <property name="test.class" value="*" />
+        </then>
+      </if>
+      <phingCall target="test.execute" />
+    </target>
+    
+    <target name="test.prepare" description="Prepare to run the Automated Tests">
+      
+    </target>
+
+    <!-- Execute Unit Tests -->
+    <target name="test.execute" description="Execute unit tests">
+      <fail unless="test.class" msg="No Class available to Test" />
+            
+      <!-- Run the automated tests -->
+      <phpunit haltonerror="false" haltonfailure="false" codecoverage="false"
+               haltonskipped="false" bootstrap="${project.basedir}/test_bootstrap.php">
+        <formatter type="plain" usefile="false" />
+        <batchtest name="Cumula Automated Tests">
+          <fileset dir="${project.basedir}">
+            <include name="**/Test/${test.class}.php" />
+            <exclude name="bootstrap.php" />
+            <exclude name="vendor/**" />
+          </fileset>
+        </batchtest>
+      </phpunit>
+      
+      
+    </target>
+
+</project>

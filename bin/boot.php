@@ -1,7 +1,7 @@
 <?php
 
 define('ROOT', realpath(__DIR__ .'/../'));
-define('CUMULAVERSION', "0.4.0");
+define('CUMULAVERSION', "0.6.0");
 
 call_user_func(function() {
 	require_once(implode(DIRECTORY_SEPARATOR, array(ROOT, 'Cumula', 'Application', 'Autoloader.php')));

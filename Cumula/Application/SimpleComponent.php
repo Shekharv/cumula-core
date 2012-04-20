@@ -59,7 +59,7 @@ class SimpleComponent extends \Cumula\Base\Component {
 			if (isset($params['engine'])) {
 				$engine = $params['engine'];
 				unset($params['engine']);
-				$config = isset($params['config']) ? $params['config'] : array();
+				$config = isset($params['config']) ? $params['config'] : $params;
 				$ds = new $engine($config);
 			}
 			$this->dataProviders[$name] = $ds;

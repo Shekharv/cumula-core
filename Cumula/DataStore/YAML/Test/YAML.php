@@ -1,26 +1,29 @@
 <?php
+namespace Cumula\DataStore\YAML;
 
-use \Cumula\DataStore\YAML\YAML as YAML;
-
-require_once 'Cumula/Test/Base.php';
-
-class Test_YAML extends Test_BaseTest {
+class Test_YAML extends \Cumula\Test\Base {
 
 	public function testConstructor() {
-		$ds = new YAML();
+		$config = array(
+			"sourceDir" => CONFIGROOT,
+			"filename" => uniqid("testyaml"),
+			"fields" => array("id"=>true, "value"=>true),
+			"idField" => "id"
+			);
+		$ds = new YAML($config);
 		$events = $ds->getEvents();
 		$this->assertTrue($ds->eventIsRegistered('Load'));
 		$this->assertTrue($ds->eventIsRegistered('Save'));
 	}
 
 	public function configuredInstance() {
-		$ds = new YAML();
-		$ds->setup(
-			array('id', 'value'), 'id', 'testyaml',
-			array(
-				'source_directory' => CONFIGROOT,
-				'filename' => uniqid("testyaml"))
+		$config = array(
+			"sourceDir" => CONFIGROOT,
+			"filename" => uniqid("testyaml"),
+			"fields" => array("id"=>true, "value"=>true),
+			"idField" => "id"
 			);
+		$ds = new YAML($config);
 		$ds->connect();
 		return $ds;
 	}

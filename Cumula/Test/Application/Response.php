@@ -2,15 +2,13 @@
 
 use \Cumula\Application\Response as Response;
 
-require_once 'Cumula/Test/Base.php';
-
 /**
  * Response Class Tests
  * The send404 and send405 methods cannot be tested
  * @package Cumula
  * @subpackage Core
  **/
-class Test_Response extends Test_BaseTest {
+class Test_Response extends \Cumula\Test\Base {
     /**
      * Store the Response Object
      * @var Response

@@ -1,14 +1,12 @@
 <?php
 
-require_once 'Cumula/Test/Base.php';
-
 /**
  * BaseComponent Test Class
  * @package Cumula
  * @subpackage Core
  **/
 
-class Test_SimpleComponent extends Test_BaseTest {
+class Test_SimpleComponent extends \Cumula\Test\Base {
 	
 	public function setUp() {
 		parent::setUp();
@@ -19,10 +17,6 @@ class Test_SimpleComponent extends Test_BaseTest {
 		$this->cm = \Cumula\Application\ComponentManager::instance();
 		if (!$this->cm) {
 			$this->cm = new \Cumula\Application\ComponentManager();
-		}
-		$this->yf = \Cumula\DataStore\YAML\YAMLFactory::instance();
-		if (!$this->yf) {
-			$this->yf = new \Cumula\DataStore\YAML\YAMLFactory();
 		}
 	}
 
@@ -36,23 +30,13 @@ class Test_SimpleComponent extends Test_BaseTest {
 	public function testDataStoreStartup() {
 		$sc = new TestDataStoreComponent();
 		$sc->startup();
-		$this->assertContains('factory', array_keys($sc->dataStores), var_export($sc->dataStores, true));
+		$this->assertIn('direct', array_keys($sc->dataProviders));
 		$this->assertInstance(
-			$sc->dataStores['factory'],
+			$sc->dataProviders['direct'],
 			'Cumula\\DataStore\\YAML\\YAML');
-		$this->assertEquals($sc->dataStores['factory']->getSchema()->getFields(),
-							$sc->schemas['factory']);
-		$this->assertInstance(
-			$sc->dataStores['direct'],
-			'Cumula\\DataStore\\YAML\\YAML');
-		$this->assertEquals($sc->dataStores['direct']->getSchema()->getFields(),
-							$sc->schemas['direct']);
-
-		$this->assertFalse($sc->dataStores['factory']->isConnected());
-		$this->assertFalse($sc->dataStores['direct']->isConnected());
-		$sc->connectDataStores();
-		$this->assertTrue($sc->dataStores['factory']->isConnected());
-		$this->assertTrue($sc->dataStores['direct']->isConnected());
+		$this->assertFalse($sc->dataProviders['direct']->isConnected());
+		$sc->connectDataProviders();
+		$this->assertTrue($sc->dataProviders['direct']->isConnected());
 	}
 
 	public function testRegisterRoutes() {
@@ -108,27 +92,14 @@ class TestEventsComponent extends \Cumula\Application\SimpleComponent {
 
 class TestDataStoreComponent extends \Cumula\Application\SimpleComponent {
 	public $defaultConfig = array(
-		'dataStores' => array(
-			'factory' => array(
-				'factory' => 'Cumula\\DataStore\\YAML\YAMLFactory',
-				'source_directory' => DATAROOT,
-				'filename' => 'simple_factory.yaml'
-				),
+		'dataProviders' => array(
 			'direct' => array(
 				'engine' => 'Cumula\\DataStore\\YAML\YAML',
-				'source_directory' => DATAROOT,
-				'filename' => 'simple_engine.yaml'
+				'sourceDir' => DATAROOT,
+				'filename' => 'simple_engine.yaml',
+				'fields' => array('id', 'value'),
+				'idField' => 'id'
 				)
-			)
-		);
-	public $schemas = array(
-		'factory' => array(
-			'id' => 'string',
-			'body' => 'string',
-			),
-		'direct' => array(
-			'id' => 'string',
-			'author' => 'string',
 			)
 		);
 }

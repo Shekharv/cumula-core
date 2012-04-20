@@ -2,9 +2,7 @@
 
 use \Cumula\Application\Request as Request;
 
-require_once 'Cumula/Test/Base.php';
-
-class Test_Request extends Test_BaseTest {
+class Test_Request extends \Cumula\Test\Base {
 
 	public $request;
 

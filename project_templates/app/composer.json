@@ -1,0 +1,15 @@
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "http://github.com/Cumula/cumula-core.git"
+        },
+        {
+            "packagist": false
+        }
+    ],
+    "require": {
+        "cumula/core": "dev-master"
+    }
+}
+

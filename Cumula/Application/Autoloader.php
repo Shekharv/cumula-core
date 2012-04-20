@@ -45,7 +45,6 @@ class Autoloader extends EventDispatcher
 		$this->addEvent('EventAutoload');
 		$this->_setupConstants();
 
-		$this->setFileExtension('.component.php');
 		$this->setFileExtension('.php');
 		$this->setFileExtension('.interface.php');
 		$this->setIncludePath(array(COMPROOT, CONTRIBCOMPROOT));
@@ -69,6 +68,9 @@ class Autoloader extends EventDispatcher
 		$template_path = APPROOT . DIRECTORY_SEPARATOR . 'templates';
 		$test_path = $core_path . DIRECTORY_SEPARATOR . 'Test';
 
+		defined('COMPDIRS') ||
+			define('COMPDIRS', "");
+		
         defined('COMPROOT') ||
             define('COMPROOT', $core_component_path . DIRECTORY_SEPARATOR);
 

@@ -1,16 +1,5 @@
 <?php
-/**
- * Cumula
- *
- * Cumula - Framework for the cloud.
- *
- * @package     Cumula
- * @version     0.1.0
- * @author      Seabourne Consulting
- * @license     MIT LIcense
- * @copyrigt    2011 Seabourne Consulting
- * @link        http://cumula.org
- */
+namespace Cumula\Test;
 
 /**
  * BaseTest Class
@@ -21,7 +10,7 @@
  * @subpackage  Tests
  * @author      Seabourne Consulting
  */
-abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
+abstract class Base extends \PHPUnit_Framework_TestCase {
     /**
      * Files to delete on tearDown
      * @var array
@@ -32,7 +21,12 @@ abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
 		$msg = var_export($tested, true) . "\n did not equal \n" . var_export($expected, true);
 		self::assertEquals($tested, $expected, $msg);
 	}
-	
+
+	public function assertIn($needle, $haystack) {
+		$msg = var_export($needle, true) . "\n not in \n" . var_export($haystack, true);
+		self::assertContains($needle, $haystack, $msg);
+	}
+
 	public function assertInstance($instance, $class) {
 		self::assertTrue(isset($instance), 'Class not set');
 		$instance_class = get_class($instance);
@@ -101,7 +95,7 @@ abstract class Test_BaseTest extends PHPUnit_Framework_TestCase {
 
 }
 
-class Test_AppBase extends Test_BaseTest {
+abstract class AppBase extends Base {
 	public function setUp() {
 		$this->app = \Cumula\Application\Application::instance();
 		if (!$this->app) {

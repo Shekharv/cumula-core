@@ -38,22 +38,20 @@ function checkVersion() {
 	}
 }
 
-function checkPerms() {
-	global $argv, $argc, $installPath;
+function checkPerms($app_name) {
+	global $argv, $argc;
 	//check parent dir is writable
 	if(is_writable(TMPROOT)) {
 		$core = "core";
 		echo "Creating Project Folder...\n";
-		if(!file_exists(TMPROOT.$argv[1]))
-			mkdir(TMPROOT.$argv[1]);
-		if(!file_exists(TMPROOT.$argv[1].DIRECTORY_SEPARATOR.'app'))
-			mkdir(TMPROOT.$argv[1].DIRECTORY_SEPARATOR.'app');
+		if(!file_exists(TMPROOT.$app_name))
+			mkdir(TMPROOT.$app_name);
 		
-		if(!file_exists(TMPROOT.$argv[1].DIRECTORY_SEPARATOR.$core))	{
+		if(!file_exists(TMPROOT.$app_name.DIRECTORY_SEPARATOR.'app'))	{
 			echo "Moving Files...\n";
-			copyFiles(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'), TMPROOT.$argv[1].DIRECTORY_SEPARATOR.$core);
+			copyFiles(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'project_templates'.DIRECTORY_SEPARATOR.'app'), TMPROOT.$app_name.DIRECTORY_SEPARATOR);
 		}
-		$installPath = TMPROOT.$argv[1].DIRECTORY_SEPARATOR.$core;
+		return TMPROOT.$app_name;
 	} else {
 		echo "Parent folder ".realpath(TMPROOT)." is not writable.  Can not install Cumula.\n".
 		"Please make this folder writable and try again.\n";
@@ -64,10 +62,7 @@ function checkPerms() {
 echo 'Checking PHP Version: ';
 checkVersion();
 echo PHP_VERSION."...ok\n";
-checkPerms();
-echo "Starting Install...\n";
-echo "Booting Cumula for the first time...\n";
-$argv[1] = 'setup';
-if(isset($argv[2]))
-	unset($argv[2]);
+echo "Starting Install\n";
+return checkPerms($argv[1]);
+
 

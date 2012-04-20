@@ -1,0 +1,7 @@
+.DS_Store
+app/public/assets/*
+app/data
+app/config/*
+composer.lock
+composer.phar
+vendor/*
