@@ -60,9 +60,11 @@ class DataService extends \Cumula\Application\EventDispatcher {
 	}
 	
 	public function parameterizeUrl($url, $params) {
-		if(!strstr($url, "?"))
-			$url .= "?";
 		if(!empty($params)) {
+			if(!strstr($url, "?")) {
+				$url .= "?";
+			}
+			#TODO merge params with any already in URL
 			foreach($params as $key => $value) {
 				$url .= "$key=".urlencode($value)."&";
 			}

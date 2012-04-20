@@ -158,6 +158,7 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	abstract public function recordExists($id);
 	
 	public function newObj($fields = null) {
+		$config = $this->_config;
 		$obj = new \stdClass();
 		foreach($this->_fields as $key => $value) {
 			if(isset($config['fieldMapping']) && isset($config['fieldMapping'][$key]) && is_callable($config['fieldMapping'][$key])) {
