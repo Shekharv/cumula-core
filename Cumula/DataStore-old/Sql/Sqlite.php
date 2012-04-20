@@ -25,27 +25,14 @@ namespace Cumula\DataStore\Sql;
 
 class Sqlite extends Base {
 	protected $_db;
-	protected $_filename;
-	protected $_sourceDir;
 	
-	public function __construct($config) {
-		parent::__construct($config);
-		
-		if(!isset($config['filename']))
-			throw new \Exception('Must supply a \'filename\' config value.');
-			
-		if(!isset($config['sourceDir']))
-			throw new \Exception('Must supply a \'sourceDir\' config value.');
-			
-		$this->_filename = $config['filename'];
-		$this->_sourceDir = $config['sourceDir'];
-		
-		$this->_db = new \SQLite3($this->_dataStoreFile());
+	public function __construct($schema, $config_values) {
+		parent::__construct($schema, $config_values);
+		$this->setSchema($schema);
+		$this->_sourceDirectory = $config_values['source_directory'];
+		$this->_filename = $config_values['filename'];
+		$this->_db = new \SQLite3($this->_sourceDirectory.'/'.$this->_filename);
 		$this->connect();
-	}
-	
-	protected function _dataStoreFile() {
-		return $this->_sourceDir.'/'.$this->_filename;
 	}
 	
 	protected function doExec($sql) {
@@ -79,9 +66,9 @@ class Sqlite extends Base {
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#query($args, $order, $limit)
 	 */
-	public function findByAnyFilter($filters, $order = null, $limit = null, $start = null, $data = null) 
+	public function query($args, $order = null, $limit = null, $start = null) 
 	{
-		$result = parent::findByAnyFilter($filters, $order, $limit, $start, $data);
+		$result = parent::query($args, $order, $limit);
 		$arr = array();
 		if (!$result )
 		{
@@ -104,11 +91,11 @@ class Sqlite extends Base {
 	}
 
 	public function recordExists($id) {
-		$idField = $this->_getIdField();
-		return $this->findByAnyFilter(array($idField => $id));
+		$idField = $this->getSchema()->getIdField();
+		return $this->query(array($idField => $id));
 	}
 	
-	public function lastObjectId() {
+	public function lastRowId() {
 		return $this->_db->lastInsertRowID();
 	}
 	

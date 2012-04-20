@@ -34,14 +34,15 @@ class StandardConfig implements \Cumula\Interfaces\ConfigInterface {
 	 */
 	public function __construct($source_directory, $source_file) {
 		global $App;
-		$this->_dataStore = new \Cumula\DataStore\YAML\YAML();
-		$this->_dataStore->setup(
-			array('id' => 'string',
-				  'value' => 'string'), 
-			'id', 
-			'config',
-			array('source_directory' => $source_directory,
-				  'filename' => $source_file));
+		$this->_dataStore = new \Cumula\DataStore\YAML\YAML(array(
+			'fields' => array(
+				'id' => 'string',
+				'value' => 'string'
+			),
+			'idField' => 'id',
+			'sourceDir' => $source_directory,
+			'filename' => $source_file
+		));
 		$this->_dataStore->connect();
 	}
 	
@@ -58,9 +59,10 @@ class StandardConfig implements \Cumula\Interfaces\ConfigInterface {
 	 * @see core/interfaces/CumulaConfig#getConfigValue($config)
 	 */
 	public function getConfigValue($config, $default = null) {
-		$obj = $this->_dataStore->query($config);
-		if (isset($obj) && !is_null($obj[0])) {
-			return $obj[0];
+		$val = $this->_dataStore->get($config);
+		$obj = $val ? $val->value : null;
+		if (isset($obj) && !is_null($obj)) {
+			return $obj;
 		} else {
 			return $default;
 		}
