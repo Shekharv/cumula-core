@@ -49,7 +49,7 @@ function checkPerms($app_name) {
 		
 		if(!file_exists(TMPROOT.$app_name.DIRECTORY_SEPARATOR.'app'))	{
 			echo "Moving Files...\n";
-			copyFiles(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'new_app'), TMPROOT.$app_name.DIRECTORY_SEPARATOR);
+			copyFiles(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'project_templates'.DIRECTORY_SEPARATOR.'app'), TMPROOT.$app_name.DIRECTORY_SEPARATOR);
 		}
 		return TMPROOT.$app_name;
 	} else {
