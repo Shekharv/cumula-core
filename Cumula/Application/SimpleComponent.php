@@ -55,6 +55,8 @@ class SimpleComponent extends \Cumula\Base\Component {
 	public function routeStartup() {
 		$this->connectDataProviders();
 		$this->registerTemplate();
+		$this->registerAssets('css');
+		$this->registerAssets('js');
 	}
 
 	public function registerTemplate($config_key='template') {
@@ -62,6 +64,18 @@ class SimpleComponent extends \Cumula\Base\Component {
 		if ($template) {
 			A('AliasManager')->setAlias('Template', $template, false);
 		}
+	}
+
+	public function registerAssets($type) {
+		// TODO: this should allow some pattern config at least?
+		$dir = implode(DIRECTORY_SEPARATOR, array($this->rootDirectory(), 'assets', $type));
+		$files = array();
+		
+		foreach(glob($dir . DIRECTORY_SEPARATOR . '*.' . $type, GLOB_NOSORT) as $file) {
+			$filename = basename($file);
+			$files[] = '/assets/'.$this->componentName() . '/' . $type . '/' . $filename;
+		}
+		A('FileAggregator')->bind('Gather'.strtoupper($type).'Files', $files);
 	}
 	
 	public function startDataStores($config_key='dataProviders') {

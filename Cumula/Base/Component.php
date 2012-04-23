@@ -294,4 +294,7 @@ abstract class Component extends \Cumula\Application\EventDispatcher {
 		return dirname($class->getFileName());	
 	}
 
+	public function componentName() {
+		return join('', array_slice(explode('\\', get_class($this)), -1));
+	}
 }
