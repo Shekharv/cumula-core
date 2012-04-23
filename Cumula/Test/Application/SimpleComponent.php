@@ -106,11 +106,11 @@ class TestDataStoreComponent extends \Cumula\Application\SimpleComponent {
 
 class TestRoutesComponent extends \Cumula\Application\SimpleComponent {
 	public $defaultConfig = array(
-		'basePath' => '/test'
+		'basePath' => 'test'
 		);
 	public $routes = array(
-		'/one' => 'index',
-		'/two' => 'detail'
+		'one' => 'index',
+		'two' => 'detail'
 		);
 
 	public function index() {}
