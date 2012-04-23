@@ -22,6 +22,8 @@ const DEFAULT_AUTOLOADER_CLASS = 'Cumula\\Application\\Autoloader';
 
 const DEFAULT_TEMPLATE_CLASS = 'Cumula\\Components\\CumulaTemplate\\CumulaTemplate';
 
+const DEFAULT_FILEAGGREGATOR_CLASS = 'Cumula\\Components\\IncludeFileAggregator\IncludeFileAggregator';
+
 const DEFAULT_ROUTER_CLASS = 'Cumula\\Application\\Router';
 
 const DEFAULT_RENDERER_CLASS = 'Cumula\\Application\\Renderer';
