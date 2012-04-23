@@ -54,6 +54,14 @@ class SimpleComponent extends \Cumula\Base\Component {
 
 	public function routeStartup() {
 		$this->connectDataProviders();
+		$this->registerTemplate();
+	}
+
+	public function registerTemplate($config_key='template') {
+		$template = $this->getConfigValue($config_key);
+		if ($template) {
+			A('AliasManager')->setAlias('Template', $template, false);
+		}
 	}
 	
 	public function startDataStores($config_key='dataProviders') {
