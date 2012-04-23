@@ -32,15 +32,14 @@ class SimpleComponent extends \Cumula\Base\Component {
 		$hasRouteStartup = method_exists($this, 'routeStartup');
 		$hasRouteShutdown = method_exists($this, 'routeShutdown');
 		$basePath = $this->getConfigValue('basePath', '');
-		if (!strpos($basePath, '/')) { // NOTE: want False OR 0
-			$basePath = '/' . $basePath;
-		}
+		$basePath = prefix_slash($basePath);
 		$routes = array();
 		$router = A('Router');
 		foreach($this->routes as $route => $method) {
-			if (!strpos($route, '/')) { // NOTE: want False OR 0
-				$route = '/' . $route;
+			if (!is_string($route)) {
+				$route = $method;
 			}
+			$route = prefix_slash($route);
 			$full_route = $basePath.$route;
 			$routes[$full_route] = array($this, $method);
 			if ($hasRouteStartup) {

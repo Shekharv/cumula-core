@@ -53,6 +53,11 @@ class Test_SimpleComponent extends \Cumula\Test\Base {
 			A('Router'),
 			'/test/two'
 			);
+		$this->assertBound(
+			array($sc, 'three'),
+			A('Router'),
+			'/test/three'
+			);
 	}
 
 	public function testRegisterRoutesSetup() {
@@ -110,7 +115,8 @@ class TestRoutesComponent extends \Cumula\Application\SimpleComponent {
 		);
 	public $routes = array(
 		'one' => 'index',
-		'two' => 'detail'
+		'/two' => 'detail',
+		'three',
 		);
 
 	public function index() {}
