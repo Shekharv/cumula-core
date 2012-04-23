@@ -2,6 +2,9 @@
 
 if(isset($argv[2]) && strstr($argv[2], "-base-dir=")) {
 	$path = str_replace("-base-dir=", "", $argv[2]);
+	if ($path && $path[0] !== "/") {
+		$path = __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . $path;
+	}
 	define('TMPROOT', realpath($path).DIRECTORY_SEPARATOR);
 	if(!file_exists(TMPROOT)) {
 		echo "Supplied base dir doesn't exist: $path\n";
