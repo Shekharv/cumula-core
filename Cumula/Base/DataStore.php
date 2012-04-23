@@ -107,19 +107,19 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 		throw new \Exception('Get is not implemented by this DataStore.');
 	}
 	
-	public function findByFullText($query, $order = null, $limit = null, $start = null, $data = null) {
+	public function findByFullText($query, $limit = null, $start = null, $order = null, $data = array()) {
 		throw new \Exception('FindByFullText is not implemented by this DataStore.');
 	}
 	
-	public function findRecent($order = null, $limit = null, $start = null, $recentField = null, $pullFrom = null, $data = null) {
+	public function findRecent($limit = null, $start = null, $order = null, $data = array()) {
 		throw new \Exception('findRecent is not implemented by this DataStore.');
 	}
 	
-	public function findByAnyFilter($filters, $order = null, $limit = null, $start = null, $data = null) {
+	public function findByAnyFilter($filters, $limit = null, $start = null, $order = null, $data = array()) {
 		throw new \Exception('findByAnyFilter is not implemented by this DataStore.');
 	}
 	
-	public function findByAllFilters($filters, $order = null, $limit = null, $start = null, $data = null) {
+	public function findByAllFilters($filters, $limit = null, $start = null, $order = null, $data = array()) {
 		throw new \Exception('findByAllFilters is not implemented by this DataStore.');
 	}
 	
