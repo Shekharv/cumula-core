@@ -65,7 +65,10 @@ abstract class Base extends \PHPUnit_Framework_TestCase {
 
 	public function assertBound($handler, $obj, $event) {
 		$listeners = $obj->getEventListeners($event);
-		$this->assertContains($handler, $listeners, 'Listener not in listeners array'. var_export($listeners, true));
+		if (!is_array($listeners)) {
+			$this->assertTrue(false, "$event not one of ". get_class($obj) ." events : ". var_export(array_keys($obj->getEvents()), true));
+		}
+		$this->assertIn($handler, $listeners, 'Listener not in listeners array'. var_export($listeners, true));
 
 	}
 	

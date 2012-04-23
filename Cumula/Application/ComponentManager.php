@@ -433,7 +433,7 @@ final class ComponentManager extends \Cumula\Base\Component {
 		$installed_components = array();
 		foreach($components as $component) 
 		{
-			$installed = $this->installComponent($component);
+			$installed = $this->enableComponent($component);
 			if ($installed) $installed_components[] = $component;
 		}
 		return $installed_components;

@@ -56,6 +56,13 @@ function this($methodName = false, $index = 1) {
 	return $newThis;
 }
 
+function prefix_slash($path) {
+		if (strpos($path, '/') !== 0) {
+			$path = '/' . $path;
+		}
+		return $path;
+}
+
 function array_get($key, $array, $default=null) {
 	if (array_key_exists($key, $array)) {
 		return $array[$key];

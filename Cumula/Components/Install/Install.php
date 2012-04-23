@@ -13,7 +13,6 @@ class Install extends \Cumula\Application\SimpleComponent {
 		'/system_check' => 'systemCheck',
 		'/save_user' => 'saveUser',
 		'/finished' => 'finished',
-		'/complete' => 'complete'
 		);
 	
 	public function startup() {

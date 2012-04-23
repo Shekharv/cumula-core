@@ -39,4 +39,4 @@
 	</ul>
 </section>
 
-<?php echo $cm->linkTo('Next &#187;', '/install/setup_user', array('class' => 'button')); ?>
+<?php echo $cm->linkTo('Next &#187;', '/install/finished', array('class' => 'button')); ?>

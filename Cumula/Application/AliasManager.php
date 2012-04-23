@@ -19,6 +19,9 @@ class AliasManager extends EventDispatcher {
 		if(!$this->config->getConfigValue('Router', false))
 			$this->config->setConfigValue('Router', DEFAULT_ROUTER_CLASS);
 		
+		if(!$this->config->getConfigValue('FileAggregator', false))
+			$this->config->setConfigValue('FileAggregator', DEFAULT_FILEAGGREGATOR_CLASS);
+		
 		if(!$this->config->getConfigValue('ComponentManager', false))
 			$this->config->setConfigValue('ComponentManager', DEFAULT_COMPONENT_MANAGER_CLASS);
 		

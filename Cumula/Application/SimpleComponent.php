@@ -32,9 +32,14 @@ class SimpleComponent extends \Cumula\Base\Component {
 		$hasRouteStartup = method_exists($this, 'routeStartup');
 		$hasRouteShutdown = method_exists($this, 'routeShutdown');
 		$basePath = $this->getConfigValue('basePath', '');
+		$basePath = prefix_slash($basePath);
 		$routes = array();
 		$router = A('Router');
 		foreach($this->routes as $route => $method) {
+			if (!is_string($route)) {
+				$route = $method;
+			}
+			$route = prefix_slash($route);
 			$full_route = $basePath.$route;
 			$routes[$full_route] = array($this, $method);
 			if ($hasRouteStartup) {
@@ -49,6 +54,28 @@ class SimpleComponent extends \Cumula\Base\Component {
 
 	public function routeStartup() {
 		$this->connectDataProviders();
+		$this->registerTemplate();
+		$this->registerAssets('css');
+		$this->registerAssets('js');
+	}
+
+	public function registerTemplate($config_key='template') {
+		$template = $this->getConfigValue($config_key);
+		if ($template) {
+			A('AliasManager')->setAlias('Template', $template, false);
+		}
+	}
+
+	public function registerAssets($type) {
+		// TODO: this should allow some pattern config at least?
+		$dir = implode(DIRECTORY_SEPARATOR, array($this->rootDirectory(), 'assets', $type));
+		$files = array();
+		
+		foreach(glob($dir . DIRECTORY_SEPARATOR . '*.' . $type, GLOB_NOSORT) as $file) {
+			$filename = basename($file);
+			$files[] = '/assets/'.$this->componentName() . '/' . $type . '/' . $filename;
+		}
+		A('FileAggregator')->bind('Gather'.strtoupper($type).'Files', $files);
 	}
 	
 	public function startDataStores($config_key='dataProviders') {
