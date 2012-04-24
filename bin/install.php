@@ -18,8 +18,11 @@ function copyFiles($source, $destination) {
 	if (is_dir($source)) {
 		// Find all of the files in the directory and create directories
 		// for the subdirectories
-		foreach(glob($source .'/*', GLOB_NOSORT) as $file) {
+		foreach(glob($source .'/{,.}*', GLOB_BRACE|GLOB_NOSORT) as $file) {
 			$dirname = basename($file);
+			if ($dirname == '.' or $dirname == '..') {
+				continue;
+			}
 			$newDestination = $destination . DIRECTORY_SEPARATOR . $dirname;
 			if (is_dir($file) && is_dir($newDestination) === FALSE) {
 				mkdir($newDestination, 0777, TRUE);
