@@ -35,6 +35,10 @@ class Devel extends BaseComponent {
 	protected $_eventedInstancesBefore;
 	public $_afterStartup;
 	protected $_eventCount;
+
+	public $defaultConfig = array(
+		'displayFooter' => false,
+		);
 	
 	/**
 	 * Constructor.
@@ -88,7 +92,7 @@ class Devel extends BaseComponent {
 		$this->addBenchmark('app_shutdown');
 		$time = $this->compareBenchmarks('app_boot', 'app_shutdown');
 		$content = '';
-		if($this->config->getConfigValue('displayFooter', true)) {
+		if($this->config->getConfigValue('displayFooter')) {
 			$content .= '<h1>Debug Output</h1><div>Rendering the page took '.(number_format($time, 4)*1000).' ms</div>';
 			$content .= '<div>Rendering the page used '.(memory_get_usage()/1000).' KB of memory</div>'; 
 			$content .= '<div>Rendering the page used a maximum '.(memory_get_peak_usage()/1000).' KB of memory</div>';
@@ -146,7 +150,7 @@ class Devel extends BaseComponent {
 						'title' => 'Display Devel Footer?',
 						'type' => 'checkbox',
 						'label' => 'Display the Devel Footer',
-						'selected' => $this->getConfigValue('displayFooter', true)
+						'selected' => $this->getConfigValue('displayFooter')
 					)
 				)
 			)
