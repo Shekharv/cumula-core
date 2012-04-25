@@ -1,20 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <docblox>
+  <title><![CDATA[Cumula Documentation]]></title>
   <parser>
     <target>../docs/api</target>
     <extensions>
       <extension>php</extension>
-      <extension>php3</extension>
-      <extension>phtml</extension>
-      <extension>component</extension>
     </extensions>
   </parser>
   <transformer>
     <target>../docs/api</target>
   </transformer>
-  <transformations>
-    <template name="../docs/themes/cumula" />
-  </transformations>
   <files>
-    <directory>.</directory>
+    <directory>Cumula</directory>
+	<ignore>DataStore-old/*</ignore>
+	<ignore>*/lib/*</ignore>
+	<ignore>*.tpl.php</ignore>
   </files>
 </docblox>
