@@ -20,6 +20,7 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 	public function startup() {
 		parent::startup();
 		A('Application')->bind('BootPrepare', array($this, 'gather'));
+		A('AliasManager')->setAlias('DPWebAPI', "\Cumula\Components\DataProviderWebAPI\DataProviderWebAPI");
 	}
 	
 	public function gather() {
@@ -46,7 +47,7 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 		$params = array();
 		foreach($method->getParameters() as $param) {
 			if(isset($args[$param->name])) {
-				$params[] = $args[$param->name];
+				$params[] = urldecode($args[$param->name]);
 				unset($args[$param->name]);
 			} else if ($param->isDefaultValueAvailable()){
 				$params[] = $param->getDefaultValue();
