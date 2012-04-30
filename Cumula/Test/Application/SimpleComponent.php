@@ -60,6 +60,22 @@ class Test_SimpleComponent extends \Cumula\Test\Base {
 			);
 	}
 
+	public function testRegisterRootRoutes() {
+		$sc = new TestRootRoutesComponent();
+		$sc->startup();
+		A('Router')->collectRoutes(null);
+		$this->assertBound(
+			array($sc, 'index'),
+			A('Router'),
+			'/'
+			);
+		$this->assertBound(
+			array($sc, 'detail'),
+			A('Router'),
+			'/$id'
+			);
+	}
+
 	public function testRegisterRoutesSetup() {
 		$sc = new TestRoutesSetupComponent();
 		$sc->startup();
@@ -122,6 +138,16 @@ class TestRoutesComponent extends \Cumula\Application\SimpleComponent {
 	public function index() {}
 
 	public function detail() {}
+}
+
+class TestRootRoutesComponent extends TestRoutesComponent {
+	public $defaultConfig = array(
+		'basePath' => ''
+		);
+	public $routes = array(
+		'' => 'index',
+		'$id' => 'detail'
+		);
 }
 
 class TestRoutesSetupComponent extends TestRoutesComponent {
