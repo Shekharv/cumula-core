@@ -5,7 +5,8 @@ namespace Cumula\Components\IncludeFileAggregator;
  *
  * IncludeFileAggregator — Implements a framework for aggregating and inserting CSS/JS files into a page.
  *
- * @package    IncludeFileAggregator
+ * @package    Cumula
+ * @subpackage Components
  * @version    0.1.0
  * @author     Seabourne Consulting
  * @license    MIT License
@@ -53,7 +54,8 @@ namespace Cumula\Components\IncludeFileAggregator;
  * 
  * 1. Array: an array of JS public paths (Relative Urls) to include in the page.
  *
- * @package		IncludeFileAggregator
+ * @package    Cumula
+ * @subpackage Components
  * @author     Seabourne Consulting
  */
 class IncludeFileAggregator extends \Cumula\Base\Component {
