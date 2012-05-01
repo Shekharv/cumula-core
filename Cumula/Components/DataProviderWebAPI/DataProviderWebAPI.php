@@ -46,7 +46,7 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 		$params = array();
 		foreach($method->getParameters() as $param) {
 			if(isset($args[$param->name])) {
-				$params[] = $args[$param->name];
+				$params[] = urldecode($args[$param->name]);
 				unset($args[$param->name]);
 			} else if ($param->isDefaultValueAvailable()){
 				$params[] = $param->getDefaultValue();

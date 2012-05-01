@@ -21,6 +21,9 @@ class AliasManager extends EventDispatcher {
 		
 		if(!$this->config->getConfigValue('FileAggregator', false))
 			$this->config->setConfigValue('FileAggregator', DEFAULT_FILEAGGREGATOR_CLASS);
+			
+		if(!$this->config->getConfigValue('DSWebAPI', false))
+			$this->config->setConfigValue('DSWebAPI', DEFAULT_WEBAPI_CLASS);
 		
 		if(!$this->config->getConfigValue('ComponentManager', false))
 			$this->config->setConfigValue('ComponentManager', DEFAULT_COMPONENT_MANAGER_CLASS);

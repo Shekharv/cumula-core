@@ -24,6 +24,8 @@ const DEFAULT_TEMPLATE_CLASS = 'Cumula\\Components\\CumulaTemplate\\CumulaTempla
 
 const DEFAULT_FILEAGGREGATOR_CLASS = 'Cumula\\Components\\IncludeFileAggregator\\IncludeFileAggregator';
 
+const DEFAULT_WEBAPI_CLASS = 'Cumula\\Components\\DataStoreWebAPI\\DataStoreWebAPI';
+
 const DEFAULT_ROUTER_CLASS = 'Cumula\\Application\\Router';
 
 const DEFAULT_RENDERER_CLASS = 'Cumula\\Application\\Renderer';
