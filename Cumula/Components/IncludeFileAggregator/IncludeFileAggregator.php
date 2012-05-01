@@ -68,8 +68,6 @@ class IncludeFileAggregator extends \Cumula\Base\Component {
 		
 		$this->addEvent('GatherJSFiles');
 		$this->addEvent('GatherCSSFiles');
-		
-		A('AliasManager')->setAlias('FileHandler', "\\Cumula\\Components\\IncludeFileAggregator\\IncludeFileAggregator");
 	}
 	
 	/**

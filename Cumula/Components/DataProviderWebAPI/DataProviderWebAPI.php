@@ -20,7 +20,6 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 	public function startup() {
 		parent::startup();
 		A('Application')->bind('BootPrepare', array($this, 'gather'));
-		A('AliasManager')->setAlias('DPWebAPI', "\Cumula\Components\DataProviderWebAPI\DataProviderWebAPI");
 	}
 	
 	public function gather() {
