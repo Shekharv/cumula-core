@@ -28,9 +28,8 @@ class DataService extends \Cumula\Application\EventDispatcher {
 		$newHeaders = array();
 		
 		foreach($headers as $key => $value) {
-			$newHeaders = "$key: $value";
+			$newHeaders[] = "$key: $value";
 		}
-		
 	    curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
 	    curl_setopt($ch, CURLOPT_HTTPHEADER, $newHeaders);
