@@ -7,7 +7,7 @@ class SimpleComponent extends \Cumula\Base\Component {
 	public function startup() {
 		parent::startup();
 		$this->registerEvents();
-		$this->startDataStores();
+		$this->dataProviders = $this->startDataProviders();
 		$this->registerRoutes();
 	}
 
@@ -78,7 +78,8 @@ class SimpleComponent extends \Cumula\Base\Component {
 		A('FileAggregator')->bind('Gather'.strtoupper($type).'Files', $files);
 	}
 	
-	public function startDataStores($config_key='dataProviders') {
+	public function startDataProviders($config_key='dataProviders') {
+		$ret = array();
 		foreach($this->getConfigValue($config_key, array()) as $name => $params) {
 			if (is_null($params)) {
 				continue;
@@ -89,15 +90,19 @@ class SimpleComponent extends \Cumula\Base\Component {
 				$config = isset($params['config']) ? $params['config'] : $params;
 				$ds = new $engine($config);
 			}
-			$this->dataProviders[$name] = $ds;
+			$ret[$name] = $ds;
 		}
+		return $ret;
 	}
 	
-	public function connectDataProviders() {
-		if (!$this->dataProviders) {
-			return;
+	public function connectDataProviders($providers=null) {
+		if (!$providers) {
+			if (!$this->dataProviders) {
+				return;
+			}
+			$providers = $this->dataProviders;
 		}
-		foreach($this->dataProviders as $name => $ds) {
+		foreach($providers as $name => $ds) {
 			$ds->connect();
 		}
 	}
