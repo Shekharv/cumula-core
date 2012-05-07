@@ -35,8 +35,12 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 	
 	public function process($route, $router, $args) {
 		$type = $args['type'];
-		$ref = new \ReflectionClass($this->dataStores[strtolower($type)]);
-		if(!method_exists($this->dataStores[strtolower($type)], $args['method'])) 
+		$ds = $this->dataStores[strtolower($type)];
+		if (!$ds->isConnected()) {
+			$ds->connect();
+		}
+		$ref = new \ReflectionClass($ds);
+		if(!method_exists($ds, $args['method'])) 
 			return $this->renderNotFound();
 		$method = $ref->getMethod($args['method']);
 		
@@ -56,7 +60,7 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 			array_unshift($params, $args);
 			
 		try{
-			$ret = $method->invokeArgs($this->dataStores[strtolower($type)], $params);
+			$ret = $method->invokeArgs($ds, $params);
 		} catch (\Exception $e) {
 			return $this->renderNotFound();
 		}
