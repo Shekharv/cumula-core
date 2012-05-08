@@ -8,8 +8,8 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 		);
 	
 	public $routes = array(
-		'/$type/$method' => 'process',
-		'/$type/$method/$id' => 'process'
+		'/$__type/$__method' => 'process',
+		'/$__type/$__method/$__id' => 'process'
 		);
 	
 	public $events = array(
@@ -34,18 +34,18 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 	}
 	
 	public function process($route, $router, $args) {
-		$type = $args['type'];
+		$type = $args['__type'];
 		$ds = $this->dataStores[strtolower($type)];
 		if (!$ds->isConnected()) {
 			$ds->connect();
 		}
 		$ref = new \ReflectionClass($ds);
-		if(!method_exists($ds, $args['method'])) 
+		if(!method_exists($ds, $args['__method']))
 			return $this->renderNotFound();
-		$method = $ref->getMethod($args['method']);
+		$method = $ref->getMethod($args['__method']);
 		
-		unset($args['method']);
-		unset($args['type']);
+		unset($args['__method']);
+		unset($args['__type']);
 		
 		$params = array();
 		foreach($method->getParameters() as $param) {
@@ -62,7 +62,7 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 		try{
 			$ret = $method->invokeArgs($ds, $params);
 		} catch (\Exception $e) {
-			return $this->renderNotFound();
+			return $this->_returnError($e->getMessage());
 		}
 		
 		$this->_returnResult($ret);
@@ -84,6 +84,14 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 		$this->renderJSON(
 			array('success' => 'true',
 				'result' => $result
+			)
+		);
+	}
+
+	protected function _returnError($message) {
+		$this->renderJSON(
+			array('success' => 'error',
+				'error' => $message
 			)
 		);
 	}
