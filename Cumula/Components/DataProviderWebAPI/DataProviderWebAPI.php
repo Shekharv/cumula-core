@@ -56,6 +56,11 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 				$params[] = $param->getDefaultValue();
 			}
 		}
+		if(array_key_exists('__id', $args)) {
+			$val = $args['__id'];
+			unset($args['__id']);
+			$args[$ds->_getIdField()] = $val;
+		}
 		if(!empty($args))
 			array_unshift($params, $args);
 			

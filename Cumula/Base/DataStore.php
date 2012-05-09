@@ -163,7 +163,7 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	 * Returns the field used as the unique id for records
 	 * @return unknown_type
 	 */
-	protected function _getIdField() {
+	public function _getIdField() {
 		return $this->_config['idField'];
 	}
 	
