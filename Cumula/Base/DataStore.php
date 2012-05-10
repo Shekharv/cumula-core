@@ -30,7 +30,7 @@ use \Cumula\Schema\Simple as SimpleSchema;
  */
 abstract class DataStore extends \Cumula\Application\EventDispatcher {
 	protected $_connected = false;
-	protected $_config = array();
+	public $_config = array();
 	protected $_fields = false;
 	
 	public function requiredConfig() {
