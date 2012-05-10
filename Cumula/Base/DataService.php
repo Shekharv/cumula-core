@@ -75,6 +75,10 @@ class DataService extends \Cumula\Application\EventDispatcher {
 		
 	}
 	
+	public function isConnected() {
+		return true;
+	}
+	
 	public function disconnect() {
 		
 	}
