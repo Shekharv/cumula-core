@@ -57,7 +57,7 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 				$params[] = $param->getDefaultValue();
 			}
 			if ($param->name == 'filters') {
-				$takesFilters = array_slice($params, -1);
+				$takesFilters = true;
 			}
 		}
 		if(array_key_exists('__id', $args)) {
@@ -66,12 +66,8 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 			$args[$ds->_getIdField()] = $val;
 		}
 		
-		if(!empty($args)) {
-			if ($takesFilters !== false) {
-				$params['filters'] = array_merge($takesFilters, $args);
-			} else {
-				array_unshift($params, $args);
-			}
+		if($takesFilters == true || !empty($args)) {
+			array_unshift($params, $args);
 		}
 		try{
 			$ret = $method->invokeArgs($ds, $params);
