@@ -46,14 +46,18 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 		
 		unset($args['__method']);
 		unset($args['__type']);
-		
+
+		$takesFilters = false;
 		$params = array();
 		foreach($method->getParameters() as $param) {
 			if(isset($args[$param->name])) {
 				$params[] = urldecode($args[$param->name]);
 				unset($args[$param->name]);
 			} else if ($param->isDefaultValueAvailable()){
-				$params[] = $param->getDefaultValue();
+				$new_param[] = $param->getDefaultValue();
+			}
+			if ($param->name == 'filters') {
+				$takesFilters = array_slice($params, -1);
 			}
 		}
 		if(array_key_exists('__id', $args)) {
@@ -61,9 +65,14 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 			unset($args['__id']);
 			$args[$ds->_getIdField()] = $val;
 		}
-		if(!empty($args))
-			array_unshift($params, $args);
-			
+		
+		if(!empty($args)) {
+			if ($takesFilters !== false) {
+				$params['filters'] = array_merge($takesFilters, $args);
+			} else {
+				array_unshift($params, $args);
+			}
+		}
 		try{
 			$ret = $method->invokeArgs($ds, $params);
 		} catch (\Exception $e) {
