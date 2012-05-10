@@ -54,7 +54,7 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 				$params[] = urldecode($args[$param->name]);
 				unset($args[$param->name]);
 			} else if ($param->isDefaultValueAvailable()){
-				$new_param[] = $param->getDefaultValue();
+				$params[] = $param->getDefaultValue();
 			}
 			if ($param->name == 'filters') {
 				$takesFilters = array_slice($params, -1);
