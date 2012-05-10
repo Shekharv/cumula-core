@@ -176,14 +176,22 @@ class Router extends \Cumula\Base\Component
 			{
 				continue;
 			}
-
+			
+			$segment_count = count($route_segments);
 			//Iterate through all URL segments
 			foreach ($segments as $i => $segment)
 			{
-				$route_segment = $i < count($route_segments) ? $route_segments[$i] : false;
+				$route_segment = $i < $segment_count ? $route_segments[$i] : false;
 				//If route is wildcard the rest of the url will match
-				if($route_segment == '*') 
+				if(substr($route_segment, 0, 1) == '*')
 				{
+					$star_name = substr($route_segment, 1, strlen($route_segment));
+					if ($star_name != '') {
+						$args[$star_name] = implode(
+							$separator,
+							array_slice($segments, $i, $segment_count)
+							);
+					}
 					$match = true;
 					break;
 				}
