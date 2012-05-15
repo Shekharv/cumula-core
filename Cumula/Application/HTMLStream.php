@@ -12,7 +12,7 @@ class HTMLStream extends \Cumula\Base\Stream {
 	public function processRequest() {
 		parent::processRequest();
 		$request = A('Request');
-		$request->path = array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : '';
+		$request->path = array_key_exists('PATH_INFO', $_SERVER) ? $_SERVER['PATH_INFO'] : '/';
 		if(isset($_SERVER['REMOTE_ADDR']))
 			$request->requestIp = $_SERVER['REMOTE_ADDR'];
 		if(isset($_SERVER['REQUEST_URI']))

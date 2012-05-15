@@ -104,7 +104,7 @@ class Devel extends BaseComponent {
 			$content .= '<div>Response data</div><pre>'.var_export($response->data, true).'</pre>';
 		}
 		if ($response->data['code'] == 404) {
-			$content .= '<div>Routes</div><pre>'.var_export(A('Router')->getRoutes(), true)."</pre>";
+			$content .= '<div>Routes for '. A('Request')->path .'</div><pre>'.var_export(A('Router')->getRoutes(), true)."</pre>";
 		}
 		$response->content = str_replace('<!-- $debugOutput -->', $content, $response->content);
 	}
