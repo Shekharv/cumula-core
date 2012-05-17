@@ -91,11 +91,13 @@ class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
 	}
 	
 	protected function _returnResult($result) {
-		$this->renderJSON(
-			array('success' => 'true',
-				'result' => $result
-			)
-		);
+		$ret = array('success' => 'true');
+		if (array_key_exists('results', $result)) {
+			$ret = array_merge($ret, $result);
+		} else {
+			$ret['results'] = $result;
+		}
+		$this->renderJSON($ret);
 	}
 
 	protected function _returnError($message) {
