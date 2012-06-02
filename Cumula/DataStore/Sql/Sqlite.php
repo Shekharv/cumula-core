@@ -41,7 +41,6 @@ class Sqlite extends Base {
 		$this->_sourceDir = $config['sourceDir'];
 		
 		$this->_db = new \SQLite3($this->_dataStoreFile());
-		$this->_db->busyTimeout(5);
 		$this->connect();
 	}
 	
