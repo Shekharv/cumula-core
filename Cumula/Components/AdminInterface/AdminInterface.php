@@ -1,6 +1,8 @@
 <?php
 namespace Cumula\Components\AdminInterface;
 
+const TEMPLATE = '\Cumula\Components\CumulaTemplate\CumulaTemplate';
+
 class AdminInterface extends \Cumula\Base\Component {
 	protected $_fields;
 	
@@ -55,6 +57,7 @@ class AdminInterface extends \Cumula\Base\Component {
 	}
 	
 	public function adminPage($route, $router, $args) {
+		A('AliasManager')->setAlias('Template', TEMPLATE, false);
 		$page = $this->_buildPage($route);
 		$this->render(array(
 			'title' => $page, 
@@ -96,6 +99,7 @@ class AdminInterface extends \Cumula\Base\Component {
 	}
 	
 	public function index() {
+		A('AliasManager')->setAlias('Template', TEMPLATE, false);
 		$installedComps = count(A('ComponentManager')->getEnabledComponents());
 		$this->render(array(
 			'installedComps' => $installedComps, 
