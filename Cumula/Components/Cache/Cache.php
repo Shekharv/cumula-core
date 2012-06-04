@@ -11,61 +11,40 @@ const SQLite = '\\Cumula\\DataStore\\Sql\\Sqlite';
  * @TODO Allow developers to override how the caches are stored based on the bin (ie. Cache::get('cacheKey', 'myBin') 
  * 		would allow the developer to hook into cache_get_myBin to return the cached value and store the cache differently
  **/
-class Cache extends \Cumula\Base\Component 
+class Cache extends \Cumula\Application\SimpleComponent 
 {
 	/**
 	 * Properties
 	 */
 	const PERMANENT = 0;
 
-	/**
-	 * DataStore Object
-	 * @var BaseDataStore
-	 **/
-	private $dataStores = array();
-
-	/**
-	 * Cache Setup
-	 * @param void
- 	 * @return void
-	 **/
-	public function startup() 
-	{
-		$this->configureDataStore();
-	} // end function startup
-
-	/**
-	 * Configure the data store
-	 * @param void
-	 * @return void
-	 **/
-	private function configureDataStore() 
-	{
-		// By default, use the default data store for saving values in the cache
-		$dataStoreClass = SQLite;
-		$this->addDataStore('cache', new $dataStoreClass(array(
-			'fields' => array(
-				'cid' => array(
-					'type' => 'string',
-					'required' => TRUE,
-					'unique' => TRUE,
-				),
-				'data' => array(
-					'type' => 'text'
-				),
-				'expire' => array(
-					'type' => 'integer',
-				),
-				'created' => array(
-					'type' => 'integer',
-				),
-			),
-			'idField' => 'cid',
-			'sourceDir' => DATAROOT,
-			'filename' => 'cache.sqlite',
-			'tableName' => 'cache',
-		)));
-	} // end function configureDataStore
+	public $defaultConfig = array(
+		'dataProviders' => array(
+			'cache' => array(
+				'engine' => SQLite,
+				'fields' => array(
+					'cid' => array(
+						'type' => 'string',
+						'required' => TRUE,
+						'unique' => TRUE,
+						),
+					'data' => array(
+						'type' => 'text'
+						),
+					'expire' => array(
+						'type' => 'integer',
+						),
+					'created' => array(
+						'type' => 'integer',
+						),
+					),
+				'idField' => 'cid',
+				'sourceDir' => DATAROOT,
+				'filename' => 'cache.sqlite',
+				'tableName' => 'cache',
+				)
+			)
+		);
 
 	/**
 	 * Get an item from the cache
@@ -76,12 +55,12 @@ class Cache extends \Cumula\Base\Component
 	public function get($cacheName, $bin = 'cache') 
 	{
 		$this->dispatch('cache_populate_datastores');
-		$cache = $this->getDataStore($bin)->get($cacheName);
+		$cache = $this->dataProviders[$bin]->get($cacheName);
 		$return = false;
 		if($cache && isset($cache->data) && $cache->expire > time())
 			$return = unserialize($cache->data);
 		if($cache && $cache->expire < time())
-			$this->getDataStore($bin)->destroy($cache);
+			$this->dataProviders[$bin]->destroy($cache);
 		return $return;
 	} // end function get
 
@@ -127,7 +106,7 @@ class Cache extends \Cumula\Base\Component
 			$expires = 0;
 		}
 
-		$dataStore = $this->getDataStore($options['bin']);
+		$dataStore = $this->dataProviders[$options['bin']];
 
 		$obj = $dataStore->newObj();
 		$obj->cid = $cacheName;
@@ -137,30 +116,6 @@ class Cache extends \Cumula\Base\Component
 
 		$dataStore->createOrUpdate($obj);
 	} // end function set
-
-	/**
-	 * Get the data store for a given bin
-	 * @param string $bin Bin to get the data store for
-	 * @return DataStore or FALSE
-	 **/
-	public function getDataStore($bin) 
-	{
-		if (($store = $this->dataStoreExists($bin)) === FALSE) {
-			$store = $this->dataStoreExists('cache');
-		}
-		return $store;
-	} // end function getDataStore
-
-	/**
-	 * Determine whether a data store exists for the given bin
-	 * @param string $bin cache bin to verify
-	 * @return mixed Returns FALSE if the store doesn't exist and the store if it does
-	 **/
-	public function dataStoreExists($bin) 
-	{
-		$stores = $this->getDataStores();
-		return isset($stores[$bin]) ? $stores[$bin] : FALSE;
-	} // end function dataStoreExists
 
 	/**
 	 * Get Info method
@@ -185,37 +140,11 @@ class Cache extends \Cumula\Base\Component
 	 **/
 	public function addDataStore($bin, \Cumula\Base\DataStore $store) 
 	{
-		$stores = $this->getDataStores();
+		$stores = $this->dataProviders;
 		if (get_called_class() != __CLASS__ && $bin == 'cache' || isset($stores[$bin])) {
 			return FALSE;
 		}
-		$stores[$bin] = $store;
-		return $this->setDataStores($stores);
+		$this->dataProviders[$bin] = $store;
 	} // end function addDataStore
 
-	/**
-	 * Getters and Setters
-	 */
-	/**
-	 * Getter for $this->dataStore
-	 * @param void
-	 * @return BaseDataStore
-	 * @author Craig Gardner <craig@seabourneconsulting.com>
-	 **/
-	private function getDataStores() 
-	{
-		return $this->dataStores;
-	} // end function getDataStores()
-	
-	/**
-	 * Setter for $this->dataStore
-	 * @param BaseDataStores
-	 * @return void
-	 * @author Craig Gardner <craig@seabourneconsulting.com>
-	 **/
-	private function setDataStores($arg0) 
-	{
-		$this->dataStores = $arg0;
-		return $this;
-	} // end function setDataStores()
 } 
