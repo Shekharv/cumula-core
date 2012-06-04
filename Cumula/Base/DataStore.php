@@ -90,6 +90,38 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 			});
 		return $obj;
 	}
+
+	/**
+	 * Creates or Updates an object depending on whether it exists already.
+	 *
+	 * @param $obj
+	 * @return unknown_type
+	 */
+	public function createOrUpdate($obj) 
+	{
+		$idField = $this->_getIdField();
+		if (isset($obj->$idField) && $this->findByAnyFilter(array($idField => $obj->$idField)))
+		{
+			return $this->update($obj);
+		}
+		else
+		{
+			$create = $this->create($obj);
+			if ($create)
+			{
+				try {
+					$id = $this->lastObjectId();
+				} catch (\Exception $e) {
+					return FALSE;
+				}
+				return $id;
+			}
+			else
+			{
+				return FALSE;
+			}
+		}
+	}
 	
 	public function create($obj) {
 		throw new \Exception('Create is not implemented by this DataStore.');
@@ -123,8 +155,8 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 		throw new \Exception('findByAllFilters is not implemented by this DataStore.');
 	}
 	
-	public function lastObjId() {
-		throw new \Exception('LastObjId is not implemented by this DataStore.');
+	public function lastObjectId() {
+		throw new \Exception('LastObjectId is not implemented by this DataStore.');
 	}
 	
 	public function translateFields($fields) {
