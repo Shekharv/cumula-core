@@ -155,8 +155,8 @@ abstract class DataStore extends \Cumula\Application\EventDispatcher {
 		throw new \Exception('findByAllFilters is not implemented by this DataStore.');
 	}
 	
-	public function lastObjId() {
-		throw new \Exception('LastObjId is not implemented by this DataStore.');
+	public function lastObjectId() {
+		throw new \Exception('LastObjectId is not implemented by this DataStore.');
 	}
 	
 	public function translateFields($fields) {
