@@ -119,34 +119,6 @@ abstract class Base extends \Cumula\Base\DataStore {
 		return $this->doExec($sql);
 	}
 
-	/**
-	 * Creates or Updates an object depending on whether it exists already.
-	 *
-	 * @param $obj
-	 * @return unknown_type
-	 */
-	public function createOrUpdate($obj) 
-	{
-		$idField = $this->_getIdField();
-		if (isset($obj->$idField) && $this->findByAnyFilter(array($idField => $obj->$idField))) 
-		{
-			return $this->update($obj);
-		} 
-		else 
-		{
-			$create = $this->create($obj);
-			if ($create) 
-			{
-				$id = $this->lastObjectId();
-				return $id;
-			}
-			else 
-			{
-				return FALSE;
-			}
-		}
-	}
-
 	/* (non-PHPdoc)
 	 * @see core/interfaces/DataStore#delete($obj)
 	 */
