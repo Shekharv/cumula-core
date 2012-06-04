@@ -46,6 +46,10 @@ class Cache extends \Cumula\Application\SimpleComponent
 			)
 		);
 
+	public function startup() {
+		parent::startup();
+		$this->connectDataProviders();
+	}
 	/**
 	 * Get an item from the cache
 	 * @param string $cacheName name of the item to fetch from the cache
@@ -55,12 +59,13 @@ class Cache extends \Cumula\Application\SimpleComponent
 	public function get($cacheName, $bin = 'cache') 
 	{
 		$this->dispatch('cache_populate_datastores');
-		$cache = $this->dataProviders[$bin]->get($cacheName);
+		$ds = $this->dataProviders[$bin];
+		$cache = (object)$ds->get($cacheName);
 		$return = false;
 		if($cache && isset($cache->data) && $cache->expire > time())
 			$return = unserialize($cache->data);
 		if($cache && $cache->expire < time())
-			$this->dataProviders[$bin]->destroy($cache);
+			$ds->destroy($cache);
 		return $return;
 	} // end function get
 
@@ -107,9 +112,9 @@ class Cache extends \Cumula\Application\SimpleComponent
 		}
 
 		$dataStore = $this->dataProviders[$options['bin']];
-
+		$idField = $dataStore->_getIdField();
 		$obj = $dataStore->newObj();
-		$obj->cid = $cacheName;
+		$obj->$idField = $cacheName;
 		$obj->expire = $expires;
 		$obj->created = microtime(TRUE);
 		$obj->data = serialize(str_replace(array("\n", "\r"), '', $value));

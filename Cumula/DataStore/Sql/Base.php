@@ -175,7 +175,10 @@ abstract class Base extends \Cumula\Base\DataStore {
 	}
 
 	public function get($args) {
-		$obj = $this->findByAnyFilter(array($this->_config['idField'] => $args));
+		if (!is_array($args)) {
+			$args = array($this->_config['idField'] => $args);
+		}
+		$obj = $this->findByAnyFilter($args));
 		if ($obj) {
 			$obj = $this->newObj($obj[0]);
 		}
