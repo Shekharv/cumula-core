@@ -137,7 +137,7 @@ class HTMLStream extends \Cumula\Base\Stream {
 	}
 	
 	public function renderNotFound() {
-		$fileName = ROOT."/Cumula/includes/404.html";//A('Template')->getDirectory().'404.tpl.php';
+		$fileName = A('Template')->get404File();
 		A('Renderer')->buffer['404'] = $this->renderHTML($fileName, array(), false);
 		A('Response')->data['code'] = 404;
 	}

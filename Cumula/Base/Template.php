@@ -80,4 +80,9 @@ abstract class Template extends Component {
 		ob_end_clean();
 		return $content;
 	}
+
+	public function get404File() {
+		return $this->_full_dir."404.html";
+	}
+
 }
