@@ -60,8 +60,11 @@ class Cache extends \Cumula\Application\SimpleComponent
 	{
 		$this->dispatch('cache_populate_datastores');
 		$ds = $this->dataProviders[$bin];
-		$cache = (object)$ds->get($cacheName);
+		$cache = $ds->get($cacheName);
 		$return = false;
+		if($cache) {
+			$cache = (object)$cache;
+		}
 		if($cache && isset($cache->data) && $cache->expire > time())
 			$return = unserialize($cache->data);
 		if($cache && $cache->expire < time())
