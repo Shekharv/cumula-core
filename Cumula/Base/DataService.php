@@ -11,6 +11,9 @@ class DataService extends \Cumula\Application\EventDispatcher {
 		if(!isset($config['cacheExpire']))
 			$config['cacheExpire'] = '5 minutes';
 			
+		if(!isset($config['encodeParams']))
+			$config['encodeParams'] = true;
+			
 		$this->_config = $config;
 	}
 	
@@ -65,7 +68,8 @@ class DataService extends \Cumula\Application\EventDispatcher {
 			}
 			#TODO merge params with any already in URL
 			foreach($params as $key => $value) {
-				$url .= "$key=".urlencode($value)."&";
+				$param = (isset($this->_config['encodeParams']) && $this->_config['encodeParams']) ? urlencode($value) : $value;
+				$url .= "$key=".$param."&";	
 			}
 		}
 		return $url;
