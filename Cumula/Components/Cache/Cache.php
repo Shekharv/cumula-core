@@ -88,6 +88,7 @@ class Cache extends \Cumula\Application\SimpleComponent
 		
 		$this->dispatch('cache_populate_datastores');
 
+		$expires = 0;
 		if ($options['expire'] !== Cache::PERMANENT)
 		{
 			if (is_string($options['expire']))
@@ -108,10 +109,6 @@ class Cache extends \Cumula\Application\SimpleComponent
 					return;
 				}
 			}
-		}
-		else
-		{
-			$expires = 0;
 		}
 
 		$dataStore = $this->dataProviders[$options['bin']];
