@@ -37,6 +37,7 @@ class DataService extends \Cumula\Application\EventDispatcher {
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
 	    curl_setopt($ch, CURLOPT_HTTPHEADER, $newHeaders);
 	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
 		if(strtoupper($method) == 'POST')
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $values);
 	    $output = curl_exec($ch);
