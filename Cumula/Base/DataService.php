@@ -68,10 +68,7 @@ class DataService extends \Cumula\Application\EventDispatcher {
 				$url .= "?";
 			}
 			#TODO merge params with any already in URL
-			foreach($params as $key => $value) {
-				$param = (isset($this->_config['encodeParams']) && $this->_config['encodeParams']) ? urlencode($value) : $value;
-				$url .= "$key=".$param."&";	
-			}
+			$url .= http_build_query($params);
 		}
 		return $url;
 	}
