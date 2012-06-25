@@ -26,22 +26,24 @@ class DataService extends \Cumula\Application\EventDispatcher {
 		if($cache)
 			return $cache;
 			
-	    $ch = curl_init();
-	
+		$ch = curl_init();
+		
 		$newHeaders = array();
 		
 		foreach($headers as $key => $value) {
 			$newHeaders[] = "$key: $value";
 		}
-	    curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-	    curl_setopt($ch, CURLOPT_HTTPHEADER, $newHeaders);
-	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		if(strtoupper($method) == 'POST')
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $newHeaders);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+		if(strtoupper($method) == 'POST') {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $values);
-	    $output = curl_exec($ch);
+		}
+		$output = curl_exec($ch);
 		$header = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	    curl_close($ch);
+		curl_close($ch);
 		
 		$ret = array('response' => $output, 'code' => $header);
 		
@@ -67,10 +69,7 @@ class DataService extends \Cumula\Application\EventDispatcher {
 				$url .= "?";
 			}
 			#TODO merge params with any already in URL
-			foreach($params as $key => $value) {
-				$param = (isset($this->_config['encodeParams']) && $this->_config['encodeParams']) ? urlencode($value) : $value;
-				$url .= "$key=".$param."&";	
-			}
+			$url .= http_build_query($params);
 		}
 		return $url;
 	}
