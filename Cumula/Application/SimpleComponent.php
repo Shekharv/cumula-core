@@ -39,6 +39,7 @@ class SimpleComponent extends \Cumula\Base\Component {
 		foreach($this->routes as $route => $method) {
 			if (!is_string($route)) {
 				$route = $method;
+				$method = str_replace('-', '_', $method); 
 			}
 			if (!$hasEndingSlash) {
 				$route = prefix_slash($route);
