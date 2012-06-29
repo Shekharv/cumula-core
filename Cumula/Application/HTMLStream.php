@@ -84,6 +84,10 @@ class HTMLStream extends \Cumula\Base\Stream {
 	}
 	
 	public function renderHTML($fileName, $args = array(), $useTemplate = true) {
+		if (!file_exists($fileName)) {
+			// kind of a no-op, args are not interpolated.
+			return $fileName;
+		}
 		global $cm;
 		A('Renderer')->useTemplate = $useTemplate;
 		extract($args, EXTR_OVERWRITE);
@@ -92,10 +96,6 @@ class HTMLStream extends \Cumula\Base\Stream {
 		$content = ob_get_contents();
 		ob_end_clean();
 		return $content;
-	}
-	
-	public function renderString($string, $args) {
-		
 	}
 	
 	public function renderView($fileName, $args = array()) {
