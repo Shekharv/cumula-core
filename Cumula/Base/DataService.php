@@ -16,6 +16,13 @@ class DataService extends \Cumula\Application\EventDispatcher {
 			
 		$this->_config = $config;
 	}
+
+	public function basic_curl_options() {
+		return array(
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_FOLLOWLOCATION => true
+			);
+	}
 	
 	//$method: the HTTP post method
 	//$url: the full url path, including query parameters
@@ -33,11 +40,12 @@ class DataService extends \Cumula\Application\EventDispatcher {
 		foreach($headers as $key => $value) {
 			$newHeaders[] = "$key: $value";
 		}
+		foreach($this->basic_curl_options() as $key => $value) {
+			curl_setopt($ch, $key, $val);
+		}
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $newHeaders);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
 		if(strtoupper($method) == 'POST') {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $values);
 		}
