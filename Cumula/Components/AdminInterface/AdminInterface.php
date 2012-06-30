@@ -8,7 +8,6 @@ class AdminInterface extends \Cumula\Base\Component {
 	
 	public function __construct() {
 		parent::__construct();
-		A('AliasManager')->setDefaultAlias('AdminInterface', get_called_class());
 		$this->addEvent('GatherAdminPages');
 	}
 	
@@ -72,19 +71,26 @@ class AdminInterface extends \Cumula\Base\Component {
 		$page = $this->_buildPage($args['setting-page']);
 		$fields = $this->_fields[$page]['fields'];
 		$config = $this->_fields[$page]['config'];
+		$saveConfig = array_get('saveConfig', $this->_fields[$page], true);
 		$vals = array();
 		foreach($fields as $field => $fieldConfig) {
+			$value = null;
 			if(isset($args[$field])) {
-				$config->setConfigValue($field, $args[$field]);
-				$vals[$field] = $args[$field];
+				$value = $args[$field];
 			} else if($fieldConfig['type'] == 'checkbox') {
 				$value = isset($args[$field]) ? $args[$field] : false;
-				$config->setConfigValue($field, $value);
+			}
+			if ($value !== null) {
+				if ($saveConfig) {
+					$config->setConfigValue($field, $value);
+				}
 				$vals[$field] = $value;
 			}
 		}
-		if(isset($this->_fields[$page]['callback']))
-			call_user_func_array($this->_fields[$page]['callback'], $vals);
+		if(isset($this->_fields[$page]['callbacks']))
+			foreach($this->_fields[$page]['callbacks'] as $callback) {
+				call_user_func_array($callback, $vals);
+			}
 		$this->renderRedirect($this->completeUrl($this->_buildUrl($page)));
 	}
 	

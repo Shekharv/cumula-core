@@ -32,7 +32,7 @@ class Authentication extends BaseComponent
    **/
   public static function getInfo() {
     return array(
-      'name' => 'Authentication Comiponent',
+      'name' => 'Authentication Component',
       'description' => 'Handle Authentication within Cumula',
       'version' => '0.1.0',
       'dependencies' => array(),

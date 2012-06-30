@@ -8,7 +8,7 @@
 		<?php } ?>
 		<!--<li class="error">Some library <span class="notes">You must install some library, follow <a href="#">these instructions</a> in the documentation</span></li>-->
 		<?php if(in_array(FALSE, $perms)) { ?>
-			<li class="error">File Permissions Need Help. Follow <a href="#">these instructions</a> to fix this.</span> 
+			<li class="error">File Permissions Need Help. <span class="notes">Please check that the parent directories exist and are writable, or create these directories yourself.</span>
 				<ul>
 					<? foreach($perms as $file => $value) {
 						$readable = is_readable($file);
@@ -40,8 +40,8 @@
 <section class="box">
 	<h1>Resources</h1>
 	<ul>
-		<li><a href="https://github.com/Cumula/CumulaFramework/wiki/Cumula-Basics">Cumula Basics</a></li>
-		<li><a href="https://github.com/Cumula/CumulaFramework/wiki/Hello-world">Hell World</a></li>
-		<li><a href="https://github.com/Cumula/CumulaFramework/wiki/Developing-a-component">Developing a Component</a></li>
+		<li><a href="https://github.com/Cumula/cumula-core/wiki/">Cumula Wiki</a></li>
+		<li><a href="https://github.com/Cumula/cumula-core/wiki/Creating-a-hello-world-application">Hello World</a></li>
+		<li><a href="http://blog.cumula.org/2012/04/how-to-get-involved-in-cumula-development/">Cumula Community</a></li>
 	</ul>
 </section>

@@ -30,8 +30,6 @@ class SystemConfig extends \Cumula\Base\Component {
 		$this->addEvent('SystemConfigSetValue');
 		$this->addEvent('SystemConfigGetValue');
 		
-		$this->setupDefaults();
-		
 		$this->_output = array();
 	}
 	
@@ -39,28 +37,13 @@ class SystemConfig extends \Cumula\Base\Component {
 		A('ComponentManager')->bind('ComponentStartupComplete', array($this, 'startup'));
 	}
 	
-	
-	/**
-	 * Creates default values for settings if no other value exists.
-	 * 
-	 * @return unknown_type
-	 */
-	public function setupDefaults() {			
-		if(!$this->config->getConfigValue(SETTING_DEFAULT_BASE_PATH))
-			$this->config->setConfigValue(SETTING_DEFAULT_BASE_PATH, DEFAULT_SITE_BASE_PATH);	
-			
-		if(!$this->config->getConfigValue(SETTING_ENVIRONMENT))
-			$this->config->setConfigValue(SETTING_ENVIRONMENT, DEFAULT_ENVIRONMENT);
-			
-		if(!$this->config->getConfigValue(SETTING_SITE_TITLE))
-			$this->config->setConfigValue(SETTING_SITE_TITLE, DEFAULT_SITE_TITLE);		
-			
-		if(!$this->config->getConfigValue(SETTING_DEFAULT_DATASTORE))
-			$this->config->setConfigValue(SETTING_DEFAULT_DATASTORE, DEFAULT_DATASTORE_CLASS);
-
-		if(!$this->config->getConfigValue(SETTING_DEFAULT_CONFIG))
-			$this->config->setConfigValue(SETTING_DEFAULT_CONFIG, DEFAULT_CONFIG_CLASS);	
-	}
+	public $defaults = array(
+		SETTING_DEFAULT_BASE_PATH => DEFAULT_SITE_BASE_PATH,
+		SETTING_ENVIRONMENT => DEFAULT_ENVIRONMENT,
+		SETTING_SITE_TITLE => DEFAULT_SITE_TITLE,
+		SETTING_DEFAULT_DATASTORE => DEFAULT_DATASTORE_CLASS,
+		SETTING_DEFAULT_CONFIG => DEFAULT_CONFIG_CLASS,
+		);
 	
 	/**
 	 * Implements the BaseComponent startup function
@@ -110,7 +93,10 @@ class SystemConfig extends \Cumula\Base\Component {
 	 * @return unknown_type
 	 */
 	public function getValue($config, $default = null) {
-		$value = $this->config->getConfigValue($config, $default);
+		$value = $this->config->getConfigValue(
+			$config,
+			array_get($config, $this->defaults, $default)
+			);
 		$this->dispatch('SystemConfigGetValue', array($config, $value));
 		return $value;
 	}
