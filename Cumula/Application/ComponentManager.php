@@ -165,7 +165,10 @@ final class ComponentManager extends \Cumula\Base\Component {
 				'description' => $description,
 				'parent' => 'Components',
 				'config' => $this->config,
-				'callback' => array($this, 'installComponents'),
+				'callbacks' => array(
+					array($this, 'installComponents'),
+					array($this, 'writeConfig'),
+					),
 				'fields' => $fields,
 			)
 		);
@@ -184,8 +187,9 @@ final class ComponentManager extends \Cumula\Base\Component {
 						'values' => $this->_installedClasses,
 						'selected' => $this->_enabledClasses,
 						'labels' => $labels
+						),
 					),
-				)
+				'callbacks' => array(array($this, 'writeConfig'))
 			)
 		);
 	}

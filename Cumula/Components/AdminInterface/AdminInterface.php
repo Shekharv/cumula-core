@@ -82,8 +82,10 @@ class AdminInterface extends \Cumula\Base\Component {
 				$vals[$field] = $value;
 			}
 		}
-		if(isset($this->_fields[$page]['callback']))
-			call_user_func_array($this->_fields[$page]['callback'], $vals);
+		if(isset($this->_fields[$page]['callbacks']))
+			foreach($this->_fields[$page]['callbacks'] as $callback) {
+				call_user_func_array($callback, $vals);
+			}
 		$this->renderRedirect($this->completeUrl($this->_buildUrl($page)));
 	}
 	
