@@ -165,6 +165,7 @@ final class ComponentManager extends \Cumula\Base\Component {
 				'description' => $description,
 				'parent' => 'Components',
 				'config' => $this->config,
+				'saveConfig' => false,
 				'callbacks' => array(
 					array($this, 'installComponents'),
 					array($this, 'writeConfig'),

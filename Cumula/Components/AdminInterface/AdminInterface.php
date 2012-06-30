@@ -71,14 +71,19 @@ class AdminInterface extends \Cumula\Base\Component {
 		$page = $this->_buildPage($args['setting-page']);
 		$fields = $this->_fields[$page]['fields'];
 		$config = $this->_fields[$page]['config'];
+		$saveConfig = array_get('saveConfig', $this->_fields[$page], true);
 		$vals = array();
 		foreach($fields as $field => $fieldConfig) {
+			$value = null;
 			if(isset($args[$field])) {
-				$config->setConfigValue($field, $args[$field]);
-				$vals[$field] = $args[$field];
+				$value = $args[$field];
 			} else if($fieldConfig['type'] == 'checkbox') {
 				$value = isset($args[$field]) ? $args[$field] : false;
-				$config->setConfigValue($field, $value);
+			}
+			if ($value !== null) {
+				if ($saveConfig) {
+					$config->setConfigValue($field, $value);
+				}
 				$vals[$field] = $value;
 			}
 		}
