@@ -29,6 +29,17 @@ class Install extends \Cumula\Application\SimpleComponent {
 	}
 	
 	public function systemCheck() {
+		if (is_writable(APPROOT)) {
+			if (!file_exists(CONFIGROOT)) {
+				mkdir(CONFIGROOT, 0775, true);
+			}
+			if (!file_exists(DATAROOT)) {
+				mkdir(DATAROOT, 0775, true);
+			}
+			if (!file_exists(CONTRIBCOMPROOT)) {
+				mkdir(CONTRIBCOMPROOT, 0775, true);
+			}
+		}
 		$this->perms = array();
 		$readable_files = array(CONFIGROOT, APPROOT, COMPROOT, DATAROOT, PUBLICROOT, ASSETROOT, CONTRIBCOMPROOT);
 		$writable_files = array(CONFIGROOT, DATAROOT, PUBLICROOT, ASSETROOT, CONTRIBCOMPROOT);
@@ -64,18 +75,10 @@ class Install extends \Cumula\Application\SimpleComponent {
 	}
 	
 	public function finished() {
-		if (!file_exists(CONFIGROOT)) {
-			mkdir(CONFIGROOT, 0775, true);
-		}
-		if (!file_exists(DATAROOT)) {
-			mkdir(DATAROOT, 0775, true);
-		}
-		
-		if (!file_exists(CONTRIBCOMPROOT)) {
-			mkdir(CONTRIBCOMPROOT, 0775, true);
-		}
-		
-		\A('ComponentManager')->uninstallComponent('Install');
+		$cm = \A('ComponentManager');
+		$cm->installComponents($cm->getAvailableComponents());
+		$cm->uninstallComponent('Cumula\Components\Install\Install');
+		$cm->writeConfig();
 		$this->render();
 	}
 }
