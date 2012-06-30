@@ -5,14 +5,14 @@ const UserManager = "\\Cumula\\Components\\UserManager\\UserManager";
 
 class Install extends \Cumula\Application\SimpleComponent {
 	public $defaultConfig = array(
-		'basePath' => '/install'
+		'basePath' => 'install'
 		);
 	public $routes = array(
-		'/' => 'startInstall',
-		'/setup_user' => 'setupUser',
-		'/system_check' => 'systemCheck',
-		'/save_user' => 'saveUser',
-		'/finished' => 'finished',
+		'' => 'startInstall',
+		'setup_user' => 'setupUser',
+		'system_check' => 'systemCheck',
+		'save_user' => 'saveUser',
+		'finished' => 'finished',
 		);
 	
 	public function startup() {
@@ -64,6 +64,17 @@ class Install extends \Cumula\Application\SimpleComponent {
 	}
 	
 	public function finished() {
+		if (!file_exists(CONFIGROOT)) {
+			mkdir(CONFIGROOT, 0775, true);
+		}
+		if (!file_exists(DATAROOT)) {
+			mkdir(DATAROOT, 0775, true);
+		}
+		
+		if (!file_exists(CONTRIBCOMPROOT)) {
+			mkdir(CONTRIBCOMPROOT, 0775, true);
+		}
+		
 		\A('ComponentManager')->uninstallComponent('Install');
 		$this->render();
 	}

@@ -8,7 +8,6 @@ class AdminInterface extends \Cumula\Base\Component {
 	
 	public function __construct() {
 		parent::__construct();
-		A('AliasManager')->setDefaultAlias('AdminInterface', get_called_class());
 		$this->addEvent('GatherAdminPages');
 	}
 	

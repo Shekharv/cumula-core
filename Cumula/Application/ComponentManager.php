@@ -44,13 +44,12 @@ final class ComponentManager extends \Cumula\Base\Component {
 	private $_installList = array(
 		"Cumula\\Components\\Install\\Install", 
 		'Cumula\\Components\\FormHelper\\FormHelper', 
-		'Cumula\\Components\\UserManager\\UserManager', 
-		'Cumula\\Components\\Templater\\Templater', 
-		'Cumula\\Components\\Logger\\Logger', 
+//		'Cumula\\Components\\UserManager\\UserManager', 
 		'Cumula\\Components\\MenuManager\\MenuManager', 
 		'Cumula\\Components\\Authentication\\Authentication',
 		'Cumula\\Components\\AdminInterface\\AdminInterface',
-		'Cumula\\Components\\CumulaTemplate\\CumulaTemplate'
+		'Cumula\\Components\\CumulaTemplate\\CumulaTemplate',
+		'Cumula\\Components\\Devel\\Devel',
 	);
 	
 	private $_loadSuccess;
@@ -190,16 +189,8 @@ final class ComponentManager extends \Cumula\Base\Component {
 			)
 		);
 	}
-
-	/**
-	 * Ensures that the installed and enabled components are saved on shutdown.
-	 */
-	public function shutdown() 
-	{
-		$this->_writeConfig();
-	}
 	
-	protected function _writeConfig() {
+	public function writeConfig() {
 		$this->config->setConfigValue('installed_components', $this->_installedClasses);
 		$this->config->setConfigValue('enabled_components', $this->_enabledClasses);
 		$this->config->setConfigValue('startup_components', $this->_startupClasses);
@@ -259,10 +250,10 @@ final class ComponentManager extends \Cumula\Base\Component {
 	 */
 	public function loadComponents() 
 	{
-		// If no components are installed, install all available components
+		// If no components are installed, install basic list of components
 		if (empty($this->_installedClasses)) 
 		{
-			$this->installComponents($this->_getAvailableComponents());
+			$this->installComponents($this->_installList);
 		}
 
 		$this->dispatch('ComponentInitComplete');

@@ -37,10 +37,10 @@ class Autoloader extends EventDispatcher
 	 * @return void
 	 **/
 	public function __construct($ns = null, $includePath = null)
-    {
+	{
 		parent::__construct();
-        $this->_namespace = $ns;
-        $this->_includePath = $includePath || array();
+		$this->_namespace = $ns;
+		$this->_includePath = $includePath || array();
 		spl_autoload_register(array($this, 'load'));
 		$this->addEvent('EventAutoload');
 		$this->_setupConstants();
@@ -51,14 +51,14 @@ class Autoloader extends EventDispatcher
 		
 	} // end function setup
 
-    private $_fileExtension = '.php';
-    private $_namespace;
-    private $_includePath;
-    private $_namespaceSeparator = '\\';
+	private $_fileExtension = '.php';
+	private $_namespace;
+	private $_includePath;
+	private $_namespaceSeparator = '\\';
 
 	private function _setupConstants() {
-        defined('APPROOT') ||
-            define('APPROOT', realpath(ROOT."/..") . DIRECTORY_SEPARATOR . 'app');
+		defined('APPROOT') ||
+			define('APPROOT', realpath(ROOT."/..") . DIRECTORY_SEPARATOR . 'app');
 
 		$core_path	= ROOT . DIRECTORY_SEPARATOR . 'Cumula';
 		$core_component_path = ROOT . DIRECTORY_SEPARATOR; # need the full namespace
@@ -71,33 +71,23 @@ class Autoloader extends EventDispatcher
 		defined('COMPDIRS') ||
 			define('COMPDIRS', "");
 		
-        defined('COMPROOT') ||
-            define('COMPROOT', $core_component_path . DIRECTORY_SEPARATOR);
-
-        defined('CONFIGROOT') ||
-            define('CONFIGROOT', $config_path . DIRECTORY_SEPARATOR);
-        if (!file_exists(CONFIGROOT)) {
-            mkdir(CONFIGROOT, 0775, true);
-        }
-
-        defined('DATAROOT') ||
-            define('DATAROOT', $data_path . DIRECTORY_SEPARATOR);
-        if (!file_exists(DATAROOT)) {
-            mkdir(DATAROOT, 0775, true);
-        }
-
-        defined('CONTRIBCOMPROOT') ||
-            define('CONTRIBCOMPROOT', $contrib_component_path . DIRECTORY_SEPARATOR);
-        if (!file_exists(CONTRIBCOMPROOT)) {
-            mkdir(CONTRIBCOMPROOT, 0775, true);
-        }
+		defined('COMPROOT') ||
+			define('COMPROOT', $core_component_path . DIRECTORY_SEPARATOR);
 		
-
+		defined('CONFIGROOT') ||
+			define('CONFIGROOT', $config_path . DIRECTORY_SEPARATOR);
+		
+		defined('DATAROOT') ||
+			define('DATAROOT', $data_path . DIRECTORY_SEPARATOR);
+		
+		defined('CONTRIBCOMPROOT') ||
+			define('CONTRIBCOMPROOT', $contrib_component_path . DIRECTORY_SEPARATOR);
+		
 		defined('TEMPLATEROOT') ||
-            define('TEMPLATEROOT', $template_path . DIRECTORY_SEPARATOR);
-
-        defined('TESTROOT') ||
-            define('TESTROOT', $test_path . DIRECTORY_SEPARATOR);
+			define('TEMPLATEROOT', $template_path . DIRECTORY_SEPARATOR);
+		
+		defined('TESTROOT') ||
+			define('TESTROOT', $test_path . DIRECTORY_SEPARATOR);
 		
 		define('PUBLICROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR);
 		define('ASSETROOT', APPROOT.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR);

@@ -131,6 +131,18 @@ class Router extends \Cumula\Base\Component
 		}
 	}
 
+	public function _trimPath($routeType, $path) {
+		//Trim off route type indicator
+		$path = substr($path, strlen($routeType), strlen($path)-1);
+		
+		//Trim off trailing slash
+		if(substr($path, strlen($path)-1, strlen($path)) == '/')
+		{
+			$path = substr($path, 0, strlen($path)-1);
+		}
+		return $path;
+	}
+	
 	public function parseRoute($origPath) 
 	{
 		//The return array of matching handlers
@@ -141,15 +153,7 @@ class Router extends \Cumula\Base\Component
 				break;
 		}
 		
-		//Trim off route type indicator
-		$path = substr($origPath, strlen($routeType), strlen($origPath)-1);
-		
-		//Trim off trailing slash
-		if(substr($path, strlen($path)-1, strlen($path)) == '/')
-		{
-			$path = substr($path, 0, strlen($path)-1);
-		}
-			
+		$path = $this->_trimPath($routeType, $origPath);
 		//Generate array of url segments
 		$segments = explode($separator, $path);
 		//Iterate through passed routes
@@ -168,10 +172,9 @@ class Router extends \Cumula\Base\Component
 			}
 		
 			//Extract route segemtns
-			$route_segments = explode($separator, substr($route, 1, strlen($route)));
+			$route_segments = explode($separator, $this->_trimPath($routeType, $route));
 			$match = false;
 			$args = array();
-
 			if ((count($segments) != count($route_segments) && !strstr($route, '*')))
 			{
 				continue;
