@@ -29,10 +29,11 @@ class DataService extends \Cumula\Application\EventDispatcher {
 	//$params: the array of query parameters
 	//$header: an array of key/value headers
 	public function call($method, $url, $headers = array(), $values = array()) {
-		$cache = A(CACHE)->get($url);
-		if($cache)
-			return $cache;
-			
+		if ($method == 'get') {
+			$cache = A(CACHE)->get($url);
+			if($cache)
+				return $cache;
+		}
 		$ch = curl_init();
 		
 		$newHeaders = array();
@@ -54,8 +55,10 @@ class DataService extends \Cumula\Application\EventDispatcher {
 		curl_close($ch);
 		
 		$ret = array('response' => $output, 'code' => $header);
-		
-		A(CACHE)->set($url, $ret, array('expire' => $this->_config['cacheExpire']));
+
+		if ($method == 'get') {
+			A(CACHE)->set($url, $ret, array('expire' => $this->_config['cacheExpire']));
+		}
 	    return $ret;
 	}
 	
