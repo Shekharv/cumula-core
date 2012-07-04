@@ -2,7 +2,8 @@
 namespace Cumula\Components\DataProviderWebAPI;
 
 class DataProviderWebAPI extends \Cumula\Application\SimpleComponent {
-
+	public $dataStores = array();
+	
 	public $defaultConfig = array(
 		'basePath' => '/api'
 		);
