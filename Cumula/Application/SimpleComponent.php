@@ -119,5 +119,9 @@ class SimpleComponent extends \Cumula\Base\Component {
 			$ds->disconnect();
 		}
 	}
+
+	public function __get($name) {
+		return $this->dataProviders[$name];
+	}
 	
 }

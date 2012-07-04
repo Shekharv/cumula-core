@@ -37,6 +37,10 @@ class Test_SimpleComponent extends \Cumula\Test\Base {
 		$this->assertFalse($sc->dataProviders['direct']->isConnected());
 		$sc->connectDataProviders();
 		$this->assertTrue($sc->dataProviders['direct']->isConnected());
+		$this->assertEq(
+			$sc->dataProviders['direct'],
+			$sc->direct
+			);
 	}
 
 	public function testRegisterRoutes() {
