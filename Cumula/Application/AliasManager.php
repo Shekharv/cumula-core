@@ -26,6 +26,7 @@ class AliasManager extends EventDispatcher {
 		'Autoloader' => DEFAULT_AUTOLOADER_CLASS,
 		'AdminInterface' => DEFAULT_ADMIN_INTERFACE_CLASS,
 		'FormHelper' => DEFAULT_FORMHELPER_CLASS,
+		'Cache' => DEFAULT_CACHE_CLASS,
 		);
 	
 	public function getClassName($alias) {

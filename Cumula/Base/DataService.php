@@ -1,8 +1,6 @@
 <?php
 namespace Cumula\Base;
 
-const CACHE = '\\Cumula\\Components\\Cache\\Cache';
-
 class DataService extends \Cumula\Application\EventDispatcher {
 	protected $_config;
 	
@@ -30,7 +28,7 @@ class DataService extends \Cumula\Application\EventDispatcher {
 	//$header: an array of key/value headers
 	public function call($method, $url, $headers = array(), $values = array()) {
 		if ($method == 'get') {
-			$cache = A(CACHE)->get($url);
+			$cache = A('Cache')->get($url);
 			if($cache)
 				return $cache;
 		}
@@ -57,7 +55,7 @@ class DataService extends \Cumula\Application\EventDispatcher {
 		$ret = array('response' => $output, 'code' => $header);
 
 		if ($method == 'get') {
-			A(CACHE)->set($url, $ret, array('expire' => $this->_config['cacheExpire']));
+			A('Cache')->set($url, $ret, array('expire' => $this->_config['cacheExpire']));
 		}
 	    return $ret;
 	}

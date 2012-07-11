@@ -32,6 +32,8 @@ const DEFAULT_ROUTER_CLASS = 'Cumula\\Application\\Router';
 
 const DEFAULT_RENDERER_CLASS = 'Cumula\\Application\\Renderer';
 
+const DEFAULT_CACHE_CLASS = 'Cumula\\Components\\Cache\\Cache';
+
 const DEFAULT_ADMIN_INTERFACE_CLASS = 'Cumula\\Components\\AdminInterface\\AdminInterface';
 
 const SETTING_DEFAULT_DATASTORE = 'default_datastore';
