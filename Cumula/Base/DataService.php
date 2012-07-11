@@ -3,6 +3,7 @@ namespace Cumula\Base;
 
 class DataService extends \Cumula\Application\EventDispatcher {
 	protected $_config;
+	protected $_ignoreExpiration = false;
 	
 	public function __construct($config) {
 		parent::__construct();
@@ -28,7 +29,7 @@ class DataService extends \Cumula\Application\EventDispatcher {
 	//$header: an array of key/value headers
 	public function call($method, $url, $headers = array(), $values = array()) {
 		if ($method == 'get') {
-			$cache = A('Cache')->get($url);
+			$cache = A('Cache')->get($url, array('ignoreExpiration' => $this->_ignoreExpiration));
 			if($cache)
 				return $cache;
 		}
@@ -93,5 +94,13 @@ class DataService extends \Cumula\Application\EventDispatcher {
 	
 	public function disconnect() {
 		
+	}
+
+	public function ignoreCacheExpiration() {
+		$this->_ignoreExpiration = true;
+	}
+
+	public function respectCacheExpiration() {
+		$this->_ignoreExpiration = false;
 	}
 }
