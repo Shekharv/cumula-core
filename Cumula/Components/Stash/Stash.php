@@ -2,7 +2,6 @@
 namespace Cumula\Components\Stash;
 use \Cumula\Base\Component as BaseComponent;
 use \Cumula\Autoloader as Autoloader;
-use \Cumula\Components\Cache\Cache as Cache;
 
 /**
  * Stash Component
@@ -90,7 +89,7 @@ class Stash extends BaseComponent
 		}
 		
 		$stashName = md5($url);
-		if (($cache = Cache::get($stashName, 'stash')) === FALSE) {
+		if (($cache = A('Cache')->get($stashName, array('bin' => 'stash'))) === FALSE) {
 			// This will need to be replaced with the Cumula HTTP Client
 			$ch = curl_init($url);
 
@@ -111,7 +110,7 @@ class Stash extends BaseComponent
 					)
 				);
 
-				Cache::set($stashName, $cache, array('bin' => 'stash'));
+				A('Cache')->set($stashName, $cache, array('bin' => 'stash'));
 			}
 		}
 		else {
