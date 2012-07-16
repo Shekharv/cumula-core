@@ -53,22 +53,29 @@ class Cache extends \Cumula\Application\SimpleComponent
 	/**
 	 * Get an item from the cache
 	 * @param string $cacheName name of the item to fetch from the cache
-	 * @param string $bin Name of the bin to fetch the cache from
+	 * @param array $options 
 	 * @return mixed
 	 **/
-	public function get($cacheName, $bin = 'cache') 
+	public function get($cacheName, array $options = array()) 
 	{
+		$options = array_merge(
+			array(
+				'bin' => 'cache',
+				'ignoreExpiration' => false,
+				),
+			$options);
 		$this->dispatch('cache_populate_datastores');
-		$ds = $this->dataProviders[$bin];
+		$ds = $this->dataProviders[$options['bin']];
 		$cache = $ds->get($cacheName);
 		$return = false;
 		if($cache) {
 			$cache = (object)$cache;
 		}
-		if($cache && isset($cache->data) && $cache->expire > time())
-			$return = unserialize($cache->data);
-		if($cache && $cache->expire < time())
+		if($cache && $cache->expire < time() && !$options['ignoreExpiration']) {
 			$ds->destroy($cache);
+		} else if($cache && isset($cache->data)) {
+			$return = unserialize($cache->data);
+		}
 		return $return;
 	} // end function get
 
