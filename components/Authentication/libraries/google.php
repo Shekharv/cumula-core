@@ -21,7 +21,7 @@ class googleAuthentication extends Authentication implements CumulaAuth
     require 'lightopenid/openid.php';
     try 
     {
-      $openid = new LightOpenID;
+      $openid = new LightOpenID();
       
       if(!$openid->mode) 
       {
@@ -30,9 +30,9 @@ class googleAuthentication extends Authentication implements CumulaAuth
       } elseif($openid->mode == 'cancel') {
         $this->response['msg'] = 'User has canceled authentication!';
       } else {
-        $this->response['msg'] = 'User ' . ($openid->validate() ? $openid->identity . ' has ' : 'has not ') . 'logged in.';
-        $this->response['id'] = $openid->identity;
         $this->success = $openid->validate();
+        $this->response['msg'] = 'User ' . ($this->success() ? $openid->identity . ' has ' : 'has not ') . 'logged in.';
+        $this->response['id'] = $openid->identity;
       }
     } 
     catch(ErrorException $e) 
